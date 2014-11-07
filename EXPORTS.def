@@ -1,0 +1,23 @@
+EXPORTS
+    Supports
+    Load
+    Unload
+    AmxLoad
+    AmxUnload
+    ProcessTick
+    OnPlayerEnterCheckpoint
+    OnPlayerLeaveCheckpoint
+    OnPlayerEnterRaceCheckpoint
+    OnPlayerLeaveRaceCheckpoint
+    OnPlayerPickUpPickup
+    OnPlayerEditObject
+    OnPlayerSelectObject
+    OnPlayerWeaponShot
+    OnGameModeInit
+    OnPlayerSpawn
+    OnPlayerCommandText
+    OnDialogResponse
+    OnPlayerClickPlayer
+    OnPlayerText
+    OnPlayerUpdate
+    
