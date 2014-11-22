@@ -14,36 +14,36 @@
  * limitations under the License.
  */
 
-#include <mongo/client/dbclient.h>
+#pragma once
 
-#include "Internal/easylogging++.h"
-#include "Internal/EncodingUtility.hpp"
-#include "Internal/StringFuncUtil.hpp"
-#include "Internal/Config.hpp"
+#include <unordered_map>
+#include <memory>
+
+#include "../Player/Player.hpp"
  
-/********** Mongo Exception Handler Wrapper **********/
-
-#define MONGO_WRAPPER(x) \
-    try \
-    { \
-        x \
-    } \
-    catch (const mongo::DBException &e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (const std::exception& e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (...) \
-    { \
-        LOG(ERROR) << "Unknown error."; \
-    } \
-    do {} while (false)
-
 namespace swcu {
 
-mongo::DBClientConnection* getDBConn();
+class Game
+{
+protected:
+    std::unordered_map<int, std::unique_ptr<Player>>    mPlayers;
+
+protected:
+                    Game() {}
+
+public:
+    virtual         ~Game() {}
+
+    static  Game&   get()
+    {
+        static Game gameIns;
+        return gameIns;
+    }
+
+    virtual bool    addPlayer(int playerid);
+    virtual bool    removePlayer(int playerid);
+    virtual bool    hasPlayer(int playerid);
+    virtual Player* getPlayer(int playerid);
+};
 
 }

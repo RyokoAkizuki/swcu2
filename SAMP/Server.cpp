@@ -25,7 +25,9 @@
 #include <sampgdk/core.h>
 #include <sampgdk/sdk.h>
 
+#include "../Common/Common.hpp"
 #include "../Streamer/Streamer.hpp"
+#include "../Game/Game.hpp"
 
 /** ~~ Streamer Only ~~ **/
 
@@ -90,12 +92,29 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
 {
     Streamer_OnPlayerConnect(playerid);
+    if(swcu::Game::get().addPlayer(playerid))
+    {
+        LOG(INFO) << "Player connected. ID = " << playerid;
+    }
+    else
+    {
+        LOG(ERROR) << "Addition of player to Game instance failed.";
+    }
     return true;
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
 {
     Streamer_OnPlayerDisconnect(playerid, reason);
+    if(swcu::Game::get().removePlayer(playerid))
+    {
+        LOG(INFO) << "Player disconnected. ID = " << playerid <<
+        ", Reason = " << reason;
+    }
+    else
+    {
+        LOG(ERROR) << "Removal of player from Game instance failed.";
+    }
     return true;
 }
 
@@ -109,22 +128,32 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
     return true;
 }
 
-PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid, const char *cmdtext)
+PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
+    const char *cmdtext)
 {
     return false;
 }
 
-PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid, int response, int listitem, const char * inputtext)
+PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid,
+    int response, int listitem, const char * inputtext)
+{
+    swcu::Player *player = swcu::Game::get().getPlayer(playerid);
+    if(player != nullptr)
+    {
+        return player->handleDialogCallback(playerid, dialogid, response,
+            listitem, inputtext);
+    }
+    return true;
+}
+
+PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
+    int clickedplayerid, int source)
 {
     return true;
 }
 
-PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid, int clickedplayerid, int source)
-{
-    return true;
-}
-
-PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid, const char * text)
+PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid,
+    const char * text)
 {
     return true;
 }

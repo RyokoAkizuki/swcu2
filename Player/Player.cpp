@@ -18,8 +18,6 @@
 
 namespace swcu {
 
-const std::string gColNamePlayer = "swcu2.playerprofile";
-
 Player::Player(int gameid) :
     mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
     mJoinTime(0), mGameTime(0), mRegistered(false),
@@ -42,7 +40,7 @@ bool Player::createProfile(const std::string& password)
     std::string tPasswordHash   = sha1(password);
     MONGO_WRAPPER({
         getDBConn()->insert(
-            gColNamePlayer,
+            Config::colNamePlayer,
             BSON(
                 "_id"           << tId                  <<
                 "logname"       << GBKToUTF8(mLogName)  <<
@@ -85,7 +83,7 @@ bool Player::saveProfile()
     time_t now = time(0);
     MONGO_WRAPPER({
         getDBConn()->update(
-            gColNamePlayer,
+            Config::colNamePlayer,
             QUERY("_id" << mId),
             BSON("$inc" << BSON("gametime" << now - mTimeEnteredServer))
         );
@@ -106,7 +104,7 @@ bool Player::loadProfile()
 {
     MONGO_WRAPPER({
         auto doc = getDBConn()->findOne(
-            gColNamePlayer,
+            Config::colNamePlayer,
             /**
              * WARNING: DO NOT use mId field here since it won't be inited
              * in constructor.
@@ -223,6 +221,40 @@ bool Player::setAdminLevel(int level)
         return true;
     }
     return false;
+}
+
+void Player::pushDialog(std::unique_ptr<Dialog> dlg)
+{
+    mDialogStack.push(std::move(dlg));
+    mDialogStack.top()->display();
+}
+
+bool Player::handleDialogCallback(int playerid, int dialogid,
+    int response, int listitem, const std::string &inputtext)
+{
+    if(mDialogStack.size() == 0)
+    {
+        LOG(ERROR) << "Dialog callback is called while dialog stack"
+            " is empty.";
+        return false;
+    }
+    auto &dlg = mDialogStack.top();
+    if(dlg->getIdentity() != dialogid)
+    {
+        LOG(ERROR) << "The dialog ID which the callback used is different"
+            " from whose on stack's top. Will pop it.";
+        mDialogStack.pop();
+        if(mDialogStack.size() > 0)
+        {
+            mDialogStack.top()->display();
+        }
+        return false;
+    }
+    else
+    {
+        return dlg->handleCallback(playerid, dialogid, response, listitem,
+            inputtext);
+    }
 }
 
 void Player::_loadProfile(const mongo::BSONObj& doc)

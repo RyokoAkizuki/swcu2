@@ -14,36 +14,19 @@
  * limitations under the License.
  */
 
-#include <mongo/client/dbclient.h>
+#pragma once
 
-#include "Internal/easylogging++.h"
-#include "Internal/EncodingUtility.hpp"
-#include "Internal/StringFuncUtil.hpp"
-#include "Internal/Config.hpp"
- 
-/********** Mongo Exception Handler Wrapper **********/
-
-#define MONGO_WRAPPER(x) \
-    try \
-    { \
-        x \
-    } \
-    catch (const mongo::DBException &e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (const std::exception& e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (...) \
-    { \
-        LOG(ERROR) << "Unknown error."; \
-    } \
-    do {} while (false)
+#include <string>
 
 namespace swcu {
 
-mongo::DBClientConnection* getDBConn();
+struct Config
+{
+    static std::string dbHost;
+    static std::string colNameMap;
+    static std::string colNameMapObject;
+    static std::string colNameMapVehicle;
+    static std::string colNamePlayer;
+};
 
 }

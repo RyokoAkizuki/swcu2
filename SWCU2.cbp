@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="SWCU2" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="Bin/Debug/SWCU2" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="EXPORTS.def" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="Bin/Release/SWCU2" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-pedantic" />
+			<Add option="-std=c++11" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-m32" />
+			<Add option="-fPIC" />
+		</Compiler>
+		<Linker>
+			<Add option="-m32" />
+			<Add option="-lsampgdk" />
+			<Add option="-pthread" />
+			<Add option="-lmongoclient" />
+			<Add option="-lboost_thread" />
+			<Add option="-lboost_filesystem" />
+			<Add option="-lboost_program_options" />
+			<Add option="-lboost_system" />
+			<Add option="-lboost_chrono" />
+		</Linker>
+		<Unit filename="Common/Common.cpp" />
+		<Unit filename="Common/Common.hpp" />
+		<Unit filename="Common/Internal/Config.cpp" />
+		<Unit filename="Common/Internal/Config.hpp" />
+		<Unit filename="Common/Internal/EncodingUtility.cpp" />
+		<Unit filename="Common/Internal/EncodingUtility.hpp" />
+		<Unit filename="Common/Internal/LoggerInit.cpp" />
+		<Unit filename="Common/Internal/StringFuncUtil.cpp" />
+		<Unit filename="Common/Internal/StringFuncUtil.hpp" />
+		<Unit filename="Common/Internal/easylogging++.h" />
+		<Unit filename="Common/Internal/sha1.cpp" />
+		<Unit filename="Common/Internal/sha1.h" />
+		<Unit filename="Game/Game.cpp" />
+		<Unit filename="Game/Game.hpp" />
+		<Unit filename="Interface/Dialog.cpp" />
+		<Unit filename="Interface/Dialog.hpp" />
+		<Unit filename="Map/Items.cpp" />
+		<Unit filename="Map/Items.hpp" />
+		<Unit filename="Map/WorldManager.cpp" />
+		<Unit filename="Map/WorldManager.hpp" />
+		<Unit filename="Player/Player.cpp" />
+		<Unit filename="Player/Player.hpp" />
+		<Unit filename="SAMP/Server.cpp" />
+		<Unit filename="Streamer/Internal/src/callbacks.cpp" />
+		<Unit filename="Streamer/Internal/src/callbacks.hpp" />
+		<Unit filename="Streamer/Internal/src/cell.cpp" />
+		<Unit filename="Streamer/Internal/src/cell.h" />
+		<Unit filename="Streamer/Internal/src/common.h" />
+		<Unit filename="Streamer/Internal/src/core.cpp" />
+		<Unit filename="Streamer/Internal/src/core.h" />
+		<Unit filename="Streamer/Internal/src/data.cpp" />
+		<Unit filename="Streamer/Internal/src/data.h" />
+		<Unit filename="Streamer/Internal/src/grid.cpp" />
+		<Unit filename="Streamer/Internal/src/grid.h" />
+		<Unit filename="Streamer/Internal/src/identifier.cpp" />
+		<Unit filename="Streamer/Internal/src/identifier.h" />
+		<Unit filename="Streamer/Internal/src/item.cpp" />
+		<Unit filename="Streamer/Internal/src/item.h" />
+		<Unit filename="Streamer/Internal/src/main.cpp" />
+		<Unit filename="Streamer/Internal/src/main.h" />
+		<Unit filename="Streamer/Internal/src/natives.h" />
+		<Unit filename="Streamer/Internal/src/natives/areas.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/checkpoints.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/map-icons.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/objects.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/pickups.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/race-checkpoints.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/settings.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/text-labels.cpp" />
+		<Unit filename="Streamer/Internal/src/natives/updates.cpp" />
+		<Unit filename="Streamer/Internal/src/player.cpp" />
+		<Unit filename="Streamer/Internal/src/player.h" />
+		<Unit filename="Streamer/Internal/src/streamer.cpp" />
+		<Unit filename="Streamer/Internal/src/streamer.h" />
+		<Unit filename="Streamer/Internal/src/utility.cpp" />
+		<Unit filename="Streamer/Internal/src/utility.h" />
+		<Unit filename="Streamer/Streamer.hpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

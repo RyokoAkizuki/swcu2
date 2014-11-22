@@ -20,15 +20,11 @@
 
 namespace swcu {
 
-const std::string gColNameMap = "swcu2.map";
-const std::string gColNameMapObject = "swcu2.map.object";
-const std::string gColNameMapVehicle = "swcu2.map.vehicle";
-
 bool WorldManager::loadMap(const mongo::OID& id)
 {
     MONGO_WRAPPER({
         auto map = getDBConn()->findOne(
-            gColNameMap,
+            Config::colNameMap,
             QUERY("_id" << id)
         );
         if(map.isEmpty())
@@ -85,7 +81,7 @@ size_t WorldManager::loadAllMaps()
         size_t count = 0;
         mongo::BSONObj retField = BSON("_id" << 1);
         auto cur = getDBConn()->query(
-            gColNameMap,
+            Config::colNameMap,
             QUERY("activated" << true),
             0, 0,
             &retField
@@ -130,7 +126,7 @@ bool WorldManager::_loadMap(const mongo::OID& mapId)
     MONGO_WRAPPER({
         {
             auto cur = getDBConn()->query(
-                gColNameMapObject,
+                Config::colNameMapObject,
                 QUERY("parentmap" << mapId)
             );
             while(cur->more())
@@ -157,7 +153,7 @@ bool WorldManager::_loadMap(const mongo::OID& mapId)
 
         {
             auto cur = getDBConn()->query(
-                gColNameMapVehicle,
+                Config::colNameMapVehicle,
                 QUERY("parentmap" << mapId)
             );
             while(cur->more())

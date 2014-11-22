@@ -14,36 +14,37 @@
  * limitations under the License.
  */
 
-#include <mongo/client/dbclient.h>
-
-#include "Internal/easylogging++.h"
-#include "Internal/EncodingUtility.hpp"
-#include "Internal/StringFuncUtil.hpp"
-#include "Internal/Config.hpp"
- 
-/********** Mongo Exception Handler Wrapper **********/
-
-#define MONGO_WRAPPER(x) \
-    try \
-    { \
-        x \
-    } \
-    catch (const mongo::DBException &e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (const std::exception& e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (...) \
-    { \
-        LOG(ERROR) << "Unknown error."; \
-    } \
-    do {} while (false)
+#include "Game.hpp"
 
 namespace swcu {
 
-mongo::DBClientConnection* getDBConn();
+bool Game::addPlayer(int playerid)
+{
+    return mPlayers.insert(std::make_pair(playerid,
+        std::move(std::unique_ptr<Player>(new Player(playerid))))).second;
+}
+
+bool Game::removePlayer(int playerid)
+{
+    return mPlayers.erase(playerid) > 0;
+}
+
+bool Game::hasPlayer(int playerid)
+{
+    return mPlayers.count(playerid) > 0;
+}
+
+Player* Game::getPlayer(int playerid)
+{
+    auto iter = mPlayers.find(playerid);
+    if(iter == mPlayers.end())
+    {
+        return nullptr;
+    }
+    else
+    {
+        return iter->second.get();
+    }
+}
 
 }

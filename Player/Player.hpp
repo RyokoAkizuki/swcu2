@@ -16,11 +16,13 @@
 
 #pragma once
 
+#include <stack>
+#include <memory>
+
 #include "../Common/Common.hpp"
+#include "../Interface/Dialog.hpp"
 
 namespace swcu {
-
-extern const std::string gColNamePlayer;
 
 enum PlayerFlags
 {
@@ -60,7 +62,8 @@ protected:
     /**
      * Dialog stack.
      */
-    //std::stack<Dialog>  mDialogStack;
+    std::stack<std::unique_ptr<Dialog>>
+                        mDialogStack;
 
     /**
      * Houses, Weapons, Vehicles, etc.
@@ -174,6 +177,11 @@ public:
 
             bool        setAdminLevel(int level);
 
+            void        pushDialog(std::unique_ptr<Dialog> dlg);
+
+            bool        handleDialogCallback(int playerid, int dialogid,
+        int response, int listitem, const std::string &inputtext);
+
 protected:
 
             void        _loadProfile(const mongo::BSONObj& doc);
@@ -190,7 +198,7 @@ protected:
         }
         MONGO_WRAPPER({
             getDBConn()->update(
-                gColNamePlayer,
+                Config::colNamePlayer,
                 BSON("_id" << mId),
                 BSON(operation << BSON(fieldname << value))
                 );

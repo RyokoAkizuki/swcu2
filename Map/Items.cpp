@@ -23,9 +23,6 @@
 
 namespace swcu {
 
-extern const std::string gColNameMapObject;
-extern const std::string gColNameMapVehicle;
-
 Object::Object(
     int model, float x, float y, float z,
     float rx, float ry, float rz, int world, int interior,
@@ -46,7 +43,7 @@ bool Object::save()
     MONGO_WRAPPER({
         mongo::OID id = mID.isSet() ? mID : mongo::OID::gen();
         getDBConn()->update(
-            gColNameMapObject,
+            Config::colNameMapObject,
             QUERY("_id" << id),
             BSON("$set" << BSON(
                 "_id"       << id <<
@@ -78,7 +75,7 @@ bool Object::setOwner(const mongo::OID& owner)
     }
     MONGO_WRAPPER({
         getDBConn()->update(
-            gColNameMapObject,
+            Config::colNameMapObject,
             QUERY("_id" << mID),
             BSON("$set" << BSON(
                 "owner" << owner
@@ -135,7 +132,7 @@ bool Vehicle::save()
     MONGO_WRAPPER({
         mongo::OID id = mID.isSet() ? mID : mongo::OID::gen();
         getDBConn()->update(
-            gColNameMapVehicle,
+            Config::colNameMapVehicle,
             QUERY("_id" << id),
             BSON("$set" << BSON(
                 "_id"           << id <<
@@ -170,7 +167,7 @@ bool Vehicle::setOwner(const mongo::OID& owner)
     }
     MONGO_WRAPPER({
         getDBConn()->update(
-            gColNameMapVehicle,
+            Config::colNameMapVehicle,
             QUERY("_id" << mID),
             BSON("$set" << BSON(
                 "owner" << owner

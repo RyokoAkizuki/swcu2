@@ -14,36 +14,29 @@
  * limitations under the License.
  */
 
-#include <mongo/client/dbclient.h>
-
-#include "Internal/easylogging++.h"
-#include "Internal/EncodingUtility.hpp"
-#include "Internal/StringFuncUtil.hpp"
-#include "Internal/Config.hpp"
- 
-/********** Mongo Exception Handler Wrapper **********/
-
-#define MONGO_WRAPPER(x) \
-    try \
-    { \
-        x \
-    } \
-    catch (const mongo::DBException &e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (const std::exception& e) \
-    { \
-        LOG(ERROR) << e.what(); \
-    } \
-    catch (...) \
-    { \
-        LOG(ERROR) << "Unknown error."; \
-    } \
-    do {} while (false)
+#include "Common.hpp"
 
 namespace swcu {
 
-mongo::DBClientConnection* getDBConn();
+class MongoDBInitializer
+{
+public:
+    mongo::DBClientConnection   mConn;
+
+public:
+    MongoDBInitializer() : mConn(true)
+    {
+        MONGO_WRAPPER({
+            mConn.connect(Config::dbHost);
+            LOG(INFO) << "Connected to " << Config::dbHost;
+        });
+    }
+};
+
+mongo::DBClientConnection* getDBConn()
+{
+    static MongoDBInitializer db;
+    return &db.mConn;
+}
 
 }
