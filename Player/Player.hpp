@@ -16,11 +16,7 @@
 
 #pragma once
 
-#include <stack>
-#include <memory>
-
 #include "../Common/Common.hpp"
-#include "../Interface/Dialog.hpp"
 
 namespace swcu {
 
@@ -58,12 +54,6 @@ protected:
     int                 mInGameId;
     int64_t             mTimeEnteredServer;
     bool                mLoggedIn;
-
-    /**
-     * Dialog stack.
-     */
-    std::stack<std::unique_ptr<Dialog>>
-                        mDialogStack;
 
     /**
      * Houses, Weapons, Vehicles, etc.
@@ -176,11 +166,6 @@ public:
             { return mAdminLevel; }
 
             bool        setAdminLevel(int level);
-
-            void        pushDialog(std::unique_ptr<Dialog> dlg);
-
-            bool        handleDialogCallback(int playerid, int dialogid,
-        int response, int listitem, const std::string &inputtext);
 
 protected:
 

@@ -16,11 +16,9 @@
 
 #pragma once
 
-#include <sampgdk/a_samp.h>
-#include <stack>
-#include <sstream>
 #include <functional>
 #include <vector>
+#include <sampgdk/a_samp.h>
 
 namespace swcu {
 
@@ -28,58 +26,103 @@ class Dialog
 {
 protected:
     int             mPlayerId;
-    int             mId;
-
-    static int      sLastId;
+    std::string     mTitle;
 
 public:
-                    Dialog(int playerid);
+                    Dialog(
+                        int playerid,
+                        const std::string &title
+                    ) : mPlayerId(playerid), mTitle(title) {}
     virtual         ~Dialog() {}
 
-            int     getIdentity();
     virtual bool    display() = 0;
-    virtual bool    handleCallback(int playerid, int dialogid,
-        int response, int listitem, const std::string &inputtext) = 0;
+    /**
+     * The return value indicates whether the action is completed
+     * and the dialog can pop from the stack.
+     */
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext) = 0;
 };
 
-class MessageDialog : public Dialog
+enum DialogType
+{
+    DIALOG_TYPE_MESSAGE,
+    DIALOG_TYPE_CONFIRM,
+    DIALOG_TYPE_INPUT,
+    DIALOG_TYPE_INPUT_MASKED,
+    DIALOG_TYPE_LIST,
+    DIALOG_TYPE_RADIOLIST,
+    DIALOG_TYPE_CHECKLIST
+};
+
+template<DialogType Type, bool AcceptInput, bool MaskedInput>
+class InfoDialog : public Dialog
 {
 protected:
-    std::string     mTitle, mMessage, mBtn1, mBtn2;
-    bool            mInput, mMasked;
+    std::string     mMessage;
 
 public:
-                    MessageDialog(
-        int playerid, const std::string &title,
-        const std::string &msg, const std::string &btn1,
-        const std::string &btn2, bool acceptInput = false,
-        bool maskedInput = false);
-    virtual         ~MessageDialog() {}
-    virtual bool    display();
-    virtual bool    handleCallback(int playerid, int dialogid,
-        int response, int listitem, const std::string &inputtext);
+                    InfoDialog(
+                        int playerid,
+                        const std::string &title,
+                        const std::string &msg
+                    ) :
+        Dialog(playerid, title), mMessage(msg) {}
+
+    virtual         ~InfoDialog() {}
+
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext)
+    {
+        return true;
+    }
+
+    virtual bool    display()
+    {
+        const char *btn1, *btn2;
+        switch(Type)
+        {
+        case DIALOG_TYPE_MESSAGE:
+            btn1 = "OK";
+            btn2 = "";
+            break;
+        case DIALOG_TYPE_CONFIRM:
+            btn1 = "Yes";
+            btn2 = "No";
+            break;
+        case DIALOG_TYPE_INPUT:
+        case DIALOG_TYPE_INPUT_MASKED:
+            btn1 = "OK";
+            btn2 = "Cancel";
+            break;
+        default:
+            btn1 = "undef";
+            btn2 = "undef";
+        }
+        int style;
+        if(AcceptInput == true)
+        {
+            if(MaskedInput == true)
+            {
+                style = DIALOG_STYLE_PASSWORD;
+            }
+            else
+            {
+                style = DIALOG_STYLE_INPUT;
+            }
+        }
+        else
+        {
+            style = DIALOG_STYLE_MSGBOX;
+        }
+        return ShowPlayerDialog(mPlayerId, 0, style, mTitle.c_str(),
+            mMessage.c_str(), btn1, btn2) != 0;
+    }
 };
 
-class ListDialog : public Dialog
-{
-protected:
-    std::string     mTitle, mBtn1, mBtn2;
-
-    typedef         std::function<bool(bool)>               ItemCallback;
-    typedef         std::pair<std::string, ItemCallback>    Item;
-    typedef         std::vector<Item>                       ItemList;
-
-    ItemList        mItemList;
-
-public:
-                    ListDialog(
-        int playerid, const std::string &title,
-        const std::string &btn1, const std::string &btn2);
-    virtual         ~ListDialog() {}
-    virtual void    addItem(const std::string &title, ItemCallback cb);
-    virtual bool    display();
-    virtual bool    handleCallback(int playerid, int dialogid,
-        int response, int listitem, const std::string &inputtext);
-};
+typedef InfoDialog<DIALOG_TYPE_MESSAGE, false, false>   MessageDialog;
+typedef InfoDialog<DIALOG_TYPE_CONFIRM, false, false>   ConfirmDialog;
+typedef InfoDialog<DIALOG_TYPE_INPUT, true, false>      InputDialog;
+typedef InfoDialog<DIALOG_TYPE_INPUT_MASKED, true, true>MaskedInputDialog;
 
 }

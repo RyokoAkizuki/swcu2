@@ -28,6 +28,9 @@
 #include "../Common/Common.hpp"
 #include "../Streamer/Streamer.hpp"
 #include "../Game/Game.hpp"
+#include "../Interface/DialogManager.hpp"
+
+#include "TestDialog.hpp"
 
 /** ~~ Streamer Only ~~ **/
 
@@ -100,6 +103,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
     {
         LOG(ERROR) << "Addition of player to Game instance failed.";
     }
+    swcu::DialogManager::get().push<swcu::TestMessageDialog>(playerid);
     return true;
 }
 
@@ -137,12 +141,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
 PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid,
     int response, int listitem, const char * inputtext)
 {
-    swcu::Player *player = swcu::Game::get().getPlayer(playerid);
-    if(player != nullptr)
-    {
-        return player->handleDialogCallback(playerid, dialogid, response,
-            listitem, inputtext);
-    }
+    swcu::DialogManager::get().handleCallback(playerid, dialogid, response,
+        listitem, inputtext);
     return true;
 }
 

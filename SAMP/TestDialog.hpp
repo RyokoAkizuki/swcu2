@@ -14,12 +14,31 @@
  * limitations under the License.
  */
 
-#include <sstream>
+#pragma once
 
-#include "Dialog.hpp"
+#include "../Interface/Dialog.hpp"
 
 namespace swcu {
 
+class TestMessageDialog : public MessageDialog
+{
+public:
+                    TestMessageDialog(int playerid) :
+        InfoDialog(
+            playerid,
+            "Welcome to SWCU SA-MP server!",
+            "This is a test message."
+            )
+    {}
 
+    virtual         ~TestMessageDialog() {}
+
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext)
+    {
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, ":3");
+        return true;
+    }
+};
 
 }

@@ -223,40 +223,6 @@ bool Player::setAdminLevel(int level)
     return false;
 }
 
-void Player::pushDialog(std::unique_ptr<Dialog> dlg)
-{
-    mDialogStack.push(std::move(dlg));
-    mDialogStack.top()->display();
-}
-
-bool Player::handleDialogCallback(int playerid, int dialogid,
-    int response, int listitem, const std::string &inputtext)
-{
-    if(mDialogStack.size() == 0)
-    {
-        LOG(ERROR) << "Dialog callback is called while dialog stack"
-            " is empty.";
-        return false;
-    }
-    auto &dlg = mDialogStack.top();
-    if(dlg->getIdentity() != dialogid)
-    {
-        LOG(ERROR) << "The dialog ID which the callback used is different"
-            " from whose on stack's top. Will pop it.";
-        mDialogStack.pop();
-        if(mDialogStack.size() > 0)
-        {
-            mDialogStack.top()->display();
-        }
-        return false;
-    }
-    else
-    {
-        return dlg->handleCallback(playerid, dialogid, response, listitem,
-            inputtext);
-    }
-}
-
 void Player::_loadProfile(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
