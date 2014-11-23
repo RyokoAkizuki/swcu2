@@ -20,6 +20,8 @@
 #include <vector>
 #include <sampgdk/a_samp.h>
 
+#include "../Common/Common.hpp"
+
 namespace swcu {
 
 class Dialog
@@ -71,12 +73,6 @@ public:
 
     virtual         ~InfoDialog() {}
 
-    virtual bool    handleCallback(
-        bool response, int listitem, const std::string &inputtext)
-    {
-        return true;
-    }
-
     virtual bool    display()
     {
         const char *btn1, *btn2;
@@ -93,7 +89,7 @@ public:
         case DIALOG_TYPE_INPUT:
         case DIALOG_TYPE_INPUT_MASKED:
             btn1 = "OK";
-            btn2 = "Cancel";
+            btn2 = "Back";
             break;
         default:
             btn1 = "undef";
@@ -124,5 +120,147 @@ typedef InfoDialog<DIALOG_TYPE_MESSAGE, false, false>   MessageDialog;
 typedef InfoDialog<DIALOG_TYPE_CONFIRM, false, false>   ConfirmDialog;
 typedef InfoDialog<DIALOG_TYPE_INPUT, true, false>      InputDialog;
 typedef InfoDialog<DIALOG_TYPE_INPUT_MASKED, true, true>MaskedInputDialog;
+
+class MenuDialog : public Dialog
+{
+protected:
+    typedef std::function<bool()>   Functor;
+
+    struct Item
+    {
+        std::string                 title;
+        Functor                     callback;
+    };
+
+    std::vector<Item>               mItemList;
+
+public:
+                    MenuDialog(
+                        int playerid,
+                        const std::string &title
+                    );
+
+    virtual         ~MenuDialog() {}
+
+            void    addItem(const std::string &title,
+                const Functor& callback);
+    virtual bool    display();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
+template<typename KeyType>
+class RadioListDialog : public Dialog
+{
+protected:
+    struct Item
+    {
+        KeyType                     key;
+        std::string                 title;
+    };
+
+    std::vector<Item>               mItemList;
+    size_t                          mSelected;
+
+public:
+                    RadioListDialog(
+                        int playerid,
+                        const std::string &title
+                    ) : Dialog(playerid, title), mSelected(-1) {}
+
+    virtual         ~RadioListDialog() {}
+
+    /**
+     * The "active" parameter will overwrite the old selected flag.
+     */
+            void    addItem(KeyType key, const std::string &title,
+        bool active = false)
+    {
+        mItemList.push_back({key, title});
+        if(active)
+        {
+            mSelected = mItemList.size() - 1;
+        }
+    }
+
+            void    setActiveItem(size_t index)
+    {
+        if(index <= mItemList.size() - 1)
+        {
+            mSelected = index;
+        }
+        else
+        {
+            LOG(ERROR) << "setActiveItem: index > mItemList.size()";
+        }
+    }
+
+    virtual bool    display()
+    {
+        std::stringstream serial;
+        for(size_t i = 0; i < mItemList.size(); ++i)
+        {
+            serial << ((i == mSelected) ? "* " : "  ")
+                << mItemList[i].title << "\n";
+        }
+        return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST,
+            mTitle.c_str(), serial.str().c_str(), "OK", "Back");
+    }
+
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext)
+    {
+        if(!response)
+        {
+            return true;
+        }
+        if(listitem > mItemList.size() - 1)
+        {
+            LOG(ERROR) << "listitem > mItemList.size()";
+            return false;
+        }
+        bool changeStatus = process(mItemList[listitem].key);
+        if(changeStatus)
+        {
+            mSelected = listitem;
+        }
+        return false;
+    }
+
+    /**
+     * Return a bool that is indicating whether the mSelected can be
+     * changed as well as whether the action is successfully performed.
+     */
+    virtual bool    process(KeyType key) = 0;
+};
+
+class CheckListDialog : public Dialog
+{
+protected:
+    typedef std::function<bool()>   Functor;
+
+    struct Item
+    {
+        std::string                 title;
+        Functor                     statusChecker;
+        Functor                     statusToggler;
+    };
+
+    std::vector<Item>               mItemList;
+
+public:
+                    CheckListDialog(
+                        int playerid,
+                        const std::string &title
+                    );
+
+    virtual         ~CheckListDialog() {}
+
+            void    addItem(const std::string &title,
+                const Functor &checker, const Functor &toggler);
+    virtual bool    display();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
 
 }

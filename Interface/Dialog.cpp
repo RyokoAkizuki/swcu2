@@ -20,6 +20,78 @@
 
 namespace swcu {
 
+MenuDialog::MenuDialog(int playerid, const std::string &title) :
+    Dialog(playerid, title)
+{
+}
 
+void MenuDialog::addItem(const std::string &title, const Functor& callback)
+{
+    mItemList.push_back({title, callback});
+}
+
+bool MenuDialog::display()
+{
+    std::stringstream serial;
+    for(auto &i : mItemList)
+    {
+        serial << "  " << i.title << "\n";
+    }
+    return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST, mTitle.c_str(),
+        serial.str().c_str(), "OK", "Back");
+}
+
+bool MenuDialog::handleCallback(bool response, int listitem,
+    const std::string &inputtext)
+{
+    if(!response)
+    {
+        return true;
+    }
+    if(listitem > mItemList.size() - 1)
+    {
+        LOG(ERROR) << "listitem > mItemList.size()";
+        return false;
+    }
+    return mItemList[listitem].callback();
+}
+
+CheckListDialog::CheckListDialog(int playerid, const std::string &title) :
+    Dialog(playerid, title)
+{
+}
+
+void CheckListDialog::addItem(const std::string &title,
+    const Functor &checker, const Functor &toggler)
+{
+    mItemList.push_back({title, checker, toggler});
+}
+
+bool CheckListDialog::display()
+{
+    std::stringstream serial;
+    for(auto &i : mItemList)
+    {
+        serial << (i.statusChecker() ? "+ " : "  ") << i.title << "\n";
+    }
+    return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST, mTitle.c_str(),
+        serial.str().c_str(), "Toggle", "Back");
+}
+
+bool CheckListDialog::handleCallback(bool response, int listitem,
+    const std::string &inputtext)
+{
+    if(!response)
+    {
+        return true;
+    }
+    if(listitem > mItemList.size() - 1)
+    {
+        LOG(ERROR) << "listitem > mItemList.size()";
+        return false;
+    }
+    mItemList[listitem].statusToggler();
+    return false;
+}
 
 }

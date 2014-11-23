@@ -41,4 +41,61 @@ public:
     }
 };
 
+class TestRadioDialog : public RadioListDialog<std::string>
+{
+public:
+                    TestRadioDialog(int playerid) :
+        RadioListDialog(
+            playerid,
+            "Radio List Dialog Test"
+            )
+    {
+        addItem("a", "Morning");
+        addItem("b", "Afternoon");
+        addItem("c", "Night", true);
+        addItem("d", "Midnight");
+    }
+
+    virtual bool    process(std::string key)
+    {
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, key.c_str());
+        return (key != "d");
+    }
+};
+
+class TestCheckDialog : public CheckListDialog
+{
+private:
+    bool    mGodMod, mFly, mUnlimitedAmmo, mSuperRun;
+public:
+                    TestCheckDialog(int playerid) :
+        CheckListDialog(
+            playerid,
+            "Check List Dialog Test"
+            ),
+        mGodMod(false), mFly(true), mUnlimitedAmmo(false), mSuperRun(true)
+    {
+        addItem(
+            "God Mod",
+            [this]() { return mGodMod; },
+            [this]() { return false; }
+        );
+        addItem(
+            "Fly",
+            [this]() { return mFly; },
+            [this]() { mFly = !mFly; return true; }
+        );
+        addItem(
+            "Unlimited Ammo",
+            [this]() { return mUnlimitedAmmo; },
+            [this]() { mUnlimitedAmmo = !mUnlimitedAmmo; return true; }
+        );
+        addItem(
+            "Super Run",
+            [this]() { return mSuperRun; },
+            [this]() { mSuperRun = !mSuperRun; return true; }
+        );
+    }
+};
+
 }

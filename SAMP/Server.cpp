@@ -103,7 +103,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
     {
         LOG(ERROR) << "Addition of player to Game instance failed.";
     }
-    swcu::DialogManager::get().push<swcu::TestMessageDialog>(playerid);
+    swcu::DialogManager::get().push<swcu::TestCheckDialog>(playerid);
     return true;
 }
 

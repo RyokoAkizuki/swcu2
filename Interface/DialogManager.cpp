@@ -35,7 +35,8 @@ bool DialogManager::handleCallback(int playerid, int dialogid,
             "such a dialog or the player trigger it is disconnected.";
         return false;
     }
-    if(iter->second.size() == 0)
+    size_t size = iter->second.size();
+    if(size == 0)
     {
         LOG(ERROR) << "A dialog callback is called while the player's "
             "dialog stack is empty";
@@ -43,7 +44,12 @@ bool DialogManager::handleCallback(int playerid, int dialogid,
     }
     auto top = iter->second.top().get();
     bool canpop = top->handleCallback(response != 0, listitem, inputtext);
-    if(canpop)
+    /**
+     * If oldSize != newSize after invoking handleCallback,
+     * there must be a new dialog pushed into the stack,
+     * therefore we should not pop the new top.
+     */
+    if(canpop && size == iter->second.size())
     {
         iter->second.pop();
         if(iter->second.size() == 0)
