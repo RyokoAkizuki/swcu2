@@ -1,0 +1,3 @@
+[submodule "Streamer/Internal"]
+	path = Streamer/Internal
+	url = ../samp-streamer-plugin.git
