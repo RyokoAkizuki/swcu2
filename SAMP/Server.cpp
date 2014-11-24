@@ -27,7 +27,7 @@
 
 #include "../Common/Common.hpp"
 #include "../Streamer/Streamer.hpp"
-#include "../Game/Game.hpp"
+#include "../Player/PlayerManager.hpp"
 #include "../Interface/DialogManager.hpp"
 
 #include "TestDialog.hpp"
@@ -95,13 +95,13 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
 {
     Streamer_OnPlayerConnect(playerid);
-    if(swcu::Game::get().addPlayer(playerid))
+    if(swcu::PlayerManager::get().addPlayer(playerid))
     {
         LOG(INFO) << "Player connected. ID = " << playerid;
     }
     else
     {
-        LOG(ERROR) << "Addition of player to Game instance failed.";
+        LOG(ERROR) << "Addition of player to PlayerManager instance failed.";
     }
     swcu::DialogManager::get().push<swcu::TestCheckDialog>(playerid);
     return true;
@@ -110,14 +110,14 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
 {
     Streamer_OnPlayerDisconnect(playerid, reason);
-    if(swcu::Game::get().removePlayer(playerid))
+    if(swcu::PlayerManager::get().removePlayer(playerid))
     {
         LOG(INFO) << "Player disconnected. ID = " << playerid <<
         ", Reason = " << reason;
     }
     else
     {
-        LOG(ERROR) << "Removal of player from Game instance failed.";
+        LOG(ERROR) << "Removal of player from PlayerManager instance failed.";
     }
     return true;
 }

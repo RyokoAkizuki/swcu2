@@ -14,37 +14,36 @@
  * limitations under the License.
  */
 
-#include "Game.hpp"
+#pragma once
 
+#include <unordered_map>
+#include <memory>
+
+#include "Player.hpp"
+ 
 namespace swcu {
 
-bool Game::addPlayer(int playerid)
+class PlayerManager
 {
-    return mPlayers.insert(std::make_pair(playerid,
-        std::move(std::unique_ptr<Player>(new Player(playerid))))).second;
-}
+protected:
+    std::unordered_map<int, std::unique_ptr<Player>>    mPlayers;
 
-bool Game::removePlayer(int playerid)
-{
-    return mPlayers.erase(playerid) > 0;
-}
+protected:
+                            PlayerManager() {}
 
-bool Game::hasPlayer(int playerid)
-{
-    return mPlayers.count(playerid) > 0;
-}
+public:
+    virtual                 ~PlayerManager() {}
 
-Player* Game::getPlayer(int playerid)
-{
-    auto iter = mPlayers.find(playerid);
-    if(iter == mPlayers.end())
+    static  PlayerManager&  get()
     {
-        return nullptr;
+        static PlayerManager i;
+        return i;
     }
-    else
-    {
-        return iter->second.get();
-    }
-}
+
+    virtual bool            addPlayer(int playerid);
+    virtual bool            removePlayer(int playerid);
+    virtual bool            hasPlayer(int playerid);
+    virtual Player*         getPlayer(int playerid);
+};
 
 }
