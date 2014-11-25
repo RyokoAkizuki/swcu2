@@ -40,7 +40,7 @@ public:
         return i;
     }
 
-    virtual bool            addPlayer(int playerid);
+    virtual Player*         addPlayer(int playerid);
     virtual bool            removePlayer(int playerid);
     virtual bool            hasPlayer(int playerid);
     virtual Player*         getPlayer(int playerid);

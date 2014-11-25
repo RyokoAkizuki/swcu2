@@ -28,9 +28,8 @@
 #include "../Common/Common.hpp"
 #include "../Streamer/Streamer.hpp"
 #include "../Player/PlayerManager.hpp"
+#include "../Player/PlayerDialogs.hpp"
 #include "../Interface/DialogManager.hpp"
-
-#include "TestDialog.hpp"
 
 /** ~~ Streamer Only ~~ **/
 
@@ -95,15 +94,25 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
 {
     Streamer_OnPlayerConnect(playerid);
-    if(swcu::PlayerManager::get().addPlayer(playerid))
+    swcu::Player* p = swcu::PlayerManager::get().addPlayer(playerid);
+    if(p != nullptr)
     {
         LOG(INFO) << "Player connected. ID = " << playerid;
+        if(p->isRegistered())
+        {
+            swcu::DialogManager::get().push
+                <swcu::PlayerLoginDialog>(playerid);
+        }
+        else
+        {
+            swcu::DialogManager::get().push
+                <swcu::PlayerRegisterDialog>(playerid);
+        }
     }
     else
     {
         LOG(ERROR) << "Addition of player to PlayerManager instance failed.";
     }
-    swcu::DialogManager::get().push<swcu::TestCheckDialog>(playerid);
     return true;
 }
 
@@ -149,6 +158,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid,
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
     int clickedplayerid, int source)
 {
+    if(playerid == clickedplayerid)
+    {
+        swcu::DialogManager::get().push
+            <swcu::PlayerEditProfileDialog>(playerid);
+    }
     return true;
 }
 

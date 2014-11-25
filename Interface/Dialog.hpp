@@ -116,10 +116,29 @@ public:
     }
 };
 
-typedef InfoDialog<DIALOG_TYPE_MESSAGE, false, false>   MessageDialog;
+typedef InfoDialog<DIALOG_TYPE_MESSAGE, false, false>   __MessageDialog;
 typedef InfoDialog<DIALOG_TYPE_CONFIRM, false, false>   ConfirmDialog;
 typedef InfoDialog<DIALOG_TYPE_INPUT, true, false>      InputDialog;
 typedef InfoDialog<DIALOG_TYPE_INPUT_MASKED, true, true>MaskedInputDialog;
+
+class MessageDialog : public __MessageDialog
+{
+public:
+                    MessageDialog(
+                        int playerid,
+                        const std::string &title,
+                        const std::string &msg
+                    ) :
+        __MessageDialog(playerid, title, msg) {}
+
+    virtual         ~MessageDialog() {}
+
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext)
+    {
+        return true;
+    }
+};
 
 class MenuDialog : public Dialog
 {

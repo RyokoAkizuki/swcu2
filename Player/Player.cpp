@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <sampgdk/a_players.h>
+
 #include "Player.hpp"
 
 namespace swcu {
@@ -156,6 +158,14 @@ bool Player::removeFlags(PlayerFlags flags)
 
 bool Player::setLogName(const std::string& name)
 {
+    if(name.size() < 3)
+    {
+        return false;
+    }
+    if(SetPlayerName(mInGameId, name.c_str()) != 1)
+    {
+        return false;
+    }
     if(_updateField("$set", "logname", GBKToUTF8(name)))
     {
         LOG(INFO) << "Player " << mLogName << "'s logname is set to "
@@ -168,6 +178,10 @@ bool Player::setLogName(const std::string& name)
 
 bool Player::setNickname(const std::string& name)
 {
+    if(name.size() < 3)
+    {
+        return false;
+    }
     if(_updateField("$set", "nickname", GBKToUTF8(name)))
     {
         LOG(INFO) << "Player " << mLogName << "'s nickname is set to "

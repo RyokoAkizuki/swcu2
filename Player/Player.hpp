@@ -67,7 +67,19 @@ public:
      * ************ Profile ************
      */
 
-    /**getDBConn()
+            mongo::OID  getId() const
+            { return mId;}
+
+            std::string getIdStr() const
+            { return mIdStr; }
+
+            int64_t     getJoinTime() const
+            { return mJoinTime; }
+
+            int64_t     getGameTime() const
+            { return mGameTime; }
+
+    /**
      * As literal meaning.
      * @return True if player is registered.
      *         False if player don't have a profile

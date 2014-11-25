@@ -18,10 +18,18 @@
 
 namespace swcu {
 
-bool PlayerManager::addPlayer(int playerid)
+Player* PlayerManager::addPlayer(int playerid)
 {
-    return mPlayers.insert(std::make_pair(playerid,
-        std::move(std::unique_ptr<Player>(new Player(playerid))))).second;
+    Player *p = new Player(playerid);
+    if(mPlayers.insert(std::make_pair(playerid,
+        std::move(std::unique_ptr<Player>(p)))).second)
+    {
+        return p;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 bool PlayerManager::removePlayer(int playerid)
