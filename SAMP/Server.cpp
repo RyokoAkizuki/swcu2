@@ -128,6 +128,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
     {
         LOG(ERROR) << "Removal of player from PlayerManager instance failed.";
     }
+    swcu::DialogManager::get().clearPlayerStack(playerid);
     return true;
 }
 

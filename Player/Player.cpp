@@ -116,7 +116,8 @@ bool Player::loadProfile()
         if(doc.isEmpty())
         {
             mRegistered = false;
-            LOG(WARNING) << "Player " << mLogName << "'s profile not found.";
+            LOG(WARNING) << "Player " << mLogName << 
+                "'s profile can't be found.";
             return false;
         }
         else

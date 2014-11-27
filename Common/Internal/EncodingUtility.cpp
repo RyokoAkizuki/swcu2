@@ -45,11 +45,15 @@ int convert(char *from_charset, char *to_charset,
     cd = iconv_open(to_charset, from_charset);
     if(cd == 0)
     {
+        LOG(ERROR) << "Can't convert from " << from_charset << " to "
+            << to_charset << ".";
         return -1;
     }
-    memset(outbuf,0,outlen);
+    memset(outbuf, 0, outlen);
     if(iconv(cd, pin, &inlen, pout, &outlen) == -1)
     {
+        LOG(ERROR) << "Convertion from " << from_charset << " to "
+            << to_charset << " failed.";
         return -1;
     }
     iconv_close(cd);
@@ -60,14 +64,14 @@ std::string GBKToUTF8(const std::string& src)
 {
     size_t len = src.size();
     std::unique_ptr<char[]> srcCopy(new char[len]);
-    std::unique_ptr<char[]> dest(new char[len * 2]);
+    std::unique_ptr<char[]> dest(new char[len * 3]);
+    memset(dest.get(), 0, sizeof(dest.get()));
     memcpy(srcCopy.get(), src.c_str(), src.size());
-    int r = convert("GBK", "UTF-8", srcCopy.get(), len, dest.get(), len * 2);
-    std::string retStr(dest.get());
-    if(r != 0)
+    int r = convert("GBK", "UTF-8", srcCopy.get(), len, dest.get(), len * 3);
+    std::string retStr;
+    if(r == 0)
     {
-        LOG(WARNING) << "convert returned " << r << " in GBKToUTF8 when "
-        "src = " << src << " and retStr = " << retStr;
+        retStr = dest.get();
     }
     return retStr;
 }
@@ -77,13 +81,13 @@ std::string UTF8ToGBK(const std::string& src)
     size_t len = src.size();
     std::unique_ptr<char[]> srcCopy(new char[len]);
     std::unique_ptr<char[]> dest(new char[len]);
+    memset(dest.get(), 0, sizeof(dest.get()));
     memcpy(srcCopy.get(), src.c_str(), src.size());
     int r = convert("UTF-8", "GBK", srcCopy.get(), len, dest.get(), len);
-    std::string retStr(dest.get());
-    if(r != 0)
+    std::string retStr;
+    if(r == 0)
     {
-        LOG(WARNING) << "convert returned " << r << " in UTF8ToGBK when "
-        "src = " << src << " and retStr = " << retStr;
+        retStr = dest.get();
     }
     return retStr;
 }
