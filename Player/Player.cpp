@@ -38,6 +38,11 @@ bool Player::createProfile(const std::string& password)
         " because there has one.";
         return false;
     }
+    if(!_validatePassword(password))
+    {
+        LOG(ERROR) << "Entered password doesn't meet requirements.";
+        return false;
+    }
     mongo::OID tId              = mongo::OID::gen();
     std::string tPasswordHash   = sha1(password);
     MONGO_WRAPPER({
