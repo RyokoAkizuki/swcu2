@@ -20,55 +20,48 @@
 #include <stack>
 #include <unordered_map>
 
+#include "../Utility/Singleton.hpp"
+
 #include "Dialog.hpp"
 
 namespace swcu {
 
-class DialogManager
+class DialogManager : public Singleton<DialogManager>
 {
 protected:
     typedef std::unique_ptr<Dialog>                 DialogPtr;
     typedef std::stack<DialogPtr>                   DialogStack;
     typedef std::unordered_map<int, DialogStack>    DialogStackMap;
-    
+
     DialogStackMap                                  mPlayerDialogStacks;
 
-protected:
-                            DialogManager() {}
-
 public:
-    virtual                 ~DialogManager() {}
+    virtual         ~DialogManager() {}
 
-    static  DialogManager&  get()
-    {
-        static DialogManager ins;
-        return ins;
-    }
-
-            void            clearPlayerStack(int playerid);
+            void    clearPlayerStack(int playerid);
 
     template<typename DialogType, typename...Args>
-            void            push(int playerid, Args...args)
+            void    push(int playerid, Args...args)
     {
         DialogType*             playerDialogPtr
             = new DialogType(playerid, std::move(args)...);
         std::unique_ptr<Dialog> playerDialogPtrWrap(playerDialogPtr);
-        
+
         mPlayerDialogStacks[playerid].push(std::move(playerDialogPtrWrap));
         playerDialogPtr->display();
     }
 
     template<typename DialogType>
-            void            push(int playerid)
+            void    push(int playerid)
     {
         DialogType*             playerDialogPtr = new DialogType(playerid);
         std::unique_ptr<Dialog> playerDialogPtrWrap(playerDialogPtr);
-        
+
         mPlayerDialogStacks[playerid].push(std::move(playerDialogPtrWrap));
         playerDialogPtr->display();
     }
 
-            bool            handleCallback(int playerid, int dialogid,
+            bool    handleCallback(int playerid, int dialogid,
         int response, int listitem, const std::string &inputtext);
 };
 

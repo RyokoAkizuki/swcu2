@@ -19,11 +19,13 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "../Utility/Singleton.hpp"
+
 #include "Items.hpp"
 
 namespace swcu {
 
-class WorldManager
+class WorldManager : public Singleton<WorldManager>
 {
 protected:
     typedef std::unordered_map<int, std::shared_ptr<Object>>
@@ -43,7 +45,6 @@ protected:
     */
 
 public:
-                    WorldManager() {}
     virtual         ~WorldManager() {}
 
             bool    loadMap(const mongo::OID& id);

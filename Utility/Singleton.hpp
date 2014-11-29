@@ -16,27 +16,22 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <memory>
-
-#include "../Utility/Singleton.hpp"
-
-#include "Player.hpp"
- 
 namespace swcu {
 
-class PlayerManager : public Singleton<PlayerManager>
+template<typename T>
+class Singleton
 {
 protected:
-    std::unordered_map<int, std::unique_ptr<Player>>    mPlayers;
+                    Singleton() {}
 
 public:
-    virtual         ~PlayerManager() {}
+    virtual         ~Singleton() {}
 
-    virtual Player* addPlayer(int playerid);
-    virtual bool    removePlayer(int playerid);
-    virtual bool    hasPlayer(int playerid);
-    virtual Player* getPlayer(int playerid);
+    static  T&      get()
+    {
+        static T ins;
+        return ins;
+    }
 };
 
 }
