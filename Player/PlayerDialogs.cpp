@@ -19,6 +19,7 @@
 
 #include "PlayerManager.hpp"
 #include "../Interface/DialogManager.hpp"
+#include "../Multilang/Language.hpp"
 
 #include "PlayerDialogs.hpp"
 
@@ -26,9 +27,8 @@ namespace swcu {
 
 PlayerRegisterDialog::PlayerRegisterDialog(int playerid) :
     InputDialog(playerid,
-        "Welcome to SWCU",
-        "Please enter a password to create your profile.\n"
-        "The password must be longer than 6 characters.")
+        t(playerid, DLG_REG_TITLE),
+        t(playerid, DLG_REG_MSG))
 {
 }
 
@@ -37,7 +37,7 @@ bool PlayerRegisterDialog::handleCallback(
 {
     if(!response)
     {
-        mMessage = "You must have a profile to join the game.";
+        mMessage = t(mPlayerId, DLG_REG_MUST_CREATE);
         return false;
     }
     auto p = PlayerManager::get().getPlayer(mPlayerId);
@@ -50,28 +50,27 @@ bool PlayerRegisterDialog::handleCallback(
     if(p->isRegistered())
     {
         SendClientMessage(mPlayerId, 0xFFFFFFFF,
-            "You have a profile and don't have to create a new one.");
+            t(p, DLG_REG_ALREADY_REGISTERED));
         return true;
     }
     if(p->createProfile(inputtext))
     {
         p->setLoggedIn(true);
         SendClientMessage(mPlayerId, 0xFFFFFFFF,
-            "Your profile has been created.");
+            t(p, DLG_REG_SUCCESS));
         return true;
     }
     else
     {
-        mMessage = "Your password is illegal "
-            "or a database error is occurred.\nPlease retry.";
+        mMessage = t(p, DLG_REG_ERR);
         return false;
     }
 }
 
 PlayerLoginDialog::PlayerLoginDialog(int playerid) :
     InputDialog(playerid,
-        "Back to SWCU",
-        "Please enter your password.")
+        t(playerid, DLG_LOG_TITLE),
+        t(playerid, DLG_LOG_MSG))
 {
 }
 
@@ -80,7 +79,7 @@ bool PlayerLoginDialog::handleCallback(
 {
     if(!response)
     {
-        mMessage = "You must login to join the game.";
+        mMessage = t(mPlayerId, DLG_LOG_MUST_LOGIN);
         return false;
     }
     auto p = PlayerManager::get().getPlayer(mPlayerId);
@@ -93,24 +92,24 @@ bool PlayerLoginDialog::handleCallback(
     if(p->isLoggedIn())
     {
         SendClientMessage(mPlayerId, 0xFFFFFFFF,
-            "You've been logged in. You don't have to login twice.");
+            t(p, DLG_LOG_LOG_TWICE));
         return true;
     }
     if(p->verifyPassword(inputtext))
     {
         p->setLoggedIn(true);
-        SendClientMessage(mPlayerId, 0xFFFFFFFF, "You've logged in.");
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, t(p, DLG_LOG_SUCCESS));
         return true;
     }
     else
     {
-        mMessage = "Your password is incorrect. Please retry.";
+        mMessage = t(p, DLG_LOG_BAD_LOGIN);
         return false;
     }
 }
 
 PlayerEditProfileDialog::PlayerEditProfileDialog(int playerid) :
-    MenuDialog(playerid, "My Profile")
+    MenuDialog(playerid, t(playerid, DLG_EDIT_PROF_TITLE))
 {
     auto p = PlayerManager::get().getPlayer(playerid);
     if(p == nullptr)
@@ -121,10 +120,9 @@ PlayerEditProfileDialog::PlayerEditProfileDialog(int playerid) :
     }
     if(!p->isLoggedIn())
     {
-        SendClientMessage(playerid, 0xFFFFFFFF, "You haven't logged in.");
+        SendClientMessage(playerid, 0xFFFFFFFF, t(p, NOT_LOGGED_IN));
         return;
     }
-
 }
 
 bool PlayerEditProfileDialog::display()
@@ -142,19 +140,19 @@ void PlayerEditProfileDialog::_buildItems()
     }
     mItemList.clear();
     addItem(
-        "My Login Name: " + p->getLogName(),
+        t(p, DLG_EDIT_PROF_LOG_NAME) + p->getLogName(),
         [this]() {
             DialogManager::get().push<PlayerChangeLogNameDialog>(mPlayerId);
             return true;
         });
     addItem(
-        "Change Password",
+        t(p, DLG_EDIT_PROF_PASSWORD),
         [this]() {
             DialogManager::get().push<PlayerChangePasswordDialog>(mPlayerId);
             return true;
         });
     addItem(
-        "My Nickname: " + p->getNickname(),
+        t(p, DLG_EDIT_PROF_NICKNAME) + p->getNickname(),
         [this]() {
             DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId);
             return true;
@@ -165,38 +163,45 @@ PlayerViewProfileDialog::PlayerViewProfileDialog(
     int playerid, int targetplayer) :
     MessageDialog(playerid, "", "")
 {
-    auto t = PlayerManager::get().getPlayer(targetplayer);
-    if(t == nullptr)
+    auto tar = PlayerManager::get().getPlayer(targetplayer);
+    auto p = PlayerManager::get().getPlayer(playerid);
+    if(tar == nullptr || p == nullptr)
     {
         mTitle = "Player's Profile";
         mMessage = "Player not found.";
     }
     else
     {
-        mTitle = t->getLogName(); mTitle += "'s Profile";
-        if(t->isLoggedIn())
+        mTitle = tar->getLogName();
+        mTitle += t(p, DLG_VIEW_PROF_TITLE_POSTFIX);
+        if(tar->isLoggedIn())
         {
             std::stringstream msg;
-            msg << "ID: "               << t->getIdStr()
-                << "\nLogin Name: "     << t->getLogName()
-                << "\nNickname: "       << t->getNickname()
-                << "\nJoin Time: "      << t->getJoinTime()
-                << "\nPlaying Time: "   << t->getGameTime()
-                << "\nAdmin Level: "    << t->getAdminLevel();
+            msg << t(p, DLG_VIEW_PROF_ID)
+                << tar->getIdStr() << "\n"
+                << t(p, DLG_VIEW_PROF_LOGNAME)
+                << tar->getLogName() << "\n"
+                << t(p, DLG_VIEW_PROF_NICKNAME)
+                << tar->getNickname() << "\n"
+                << t(p, DLG_VIEW_PROF_JOINTIME)
+                << tar->getJoinTime() << "\n"
+                << t(p, DLG_VIEW_PROF_GAMETIME)
+                << tar->getGameTime() << "\n"
+                << t(p, DLG_VIEW_PROF_ADMINLEVEL)
+                << tar->getAdminLevel();
             mMessage = msg.str();
         }
         else
         {
-            mMessage = "Player is not logged in.";
+            mMessage = t(p, DLG_VIEW_PROF_TARGET_NOT_LOGGED_IN);
         }
     }
 }
 
 PlayerChangePasswordDialog::PlayerChangePasswordDialog(int playerid) :
     InputDialog(playerid,
-        "Change Password",
-        "Please enter a new password below "
-        "containing more than 6 characters.")
+        t(playerid, DLG_CHANGE_PASSWORD_TITLE),
+        t(playerid, DLG_CHANGE_PASSWORD_MSG))
 {
 }
 
@@ -216,27 +221,26 @@ bool PlayerChangePasswordDialog::handleCallback(
     }
     if(!p->isLoggedIn())
     {
-        SendClientMessage(mPlayerId, 0xFFFFFFFF, "You haven't logged in.");
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, t(p, NOT_LOGGED_IN));
         return true;
     }
     if(!p->changePassword(inputtext))
     {
-        mMessage = "Your password is illegal "
-            "or a database error is occurred.\nPlease retry.";
+        mMessage = t(p, DLG_CHANGE_PASSWORD_FAIL);
         return false;
     }
     else
     {
         SendClientMessage(mPlayerId, 0xFFFFFFFF,
-            "Your password is changed.");
+            t(p, DLG_CHANGE_PASSWORD_SUCCESS));
         return true;
     }
 }
 
 PlayerChangeLogNameDialog::PlayerChangeLogNameDialog(int playerid) :
     InputDialog(playerid,
-        "Change Login Name",
-        "Please enter the new name you desired.")
+        t(playerid, DLG_CHANGE_LOGNAME_TITLE),
+        t(playerid, DLG_CHANGE_LOGNAME_MSG))
 {
 }
 
@@ -256,27 +260,26 @@ bool PlayerChangeLogNameDialog::handleCallback(
     }
     if(!p->isLoggedIn())
     {
-        SendClientMessage(mPlayerId, 0xFFFFFFFF, "You haven't logged in.");
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, t(p, NOT_LOGGED_IN));
         return true;
     }
     if(!p->setLogName(inputtext))
     {
-        mMessage = "The name you used contains illegal characters\n"
-            "or a database error is occurred.\nPlease retry.";
+        mMessage = t(p, DLG_CHANGE_LOGNAME_FAIL);
         return false;
     }
     else
     {
         SendClientMessage(mPlayerId, 0xFFFFFFFF,
-            "Your login name is changed.");
+            t(p, DLG_CHANGE_LOGNAME_SUCCESS));
         return true;
     }
 }
 
 PlayerChangeNicknameDialog::PlayerChangeNicknameDialog(int playerid) :
     InputDialog(playerid,
-        "Change Nickname",
-        "Please enter the new name you desired.")
+        t(playerid, DLG_CHANGE_NICKNAME_TITLE),
+        t(playerid, DLG_CHANGE_NICKNAME_MSG))
 {
 }
 
@@ -296,19 +299,18 @@ bool PlayerChangeNicknameDialog::handleCallback(
     }
     if(!p->isLoggedIn())
     {
-        SendClientMessage(mPlayerId, 0xFFFFFFFF, "You haven't logged in.");
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, t(p, NOT_LOGGED_IN));
         return true;
     }
     if(!p->setNickname(inputtext))
     {
-        mMessage = "The name you used contains illegal characters\n"
-            "or a database error is occurred.\nPlease retry.";
+        mMessage = t(p, DLG_CHANGE_NICKNAME_FAIL);
         return false;
     }
     else
     {
         SendClientMessage(mPlayerId, 0xFFFFFFFF,
-            "Your nickname is changed.");
+            t(p, DLG_CHANGE_NICKNAME_SUCCESS));
         return true;
     }
 }

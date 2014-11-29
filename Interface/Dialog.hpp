@@ -21,7 +21,8 @@
 #include <sampgdk/a_samp.h>
 
 #include "../Common/Common.hpp"
-
+#include "../Multilang/Language.hpp"
+ 
 namespace swcu {
 
 class Dialog
@@ -79,21 +80,21 @@ public:
         switch(Type)
         {
         case DIALOG_TYPE_MESSAGE:
-            btn1 = "OK";
+            btn1 = t(mPlayerId, OK);
             btn2 = "";
             break;
         case DIALOG_TYPE_CONFIRM:
-            btn1 = "Yes";
-            btn2 = "No";
+            btn1 = t(mPlayerId, YES);
+            btn2 = t(mPlayerId, NO);
             break;
         case DIALOG_TYPE_INPUT:
         case DIALOG_TYPE_INPUT_MASKED:
-            btn1 = "OK";
-            btn2 = "Back";
+            btn1 = t(mPlayerId, OK);
+            btn2 = t(mPlayerId, BACK);
             break;
         default:
-            btn1 = "undef";
-            btn2 = "undef";
+            btn1 = t(mPlayerId, UNDEF);
+            btn2 = t(mPlayerId, UNDEF);
         }
         int style;
         if(AcceptInput == true)
@@ -223,7 +224,8 @@ public:
                 << mItemList[i].title << "\n";
         }
         return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST,
-            mTitle.c_str(), serial.str().c_str(), "OK", "Back");
+            mTitle.c_str(), serial.str().c_str(), 
+            t(mPlayerId, OK), t(mPlayerId, BACK));
     }
 
     virtual bool    handleCallback(

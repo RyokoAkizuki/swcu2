@@ -38,7 +38,7 @@ bool MenuDialog::display()
         serial << "  " << i.title << "\n";
     }
     return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST, mTitle.c_str(),
-        serial.str().c_str(), "OK", "Back");
+        serial.str().c_str(), t(mPlayerId, OK), t(mPlayerId, BACK));
 }
 
 bool MenuDialog::handleCallback(bool response, int listitem,
@@ -75,7 +75,7 @@ bool CheckListDialog::display()
         serial << (i.statusChecker() ? "+ " : "  ") << i.title << "\n";
     }
     return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST, mTitle.c_str(),
-        serial.str().c_str(), "Toggle", "Back");
+        serial.str().c_str(), t(mPlayerId, TOGGLE), t(mPlayerId, BACK));
 }
 
 bool CheckListDialog::handleCallback(bool response, int listitem,

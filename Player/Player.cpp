@@ -24,6 +24,7 @@ Player::Player(int gameid) :
     mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
     mJoinTime(0), mGameTime(0), mRegistered(false),
     mInGameId(gameid), mTimeEnteredServer(time(0)), mLoggedIn(false)
+    ,mLanguage(0)
 {
     mLogName = getPlayerNameFixed(mInGameId);
     LOG(INFO) << "Loading player " << mLogName << "'s profile.";
@@ -52,6 +53,7 @@ bool Player::createProfile(const std::string& password)
                 "_id"           << tId                  <<
                 "logname"       << GBKToUTF8(mLogName)  <<
                 "password"      << tPasswordHash        <<
+                "lang"          << mLanguage            <<
                 "gametime"      << 0                    <<
                 "adminlevel"    << mAdminLevel          <<
                 "flags"         << mFlags               <<
@@ -243,6 +245,23 @@ bool Player::setAdminLevel(int level)
     return false;
 }
 
+bool Player::setLanguage(int lang)
+{
+    if(!isRegistered())
+    {
+        mLanguage = lang;
+        return true;
+    }
+    if(_updateField("$set", "lang", lang))
+    {
+        LOG(INFO) << "Player " << mLogName << "'s language is set to "
+            << lang << ".";
+        mLanguage = lang;
+        return true;
+    }
+    return false;
+}
+
 void Player::_loadProfile(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
@@ -255,6 +274,7 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mFlags          = doc["flags"].numberInt();
         mJoinTime       = doc["jointime"].numberLong();
         mGameTime       = doc["gametime"].numberLong();
+        mLanguage       = doc["lang"].numberInt();
     });
 }
 

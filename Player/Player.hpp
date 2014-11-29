@@ -45,6 +45,7 @@ protected:
     int                 mFlags;
     int64_t             mJoinTime;
     int64_t             mGameTime;
+    int                 mLanguage;
 
     bool                mRegistered;
 
@@ -178,6 +179,11 @@ public:
             { return mAdminLevel; }
 
             bool        setAdminLevel(int level);
+
+            int         getLanguage() const
+            { return mLanguage; }
+
+            bool        setLanguage(int lang);
 
 protected:
 
