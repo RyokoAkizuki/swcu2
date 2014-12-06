@@ -31,6 +31,11 @@ Player::Player(int gameid) :
     loadProfile();
 }
 
+Player::~Player()
+{
+    saveProfile();
+}
+
 bool Player::createProfile(const std::string& password)
 {
     if(mRegistered)
@@ -46,6 +51,7 @@ bool Player::createProfile(const std::string& password)
     }
     mongo::OID tId              = mongo::OID::gen();
     std::string tPasswordHash   = sha1(password);
+    auto datetime               = mongo::DATENOW;
     MONGO_WRAPPER({
         getDBConn()->insert(
             Config::colNamePlayer,
@@ -59,7 +65,7 @@ bool Player::createProfile(const std::string& password)
                 "flags"         << mFlags               <<
                 "nickname"      << GBKToUTF8(mNickname) <<
                 "money"         << mMoney               <<
-                "jointime"      << mongo::DATENOW
+                "jointime"      << datetime
                 )
             );
         auto err = getDBConn()->getLastError();
@@ -72,6 +78,7 @@ bool Player::createProfile(const std::string& password)
         mId                     = tId;
         mIdStr                  = mId.str();
         mPasswordHash           = tPasswordHash;
+        mJoinTime               = datatime.toTimeT();
         LOG(INFO) << "Player " << mLogName << "'s profile is created.";
         return true;
     });
@@ -272,7 +279,7 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mAdminLevel     = doc["adminlevel"].numberInt();
         mMoney          = doc["money"].numberInt();
         mFlags          = doc["flags"].numberInt();
-        mJoinTime       = doc["jointime"].numberLong();
+        mJoinTime       = doc["jointime"].date().toTimeT();
         mGameTime       = doc["gametime"].numberLong();
         mLanguage       = doc["lang"].numberInt();
     });

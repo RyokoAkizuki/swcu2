@@ -62,7 +62,7 @@ protected:
 
 public:
                         Player(int gameid);
-    virtual             ~Player() {}
+    virtual             ~Player();
 
     /**
      * ************ Profile ************
