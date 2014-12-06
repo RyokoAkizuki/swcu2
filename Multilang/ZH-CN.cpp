@@ -18,7 +18,7 @@
 
 namespace swcu {
 
-char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
+const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // OK
     "È·¶¨",
     // YES

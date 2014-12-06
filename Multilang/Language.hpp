@@ -85,7 +85,7 @@ enum LanguageEntries
     LANG_ENTRY_END
 };
 
-char* t(int playerid, int entry);
-char* t(class Player* player, int entry);
+const char* t(int playerid, int entry);
+const char* t(class Player* player, int entry);
 
 }

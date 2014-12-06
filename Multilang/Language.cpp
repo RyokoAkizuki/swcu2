@@ -21,21 +21,21 @@
 
 namespace swcu {
 
-extern char* LANG_ZH_CN[];
-extern char* LANG_EN_US[];
+extern const char* LANG_ZH_CN[];
+extern const char* LANG_EN_US[];
 
-char** LANGUAGES[MAX_LANGUAGES] = {
+const char** LANGUAGES[MAX_LANGUAGES] = {
     LANG_ZH_CN,
     LANG_EN_US
 };
 
-char* t(int playerid, int entry)
+const char* t(int playerid, int entry)
 {
     auto p = PlayerManager::get().getPlayer(playerid);
     return t(p, entry);
 }
 
-char* t(Player* player, int entry)
+const char* t(Player* player, int entry)
 {
     int lang = (player != nullptr) ? player->getLanguage() : 0;
     if(lang > MAX_LANGUAGES - 1 || entry > LANG_ENTRY_END)

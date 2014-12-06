@@ -18,7 +18,7 @@
 
 namespace swcu {
 
-char* LANG_EN_US[LANG_ENTRY_END + 1] = {
+const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // OK
     "OK",
     // YES
