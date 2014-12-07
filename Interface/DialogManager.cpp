@@ -25,7 +25,7 @@ void DialogManager::clearPlayerStack(int playerid)
     mPlayerDialogStacks.erase(playerid);
 }
 
-bool DialogManager::handleCallback(int playerid, int dialogid,
+bool DialogManager::handleCallback(int playerid, int /* dialogid */,
     int response, int listitem, const std::string &inputtext)
 {
     auto iter = mPlayerDialogStacks.find(playerid);

@@ -94,7 +94,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
-    swcu::MapManager();
     swcu::MapManager::get().loadAllMaps();
     LOG(INFO) << "Game mode initialized.";
     return true;
@@ -141,16 +140,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
     return true;
 }
 
-PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
-{
-    return true;
-}
-
-PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
-{
-    return true;
-}
-
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
     const char *cmdtext)
 {
@@ -171,23 +160,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid,
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
-    int clickedplayerid, int source)
+    int clickedplayerid, int /* source */)
 {
     if(playerid == clickedplayerid)
     {
         swcu::DialogManager::get().push
             <swcu::PlayerEditProfileDialog>(playerid);
     }
-    return true;
-}
-
-PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid,
-    const char * text)
-{
-    return true;
-}
-
-PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
-{
     return true;
 }

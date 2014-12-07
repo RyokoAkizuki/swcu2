@@ -42,13 +42,13 @@ bool MenuDialog::display()
 }
 
 bool MenuDialog::handleCallback(bool response, int listitem,
-    const std::string &inputtext)
+    const std::string& /* inputtext */)
 {
     if(!response)
     {
         return true;
     }
-    if(listitem > mItemList.size() - 1)
+    if(static_cast<size_t>(listitem + 1) > mItemList.size())
     {
         LOG(ERROR) << "listitem > mItemList.size()";
         return false;
@@ -79,13 +79,13 @@ bool CheckListDialog::display()
 }
 
 bool CheckListDialog::handleCallback(bool response, int listitem,
-    const std::string &inputtext)
+    const std::string& /* inputtext */)
 {
     if(!response)
     {
         return true;
     }
-    if(listitem > mItemList.size() - 1)
+    if(static_cast<size_t>(listitem + 1) > mItemList.size())
     {
         LOG(ERROR) << "listitem > mItemList.size()";
         return false;

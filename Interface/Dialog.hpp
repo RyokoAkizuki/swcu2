@@ -22,7 +22,7 @@
 
 #include "../Common/Common.hpp"
 #include "../Multilang/Language.hpp"
- 
+
 namespace swcu {
 
 class Dialog
@@ -135,7 +135,8 @@ public:
     virtual         ~MessageDialog() {}
 
     virtual bool    handleCallback(
-        bool response, int listitem, const std::string &inputtext)
+        bool /* response */, int /* listitem */,
+        const std::string& /* inputtext */)
     {
         return true;
     }
@@ -224,7 +225,7 @@ public:
                 << mItemList[i].title << "\n";
         }
         return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST,
-            mTitle.c_str(), serial.str().c_str(), 
+            mTitle.c_str(), serial.str().c_str(),
             t(mPlayerId, OK), t(mPlayerId, BACK));
     }
 

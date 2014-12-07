@@ -33,7 +33,7 @@ PlayerRegisterDialog::PlayerRegisterDialog(int playerid) :
 }
 
 bool PlayerRegisterDialog::handleCallback(
-    bool response, int listitem, const std::string &inputtext)
+    bool response, int /* listitem */, const std::string &inputtext)
 {
     if(!response)
     {
@@ -75,7 +75,7 @@ PlayerLoginDialog::PlayerLoginDialog(int playerid) :
 }
 
 bool PlayerLoginDialog::handleCallback(
-     bool response, int listitem, const std::string &inputtext)
+     bool response, int /* listitem */, const std::string &inputtext)
 {
     if(!response)
     {
@@ -206,7 +206,7 @@ PlayerChangePasswordDialog::PlayerChangePasswordDialog(int playerid) :
 }
 
 bool PlayerChangePasswordDialog::handleCallback(
-    bool response, int listitem, const std::string &inputtext)
+    bool response, int /* listitem */, const std::string &inputtext)
 {
     if(!response)
     {
@@ -245,7 +245,7 @@ PlayerChangeLogNameDialog::PlayerChangeLogNameDialog(int playerid) :
 }
 
 bool PlayerChangeLogNameDialog::handleCallback(
-    bool response, int listitem, const std::string &inputtext)
+    bool response, int /* listitem */, const std::string &inputtext)
 {
     if(!response)
     {
@@ -284,7 +284,7 @@ PlayerChangeNicknameDialog::PlayerChangeNicknameDialog(int playerid) :
 }
 
 bool PlayerChangeNicknameDialog::handleCallback(
-    bool response, int listitem, const std::string &inputtext)
+    bool response, int /* listitem */, const std::string &inputtext)
 {
     if(!response)
     {

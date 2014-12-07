@@ -22,9 +22,8 @@ namespace swcu {
 
 Player::Player(int gameid) :
     mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
-    mJoinTime(0), mGameTime(0), mRegistered(false),
+    mJoinTime(0), mGameTime(0), mLanguage(0), mRegistered(false),
     mInGameId(gameid), mTimeEnteredServer(time(0)), mLoggedIn(false)
-    ,mLanguage(0)
 {
     mLogName = getPlayerNameFixed(mInGameId);
     LOG(INFO) << "Loading player " << mLogName << "'s profile.";

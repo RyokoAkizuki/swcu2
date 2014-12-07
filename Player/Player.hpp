@@ -40,8 +40,8 @@ protected:
     std::string         mLogName;
     std::string         mNickname;
     std::string         mPasswordHash;
-    int                 mAdminLevel;
     int                 mMoney;
+    int                 mAdminLevel;
     int                 mFlags;
     int64_t             mJoinTime;
     int64_t             mGameTime;

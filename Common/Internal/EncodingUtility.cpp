@@ -34,11 +34,10 @@ std::string sha1(const std::string& src)
 /**
  * From http://my.oschina.net/xiaot99/blog/204041
  */
-int convert(char *from_charset, char *to_charset,
+int convert(const char *from_charset, const char *to_charset,
     char *inbuf, size_t inlen, char *outbuf, size_t outlen)
 {
     iconv_t     cd;
-    int         rc;
     char        **pin   = &inbuf;
     char        **pout  = &outbuf;
 
@@ -50,7 +49,7 @@ int convert(char *from_charset, char *to_charset,
         return -1;
     }
     memset(outbuf, 0, outlen);
-    if(iconv(cd, pin, &inlen, pout, &outlen) == -1)
+    if(iconv(cd, pin, &inlen, pout, &outlen) == static_cast<size_t>(-1))
     {
         LOG(ERROR) << "Convertion from " << from_charset << " to "
             << to_charset << " failed.";
@@ -65,7 +64,7 @@ std::string GBKToUTF8(const std::string& src)
     size_t len = src.size();
     std::unique_ptr<char[]> srcCopy(new char[len]);
     std::unique_ptr<char[]> dest(new char[len * 3]);
-    memset(dest.get(), 0, sizeof(dest.get()));
+    memset(dest.get(), 0, sizeof(*dest.get()));
     memcpy(srcCopy.get(), src.c_str(), src.size());
     int r = convert("GBK", "UTF-8", srcCopy.get(), len, dest.get(), len * 3);
     std::string retStr;
@@ -81,7 +80,7 @@ std::string UTF8ToGBK(const std::string& src)
     size_t len = src.size();
     std::unique_ptr<char[]> srcCopy(new char[len]);
     std::unique_ptr<char[]> dest(new char[len]);
-    memset(dest.get(), 0, sizeof(dest.get()));
+    memset(dest.get(), 0, sizeof(*dest.get()));
     memcpy(srcCopy.get(), src.c_str(), src.size());
     int r = convert("UTF-8", "GBK", srcCopy.get(), len, dest.get(), len);
     std::string retStr;
