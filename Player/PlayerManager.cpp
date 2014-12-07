@@ -18,6 +18,13 @@
 
 namespace swcu {
 
+PlayerManager::PlayerManager()
+{
+    getDBConn()->createCollection(Config::colNamePlayer);
+    getDBConn()->ensureIndex(Config::colNamePlayer, 
+        BSON("logname" << 1), true);
+}
+
 Player* PlayerManager::addPlayer(int playerid)
 {
     Player *p = new Player(playerid);

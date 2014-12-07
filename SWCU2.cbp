@@ -60,16 +60,21 @@
 		<Unit filename="Common/Internal/easylogging++.h" />
 		<Unit filename="Common/Internal/sha1.cpp" />
 		<Unit filename="Common/Internal/sha1.h" />
-		<Unit filename="Game/Game.cpp" />
-		<Unit filename="Game/Game.hpp" />
+		<Unit filename="House/House.hpp" />
 		<Unit filename="Interface/Dialog.cpp" />
 		<Unit filename="Interface/Dialog.hpp" />
 		<Unit filename="Interface/DialogManager.cpp" />
 		<Unit filename="Interface/DialogManager.hpp" />
 		<Unit filename="Map/Items.cpp" />
 		<Unit filename="Map/Items.hpp" />
-		<Unit filename="Map/WorldManager.cpp" />
-		<Unit filename="Map/WorldManager.hpp" />
+		<Unit filename="Map/Map.cpp" />
+		<Unit filename="Map/Map.hpp" />
+		<Unit filename="Map/MapManager.cpp" />
+		<Unit filename="Map/MapManager.hpp" />
+		<Unit filename="Multilang/EN-US.cpp" />
+		<Unit filename="Multilang/Language.cpp" />
+		<Unit filename="Multilang/Language.hpp" />
+		<Unit filename="Multilang/ZH-CN.cpp" />
 		<Unit filename="Player/Player.cpp" />
 		<Unit filename="Player/Player.hpp" />
 		<Unit filename="Player/PlayerDialogs.cpp" />
@@ -112,6 +117,7 @@
 		<Unit filename="Streamer/Internal/src/utility.cpp" />
 		<Unit filename="Streamer/Internal/src/utility.h" />
 		<Unit filename="Streamer/Streamer.hpp" />
+		<Unit filename="Utility/Singleton.hpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

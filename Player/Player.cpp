@@ -51,7 +51,7 @@ bool Player::createProfile(const std::string& password)
     }
     mongo::OID tId              = mongo::OID::gen();
     std::string tPasswordHash   = sha1(password);
-    auto datetime               = mongo::DATENOW;
+    auto datetime               = mongo::jsTime();
     MONGO_WRAPPER({
         getDBConn()->insert(
             Config::colNamePlayer,
@@ -78,7 +78,7 @@ bool Player::createProfile(const std::string& password)
         mId                     = tId;
         mIdStr                  = mId.str();
         mPasswordHash           = tPasswordHash;
-        mJoinTime               = datatime.toTimeT();
+        mJoinTime               = datetime.toTimeT();
         LOG(INFO) << "Player " << mLogName << "'s profile is created.";
         return true;
     });
@@ -130,7 +130,7 @@ bool Player::loadProfile()
         if(doc.isEmpty())
         {
             mRegistered = false;
-            LOG(WARNING) << "Player " << mLogName << 
+            LOG(WARNING) << "Player " << mLogName <<
                 "'s profile can't be found.";
             return false;
         }

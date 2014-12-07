@@ -30,6 +30,10 @@ class PlayerManager : public Singleton<PlayerManager>
 protected:
     std::unordered_map<int, std::unique_ptr<Player>>    mPlayers;
 
+protected:
+                    PlayerManager();
+    friend class Singleton<PlayerManager>;
+    
 public:
     virtual         ~PlayerManager() {}
 

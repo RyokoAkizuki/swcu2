@@ -25,24 +25,37 @@ namespace swcu {
 class Object
 {
 protected:
+    mongo::OID          mID, mMap;
     int                 mModel;
     float               mX, mY, mZ, mRX, mRY, mRZ;
+    /**
+     * Notice:
+     * mWorld is not stored directly in a Object document. Instead, it's
+     * an attribute of its parent map.
+     */
     int                 mWorld, mInterior;
-    mongo::OID          mID, mParentMap, mOwner;
+    bool                mEditable;
+
     int                 mInGameID;
 
 public:
-                        Object(
-        int model, float x, float y, float z,
-        float rx, float ry, float rz, int world = -1, int interior = -1,
-        const mongo::OID& id = mongo::OID(),
-        const mongo::OID& parentMap = mongo::OID(),
-        const mongo::OID& owner = mongo::OID());
+    /**
+     * For loading an existing Object from database.
+     */
+                        Object(const mongo::BSONObj& data, int vworld);
 
-    virtual             ~Object() {}
+    /**
+     * For creating a new Object.
+     */
+                        Object(int model, float x, float y, float z,
+        float rx, float ry, float rz, bool editable,
+        const mongo::OID& map = mongo::OID(),
+        int world = 0, int interior = -1);
 
-            mongo::OID  getParentMap() const
-            { return mParentMap; }
+    virtual             ~Object();
+
+            mongo::OID  getMap() const
+            { return mMap; }
 
             mongo::OID  getID() const
             { return mID; }
@@ -50,19 +63,31 @@ public:
             int         getInGameID() const
             { return mInGameID; }
 
+    /**
+     * Save a newly created object to database.
+     */
             bool        save();
 
-            mongo::OID  getOwner() const
-            { return mOwner; }
+    /**
+     * This function is used when create a map which requires plenty of
+     * insert operations in order to improve performance.
+     * This will return an empty BSONObj when the Object holds an assigned
+     * mID.
+     */
+            mongo::BSONObj _buildDocument();
 
-            bool        setOwner(const mongo::OID& owner);
+    /**
+     * Store a previously created object's info ( possibly has been changed
+     * recently ) into database.
+     */
+            bool        update();
 
-            void        changePose(float x, float y, float z,
+            bool        changePose(float x, float y, float z,
         float rx, float ry, float rz);
 
             bool        startEditing(int playerid);
 
-            bool        hasEntryInDatabase()
+            bool        hasEntryInDatabase() const
             { return mID.isSet(); }
 
     /**
@@ -75,40 +100,33 @@ public:
             void        updatePosition();
 };
 
-class FakeObject : public Object
-{
-public:
-                        FakeObject() :
-        Object(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0) {}
-    virtual             ~FakeObject() {}
-};
-
-class Vehicle
+class LandscapeVehicle
 {
 protected:
+    mongo::OID          mID, mMap;
     int                 mModel;
     float               mX, mY, mZ, mAngle;
     int                 mWorld, mInterior;
-    int                 mColor1, mColor2;
     int                 mRespawnDelay;
-    int                 mPaintjob;
-    std::vector<int>    mComponents;
-    mongo::OID          mID, mParentMap, mOwner;
     int                 mInGameID;
 
 public:
-                        Vehicle(
-        int model, float x, float y, float z,
-        float angle, int color1 = 0, int color2 = 1,
-        int world = -1, int interior = -1,
-        int respawndelay = 60,
-        int paintjob = 3 /* Remove all paintjobs */,
-        std::vector<int> components = {},
-        const mongo::OID& id = mongo::OID(),
-        const mongo::OID& parentMap = mongo::OID(),
-        const mongo::OID& owner = mongo::OID());
+    /**
+     * For loading an existing Object from database.
+     */
+                        LandscapeVehicle(
+        const mongo::BSONObj& data, int vworld);
 
-    virtual             ~Vehicle() {}
+    /**
+     * For creating a new Object.
+     */
+                        LandscapeVehicle(
+        int model, float x, float y, float z,
+        float angle, const mongo::OID& map = mongo::OID(),
+        int world = 0, int interior = 0,
+        int respawndelay = 60);
+
+    virtual             ~LandscapeVehicle();
 
             mongo::OID  getID() const
             { return mID; }
@@ -117,38 +135,18 @@ public:
             { return mInGameID; }
 
             bool        save();
+            mongo::BSONObj _buildDocument();
 
-            mongo::OID  getParentMap() const
-            { return mParentMap; }
-
-            mongo::OID  getOwner() const
-            { return mOwner; }
-
-            bool        setOwner(const mongo::OID& owner);
-
-            void        addComponent(int component);
-            void        removeComponent(int component);
-
-            void        setPaintjob(int paintjob);
-            void        removePaintjob();
+            mongo::OID  getMap() const
+            { return mMap; }
 
             void        respawn();
 
             void        setPosition(float x, float y, float z,
-        float angle, int world, int interior);
-
-            void        updatePosition();
+        float angle, int interior);
 
             bool        hasEntryInDatabase()
             { return mID.isSet(); }
-};
-
-class FakeVehicle : public Vehicle
-{
-public:
-                        FakeVehicle() :
-        Vehicle(0, 0.0, 0.0, 0.0, 0.0, 0.0) {}
-    virtual             ~FakeVehicle() {}
 };
 
 /*

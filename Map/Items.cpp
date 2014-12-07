@@ -15,7 +15,6 @@
  */
 
 #include <sampgdk/a_vehicles.h>
-#include <algorithm>
 
 #include "../Streamer/Streamer.hpp"
 
@@ -23,54 +22,104 @@
 
 namespace swcu {
 
+Object::Object(const mongo::BSONObj& data, int vworld)
+{
+    mWorld          = vworld;
+    MONGO_WRAPPER({
+        mID         = data["_id"].OID();
+        mMap        = data["map"].OID();
+        mModel      = data["model"].numberInt();
+        mX          = data["x"].numberDouble();
+        mY          = data["y"].numberDouble();
+        mZ          = data["z"].numberDouble();
+        mRX         = data["rx"].numberDouble();
+        mRY         = data["ry"].numberDouble();
+        mRZ         = data["rz"].numberDouble();
+        mInterior   = data["interior"].numberInt();
+        mEditable   = data["editable"].boolean();
+        mInGameID = CreateDynamicObject(
+            mModel, mX, mY, mZ, mRX, mRY, mRZ, mWorld, mInterior
+        );
+        if(mInGameID == 0)
+        {
+            LOG(ERROR) << "Error occurred while creating an object.";
+        }
+        return;
+    });
+    LOG(ERROR) << "Error occurred while loading an object.";
+}
+
 Object::Object(
     int model, float x, float y, float z,
-    float rx, float ry, float rz, int world, int interior,
-    const mongo::OID& id,
-    const mongo::OID& parentMap,
-    const mongo::OID& owner
-) : mModel(model), mX(x), mY(y), mZ(z), mRX(rx), mRY(ry), mRZ(rz),
-    mWorld(world), mInterior(interior), mID(id), mParentMap(parentMap),
-    mOwner(owner)
+    float rx, float ry, float rz, bool editable,
+    const mongo::OID& map, int world, int interior
+) : mMap(map), mModel(model), mX(x), mY(y), mZ(z),
+    mRX(rx), mRY(ry), mRZ(rz),
+    mWorld(world), mInterior(interior), mEditable(editable)
 {
     mInGameID = CreateDynamicObject(
         mModel, mX, mY, mZ, mRX, mRY, mRZ, mWorld, mInterior
     );
+    if(mInGameID == 0)
+    {
+        LOG(ERROR) << "Error occurred while creating object.";
+    }
+}
+
+Object::~Object()
+{
+    DestroyDynamicObject(mInGameID);
 }
 
 bool Object::save()
 {
+    if(hasEntryInDatabase())
+    {
+        LOG(ERROR) << "Object " << mID.str() << " already has an entry in "
+            "database.";
+        return false;
+    }
     MONGO_WRAPPER({
-        mongo::OID id = mID.isSet() ? mID : mongo::OID::gen();
-        getDBConn()->update(
+        getDBConn()->insert(
             Config::colNameMapObject,
-            QUERY("_id" << id),
-            BSON("$set" << BSON(
-                "_id"       << id <<
-                "model"     << mModel <<
-                "x"         << mX <<
-                "y"         << mY <<
-                "z"         << mZ <<
-                "rx"        << mRX <<
-                "ry"        << mRY <<
-                "rz"        << mRZ <<
-                "world"     << mWorld <<
-                "interior"  << mInterior <<
-                "parentmap" << mParentMap <<
-                "owner"     << mOwner
-            )),
-            true /* upsert */
+            _buildDocument()
         );
-        mID = id;
+        LOG(INFO) << "Object saved " << mID.str();
         return true;
     });
     return false;
 }
 
-bool Object::setOwner(const mongo::OID& owner)
+mongo::BSONObj Object::_buildDocument()
+{
+    if(hasEntryInDatabase())
+    {
+        return mongo::BSONObj();
+    }
+    else
+    {
+        mID = mongo::OID::gen();
+        return BSON(
+            "_id"       << mID <<
+            "map"       << mMap <<
+            "model"     << mModel <<
+            "x"         << mX <<
+            "y"         << mY <<
+            "z"         << mZ <<
+            "rx"        << mRX <<
+            "ry"        << mRY <<
+            "rz"        << mRZ <<
+            "interior"  << mInterior <<
+            "editable"  << mEditable
+        );
+    }
+}
+
+bool Object::update()
 {
     if(!hasEntryInDatabase())
     {
+        LOG(ERROR) << "Object doesn't have an entry in database.";
         return false;
     }
     MONGO_WRAPPER({
@@ -78,26 +127,34 @@ bool Object::setOwner(const mongo::OID& owner)
             Config::colNameMapObject,
             QUERY("_id" << mID),
             BSON("$set" << BSON(
-                "owner" << owner
+                "x"     << mX <<
+                "y"     << mY <<
+                "z"     << mZ <<
+                "rx"    << mRX <<
+                "ry"    << mRY <<
+                "rz"    << mRZ
             ))
         );
-        mOwner = owner;
+        LOG(INFO) << "Object " << mID.str() << "'s new position is saved.";
         return true;
     });
     return false;
 }
 
-void Object::changePose(float x, float y, float z,
+bool Object::changePose(float x, float y, float z,
     float rx, float ry, float rz)
 {
     SetDynamicObjectPos(mInGameID, x, y, z);
     SetDynamicObjectRot(mInGameID, rx, ry, rz);
     mX = x; mY = y; mZ = z;
     mRX = rx; mRY = ry; mRZ = rz;
+    return update();
 }
 
 bool Object::startEditing(int playerid)
 {
+    LOG(INFO) << "Player " << playerid << " starts to edit object "
+        << mID.str();
     return EditDynamicObject(playerid, mInGameID);
 }
 
@@ -105,133 +162,108 @@ void Object::updatePosition()
 {
     GetDynamicObjectPos(mInGameID, mX, mY, mZ);
     GetDynamicObjectRot(mInGameID, mRX, mRY, mRZ);
+    update();
 }
 
-Vehicle::Vehicle(
+LandscapeVehicle::LandscapeVehicle(
+        const mongo::BSONObj& data, int vworld)
+{
+    mWorld              = vworld;
+    MONGO_WRAPPER({
+        mID             = data["_id"].OID();
+        mMap            = data["map"].OID();
+        mModel          = data["model"].numberInt();
+        mX              = data["x"].numberDouble();
+        mY              = data["y"].numberDouble();
+        mZ              = data["z"].numberDouble();
+        mAngle          = data["rotate"].numberDouble();
+        mInterior       = data["interior"].numberInt();
+        mRespawnDelay   = data["respawndelay"].boolean();
+        mInGameID = CreateVehicle(mModel, mX, mY, mZ, mAngle,
+            // TO-DO: Random color or whatever.
+            1, 1, mRespawnDelay);
+        LOG(INFO) << "Vehicle loaded from database.";
+        return;
+    });
+    LOG(ERROR) << "Error occured while loading a vehicle.";
+}
+
+LandscapeVehicle::LandscapeVehicle(
     int model, float x, float y, float z,
-    float angle, int color1, int color2,
+    float angle, const mongo::OID& map,
     int world, int interior,
-    int respawndelay,
-    int paintjob,
-    std::vector<int> components,
-    const mongo::OID& id,
-    const mongo::OID& parentMap,
-    const mongo::OID& owner
-) : mModel(model), mX(x), mY(y), mZ(z), mAngle(angle),
-    mColor1(color1), mColor2(color2), mRespawnDelay(respawndelay),
-    mPaintjob(paintjob), mComponents(components), mID(id),
-    mParentMap(parentMap), mOwner(owner)
+    int respawndelay
+) : mMap(map), mModel(model), mX(x), mY(y), mZ(z), mAngle(angle),
+    mWorld(world), mInterior(interior), mRespawnDelay(respawndelay)
 {
     mInGameID = CreateVehicle(mModel, mX, mY, mZ, mAngle,
-        mColor1, mColor2, mRespawnDelay);
+        // TO-DO: Random color or whatever.
+        1, 1, mRespawnDelay);
     respawn();
 }
 
-bool Vehicle::save()
+LandscapeVehicle::~LandscapeVehicle()
 {
-    MONGO_WRAPPER({
-        mongo::OID id = mID.isSet() ? mID : mongo::OID::gen();
-        getDBConn()->update(
-            Config::colNameMapVehicle,
-            QUERY("_id" << id),
-            BSON("$set" << BSON(
-                "_id"           << id <<
-                "model"         << mModel <<
-                "x"             << mX <<
-                "y"             << mY <<
-                "z"             << mZ <<
-                "rotate"        << mAngle <<
-                "color1"        << mColor1 <<
-                "color2"        << mColor2 <<
-                "world"         << mWorld <<
-                "interior"      << mInterior <<
-                "respawndelay"  << mRespawnDelay <<
-                "paintjob"      << mPaintjob <<
-                "components"    << mComponents <<
-                "parentmap"     << mParentMap <<
-                "owner"         << mOwner
-            )),
-            true /* upsert */
-        );
-        mID = id;
-        return true;
-    });
-    return false;
+    DestroyVehicle(mInGameID);
 }
 
-bool Vehicle::setOwner(const mongo::OID& owner)
+bool LandscapeVehicle::save()
 {
-    if(!hasEntryInDatabase())
+    if(hasEntryInDatabase())
     {
+        LOG(ERROR) << "Vehicle " << mID.str() <<
+            " already has an entry in database.";
         return false;
     }
     MONGO_WRAPPER({
-        getDBConn()->update(
+        getDBConn()->insert(
             Config::colNameMapVehicle,
-            QUERY("_id" << mID),
-            BSON("$set" << BSON(
-                "owner" << owner
-            ))
+            _buildDocument()
         );
-        mOwner = owner;
+        LOG(INFO) << "Vehicle saved " << mID.str();
         return true;
     });
     return false;
 }
 
-void Vehicle::addComponent(int component)
+mongo::BSONObj LandscapeVehicle::_buildDocument()
 {
-    AddVehicleComponent(mInGameID, component);
-    mComponents.push_back(component);
+    if(hasEntryInDatabase())
+    {
+        return mongo::BSONObj();
+    }
+    else
+    {
+        mID = mongo::OID::gen();
+        return BSON(
+            "_id"           << mID <<
+            "map"           << mMap <<
+            "model"         << mModel <<
+            "x"             << mX <<
+            "y"             << mY <<
+            "z"             << mZ <<
+            "rotate"        << mAngle <<
+            "interior"      << mInterior <<
+            "respawndelay"  << mRespawnDelay
+        );
+    }
 }
 
-void Vehicle::removeComponent(int component)
-{
-    RemoveVehicleComponent(mInGameID, component);
-    mComponents.erase(std::remove_if(
-        mComponents.begin(), mComponents.end(),
-        [component](int com) { return com == component; }
-    ));
-}
-
-void Vehicle::setPaintjob(int paintjob)
-{
-    ChangeVehiclePaintjob(mInGameID, paintjob);
-}
-
-void Vehicle::removePaintjob()
-{
-    ChangeVehiclePaintjob(mInGameID, 3);
-}
-
-void Vehicle::respawn()
+void LandscapeVehicle::respawn()
 {
     SetVehicleToRespawn(mInGameID);
     SetVehicleVirtualWorld(mInGameID, mWorld);
     LinkVehicleToInterior(mInGameID, mInterior);
-    ChangeVehiclePaintjob(mInGameID, mPaintjob);
-    for(auto i : mComponents)
-    {
-        AddVehicleComponent(mInGameID, i);
-    }
 }
 
-void Vehicle::setPosition(float x, float y, float z,
-    float angle, int world, int interior)
+void LandscapeVehicle::setPosition(float x, float y, float z,
+    float angle, int interior)
 {
     SetVehiclePos(mInGameID, x, y, z);
     SetVehicleZAngle(mInGameID, angle);
-    SetVehicleVirtualWorld(mInGameID, mWorld);
     LinkVehicleToInterior(mInGameID, mInterior);
     mX = x; mY = y; mZ = z;
-    mAngle = angle; mWorld = world; mInterior = interior;
-}
-
-void Vehicle::updatePosition()
-{
-    mWorld = GetVehicleVirtualWorld(mInGameID);
-    GetVehiclePos(mInGameID, &mX, &mY, &mZ);
-    GetVehicleZAngle(mInGameID, &mAngle);
+    mAngle = angle; mInterior = interior;
 }
 
 }

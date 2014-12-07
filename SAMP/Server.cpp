@@ -30,6 +30,7 @@
 #include "../Player/PlayerManager.hpp"
 #include "../Player/PlayerDialogs.hpp"
 #include "../Interface/DialogManager.hpp"
+#include "../Map/MapManager.hpp"
 
 /** ~~ Streamer Only ~~ **/
 
@@ -91,6 +92,14 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 
 /** ^^ Streamer Only ^^ **/
 
+PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
+{
+    swcu::MapManager();
+    swcu::MapManager::get().loadAllMaps();
+    LOG(INFO) << "Game mode initialized.";
+    return true;
+}
+
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
 {
     Streamer_OnPlayerConnect(playerid);
@@ -145,6 +154,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
     const char *cmdtext)
 {
+    auto p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr)
+    {
+        return false;
+    }
     return false;
 }
 

@@ -35,6 +35,10 @@ protected:
 
     DialogStackMap                                  mPlayerDialogStacks;
 
+protected:
+                    DialogManager() {}
+    friend class Singleton<DialogManager>;
+    
 public:
     virtual         ~DialogManager() {}
 
