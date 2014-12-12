@@ -74,6 +74,8 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
         }
     }
 
+    map->calculateBoundingSphere();
+    
     mLoadedMaps.insert(std::make_pair(name, std::move(map)));
     return true;
 }

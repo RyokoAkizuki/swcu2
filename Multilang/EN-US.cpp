@@ -122,6 +122,12 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_CHANGE_NICKNAME_SUCCESS
     "Your nickname is changed.",
 
+    // DLG_EMPTY_CONTENT
+    "No content.",
+
+    // DLG_MAP_MGR_TITLE
+    "Map Manager",
+
     // LANG_ENTRY_END
     ""
 };

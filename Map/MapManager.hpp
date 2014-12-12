@@ -31,7 +31,9 @@ protected:
 
 protected:
                     MapManager();
+                    
     friend class Singleton<MapManager>;
+    friend class MapManagementDialog;
 
 public:
     virtual         ~MapManager() {}

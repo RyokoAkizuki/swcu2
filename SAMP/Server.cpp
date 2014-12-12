@@ -31,6 +31,7 @@
 #include "../Player/PlayerDialogs.hpp"
 #include "../Interface/DialogManager.hpp"
 #include "../Map/MapManager.hpp"
+#include "../Area/AreaManager.hpp"
 
 /** ~~ Streamer Only ~~ **/
 
@@ -168,4 +169,62 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
             <swcu::PlayerEditProfileDialog>(playerid);
     }
     return true;
+}
+
+void OnDynamicObjectMoved(int objectid)
+{
+
+}
+
+void OnPlayerEditDynamicObject(int playerid, int objectid, 
+    int response, float x, float y, float z, float rx, float ry, float rz)
+{
+
+}
+
+void OnPlayerSelectDynamicObject(int playerid, int objectid, 
+    int modelid, float x, float y, float z)
+{
+
+}
+
+void OnPlayerShootDynamicObject(int playerid, int weaponid, 
+    int objectid, float x, float y, float z)
+{
+
+}
+
+void OnPlayerPickUpDynamicPickup(int playerid, int pickupid)
+{
+
+}
+
+void OnPlayerEnterDynamicCP(int playerid, int checkpointid)
+{
+
+}
+
+void OnPlayerLeaveDynamicCP(int playerid, int checkpointid)
+{
+
+}
+
+void OnPlayerEnterDynamicRaceCP(int playerid, int checkpointid)
+{
+
+}
+
+void OnPlayerLeaveDynamicRaceCP(int playerid, int checkpointid)
+{
+
+}
+
+void OnPlayerEnterDynamicArea(int playerid, int areaid)
+{
+    swcu::AreaManager::get().handleEnterAreaCallback(playerid, areaid);
+}
+
+void OnPlayerLeaveDynamicArea(int playerid, int areaid)
+{
+    swcu::AreaManager::get().handleLeaveAreaCallback(playerid, areaid);
 }

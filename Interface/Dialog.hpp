@@ -76,6 +76,11 @@ public:
 
     virtual bool    display()
     {
+        if(mMessage.empty())
+        {
+            mMessage = t(mPlayerId, DLG_EMPTY_CONTENT);
+        }
+
         const char *btn1, *btn2;
         switch(Type)
         {
@@ -224,8 +229,13 @@ public:
             serial << ((i == mSelected) ? "* " : "  ")
                 << mItemList[i].title << "\n";
         }
+        std::string message = serial.str();
+        if(message.empty())
+        {
+            message = t(mPlayerId, DLG_EMPTY_CONTENT);
+        }
         return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST,
-            mTitle.c_str(), serial.str().c_str(),
+            mTitle.c_str(), message.c_str(),
             t(mPlayerId, OK), t(mPlayerId, BACK));
     }
 
@@ -254,6 +264,37 @@ public:
      * changed as well as whether the action is successfully performed.
      */
     virtual bool    process(KeyType key) = 0;
+};
+
+template<typename KeyType>
+class ItemListDialog : public RadioListDialog<KeyType>
+{
+public:
+                    ItemListDialog(
+                        int playerid,
+                        const std::string &title
+                    ) : RadioListDialog<KeyType>(playerid, title) {}
+    virtual         ~ItemListDialog() {}
+
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext)
+    {
+        if(!response)
+        {
+            return true;
+        }
+        if(listitem > this->mItemList.size() - 1)
+        {
+            LOG(ERROR) << "listitem > mItemList.size()";
+            return false;
+        }
+        bool succeeded = this->process(this->mItemList[listitem].key);
+        if(succeeded)
+        {
+            this->mSelected = listitem;
+        }
+        return succeeded;
+    }
 };
 
 class CheckListDialog : public Dialog

@@ -38,6 +38,8 @@ protected:
 
     int                 mInGameID;
 
+    friend class Map;
+    
 public:
     /**
      * For loading an existing Object from database.

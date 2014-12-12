@@ -14,13 +14,33 @@
  * limitations under the License.
  */
 
+#include <sampgdk/a_samp.h>
+#include <eigen3/Eigen/Core>
+
 #include "Map.hpp"
 
 namespace swcu {
 
+HouseMapArea::HouseMapArea(float x, float y, float z, float radius,
+    int virtualworld, int interior, int playerid) :
+    SphereArea(x, y, z, radius, virtualworld, interior, playerid)
+{
+
+}
+
+void HouseMapArea::onEnter(int playerid)
+{
+    SendClientMessage(playerid, 0xFFFFFFFF, "You've enter a house.");
+}
+
+void HouseMapArea::onLeave(int playerid)
+{
+    SendClientMessage(playerid, 0xFFFFFFFF, "You've exited the house.");
+}
+
 Map::Map() : mType(LANDSCAPE), mAddTime(0),
     mActivated(true), mVirtualWorld(0),
-    mArea(0.0), mStreamedAreaId(0), mSaved(false)
+    mArea(0.0), mSaved(false)
 {
 }
 
@@ -183,6 +203,107 @@ bool Map::save(const std::string& name)
     return false;
 }
 
+bool Map::calculateBoundingSphere()
+{
+    if(!hasEntryInDatabase())
+    {
+        LOG(ERROR) << "Doesn't have an entry in database. Won't calculate"
+            " bouding sphere.";
+        return false;
+    }
+    if(mObjects.size() == 0)
+    {
+        LOG(WARNING) << "Attemt to calculate bouding sphere of an empty "
+            "point set.";
+        return false;
+    }
+
+    /**
+     * Original codes below come from http://stackoverflow.com/questions/
+     * 17331203/bouncing-bubble-algorithm-for-smallest-enclosing-sphere
+     */
+
+    /*** BEGIN ***/
+
+    std::vector<Eigen::Vector3f>    vertices;
+
+    for(auto& i : mObjects)
+    {
+        vertices.push_back(Eigen::Vector3f(i->mX, i->mY, i->mZ));
+    }
+
+    Eigen::Vector3f                 center = vertices[0];
+    Eigen::Vector3f                 diff;
+    float                           radius = 0.0001f;
+    float                           len, alpha, alphaSq, alphaSqReci;
+
+    for(int i = 0; i < 2; ++i)
+    {
+        for(auto& pos : vertices)
+        {
+            diff    = pos - center;
+            len     = powf(diff(0) * diff(0) + diff(1) * diff(1) + 
+                        diff(2) * diff(2), 0.5); // length
+            if(len > radius)
+            {
+                alpha       = len / radius;
+                alphaSq     = alpha * alpha;
+                alphaSqReci = 1 / alphaSq;
+                radius      = 0.5f * (alpha + 1 / alpha) * radius;
+                center      = 0.5f * ((1 + alphaSqReci) * center
+                    + (1 - alphaSqReci) * pos);
+            }
+        }
+    }
+
+    for(auto& pos : vertices)
+    {
+        diff    = pos - center;
+        len     = powf(diff(0) * diff(0) + diff(1) * diff(1) + 
+                    diff(2) * diff(2), 0.5); // length
+        if(len > radius)
+        {
+            radius  = (radius + len) * 0.5f;
+            center  = center + ((len - radius) / len * diff);
+        }
+    }
+
+    /*** END ***/
+
+    mBoundX         = center(0);
+    mBoundY         = center(1);
+    mBoundZ         = center(2);
+    /**
+     * Since I am considering objects as mass points, I should make their
+     * bounding sphere a bit larger.
+     */
+    mBoundRadius    = radius + 5.0;
+
+    _createBoundingSphereArea();
+
+    MONGO_WRAPPER({
+        getDBConn()->update(
+            Config::colNameMap,
+            QUERY("_id" << mId),
+            BSON("$set" << BSON(
+                "boundx" << mBoundX <<
+                "boundy" << mBoundY <<
+                "boundz" << mBoundZ <<
+                "boundr" << mBoundRadius
+            ))
+        );
+        LOG(INFO) << "Map " << mName << "'s bounding shpere updated.";
+        return true;
+    });
+    return false;
+}
+
+void Map::_createBoundingSphereArea()
+{
+    mBoundingArea.reset(new HouseMapArea(mBoundX, mBoundY, mBoundZ,
+        mBoundRadius, mVirtualWorld, -1, -1));
+}
+
 bool Map::_loadMap(const mongo::BSONObj& data)
 {
     if(hasEntryInDatabase())
@@ -207,8 +328,8 @@ bool Map::_loadMap(const mongo::BSONObj& data)
         );
         while(objcur->more())
         {
-            auto data = objcur->next();
-            std::unique_ptr<Object> obj(new Object(data, mVirtualWorld));
+            auto doc = objcur->next();
+            std::unique_ptr<Object> obj(new Object(doc, mVirtualWorld));
             mObjects.push_back(std::move(obj));
         }
         LOG(INFO) << "Loaded " << mObjects.size() << " object(s).";
@@ -219,12 +340,25 @@ bool Map::_loadMap(const mongo::BSONObj& data)
         );
         while(vehcur->more())
         {
-            auto data = vehcur->next();
+            auto doc = vehcur->next();
             std::unique_ptr<LandscapeVehicle>
-                veh(new LandscapeVehicle(data, mVirtualWorld));
+                veh(new LandscapeVehicle(doc, mVirtualWorld));
             mVehicles.push_back(std::move(veh));
         }
         LOG(INFO) << "Loaded " << mVehicles.size() << " vehicle(s).";
+
+        if(data.hasField("boundr"))
+        {
+            mBoundX     = data["boundx"].numberDouble();
+            mBoundY     = data["boundy"].numberDouble();
+            mBoundZ     = data["boundz"].numberDouble();
+            mBoundRadius= data["boundr"].numberDouble();
+            _createBoundingSphereArea();
+        }
+        else
+        {
+            calculateBoundingSphere();
+        }
 
         LOG(INFO) << "Map " << mName << " loaded.";
         return true;

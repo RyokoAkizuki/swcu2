@@ -121,6 +121,12 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_CHANGE_NICKNAME_SUCCESS
     "昵称更改成功.",
 
+    // DLG_EMPTY_CONTENT
+    "无内容.",
+
+    // DLG_MAP_MGR_TITLE
+    "地图管理",
+    
     // LANG_ENTRY_END
     ""
 };
