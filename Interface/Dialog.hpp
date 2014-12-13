@@ -45,6 +45,18 @@ public:
      */
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext) = 0;
+
+    virtual void    build() = 0;
+    virtual void    clear() = 0;
+
+            int     getPlayerId() const
+            { return mPlayerId; }
+
+            std::string getTitle() const
+            { return mTitle; }
+
+            void    setTitle(const std::string& title)
+            { mTitle = title; }
 };
 
 enum DialogType
@@ -67,15 +79,26 @@ protected:
 public:
                     InfoDialog(
                         int playerid,
-                        const std::string &title,
-                        const std::string &msg
-                    ) :
-        Dialog(playerid, title), mMessage(msg) {}
+                        const std::string &title
+                    ) : Dialog(playerid, title) {}
 
     virtual         ~InfoDialog() {}
 
+    virtual void    setMessage(const std::string& msg)
+    {
+        mMessage = msg;
+    }
+
+    virtual void    clear()
+    {
+        mMessage.clear();
+    }
+
     virtual bool    display()
     {
+        clear();
+        build();
+
         if(mMessage.empty())
         {
             mMessage = t(mPlayerId, DLG_EMPTY_CONTENT);
@@ -132,10 +155,9 @@ class MessageDialog : public __MessageDialog
 public:
                     MessageDialog(
                         int playerid,
-                        const std::string &title,
-                        const std::string &msg
+                        const std::string &title
                     ) :
-        __MessageDialog(playerid, title, msg) {}
+        __MessageDialog(playerid, title) {}
 
     virtual         ~MessageDialog() {}
 
@@ -150,7 +172,7 @@ public:
 class MenuDialog : public Dialog
 {
 protected:
-    typedef std::function<bool()>   Functor;
+    typedef std::function<void()>   Functor;
 
     struct Item
     {
@@ -167,6 +189,8 @@ public:
                     );
 
     virtual         ~MenuDialog() {}
+
+    virtual void    clear();
 
             void    addItem(const std::string &title,
                 const Functor& callback);
@@ -196,8 +220,14 @@ public:
 
     virtual         ~RadioListDialog() {}
 
+    virtual void    clear()
+    {
+        mItemList.clear();
+        mSelected = -1;
+    }
+
     /**
-     * The "active" parameter will overwrite the old selected flag.
+     * Only the latest item claiming it's active will be considered active.
      */
             void    addItem(KeyType key, const std::string &title,
         bool active = false)
@@ -211,7 +241,7 @@ public:
 
             void    setActiveItem(size_t index)
     {
-        if(index <= mItemList.size() - 1)
+        if(index + 1<= mItemList.size())
         {
             mSelected = index;
         }
@@ -223,6 +253,9 @@ public:
 
     virtual bool    display()
     {
+        clear();
+        build();
+
         std::stringstream serial;
         for(size_t i = 0; i < mItemList.size(); ++i)
         {
@@ -246,7 +279,7 @@ public:
         {
             return true;
         }
-        if(listitem > mItemList.size() - 1)
+        if(static_cast<size_t>(listitem) + 1 > mItemList.size())
         {
             LOG(ERROR) << "listitem > mItemList.size()";
             return false;
@@ -283,7 +316,7 @@ public:
         {
             return true;
         }
-        if(listitem > this->mItemList.size() - 1)
+        if(static_cast<size_t>(listitem) + 1 > this->mItemList.size())
         {
             LOG(ERROR) << "listitem > mItemList.size()";
             return false;
@@ -318,6 +351,8 @@ public:
                     );
 
     virtual         ~CheckListDialog() {}
+
+    virtual void    clear();
 
             void    addItem(const std::string &title,
                 const Functor &checker, const Functor &toggler);

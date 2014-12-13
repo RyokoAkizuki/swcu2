@@ -26,18 +26,32 @@
 namespace swcu {
 
 PlayerRegisterDialog::PlayerRegisterDialog(int playerid) :
-    InputDialog(playerid,
-        t(playerid, DLG_REG_TITLE),
-        t(playerid, DLG_REG_MSG))
+    InputDialog(playerid, t(playerid, DLG_REG_TITLE)), mState(INIT)
 {
+
 }
 
+void PlayerRegisterDialog::build()
+{
+    switch(mState)
+    {
+        case INIT:
+        setMessage(t(mPlayerId, DLG_REG_MSG));
+        break;
+        case MUST_REG:
+        setMessage(t(mPlayerId, DLG_REG_MUST_CREATE));
+        break;
+        case ERROR:
+        setMessage(t(mPlayerId, DLG_REG_ERR));
+        break;
+    }
+}
 bool PlayerRegisterDialog::handleCallback(
     bool response, int /* listitem */, const std::string &inputtext)
 {
     if(!response)
     {
-        mMessage = t(mPlayerId, DLG_REG_MUST_CREATE);
+        mState = MUST_REG;
         return false;
     }
     auto p = PlayerManager::get().getPlayer(mPlayerId);
@@ -62,16 +76,30 @@ bool PlayerRegisterDialog::handleCallback(
     }
     else
     {
-        mMessage = t(p, DLG_REG_ERR);
+        mState = ERROR;
         return false;
     }
 }
 
 PlayerLoginDialog::PlayerLoginDialog(int playerid) :
-    InputDialog(playerid,
-        t(playerid, DLG_LOG_TITLE),
-        t(playerid, DLG_LOG_MSG))
+    InputDialog(playerid, t(playerid, DLG_LOG_TITLE)), mState(INIT)
 {
+}
+
+void PlayerLoginDialog::build()
+{
+    switch(mState)
+    {
+        case INIT:
+        setMessage(t(mPlayerId, DLG_LOG_MSG));
+        break;
+        case MUST_LOGIN:
+        setMessage(t(mPlayerId, DLG_LOG_MUST_LOGIN));
+        break;
+        case BAD_LOGIN:
+        setMessage(t(mPlayerId, DLG_LOG_BAD_LOGIN));
+        break;
+    }
 }
 
 bool PlayerLoginDialog::handleCallback(
@@ -79,7 +107,7 @@ bool PlayerLoginDialog::handleCallback(
 {
     if(!response)
     {
-        mMessage = t(mPlayerId, DLG_LOG_MUST_LOGIN);
+        mState = MUST_LOGIN;
         return false;
     }
     auto p = PlayerManager::get().getPlayer(mPlayerId);
@@ -103,7 +131,7 @@ bool PlayerLoginDialog::handleCallback(
     }
     else
     {
-        mMessage = t(p, DLG_LOG_BAD_LOGIN);
+        mState = BAD_LOGIN;
         return false;
     }
 }
@@ -125,13 +153,7 @@ PlayerEditProfileDialog::PlayerEditProfileDialog(int playerid) :
     }
 }
 
-bool PlayerEditProfileDialog::display()
-{
-    _buildItems();
-    return MenuDialog::display();
-}
-
-void PlayerEditProfileDialog::_buildItems()
+void PlayerEditProfileDialog::build()
 {
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(p == nullptr)
@@ -143,28 +165,29 @@ void PlayerEditProfileDialog::_buildItems()
         t(p, DLG_EDIT_PROF_LOG_NAME) + p->getLogName(),
         [this]() {
             DialogManager::get().push<PlayerChangeLogNameDialog>(mPlayerId);
-            return true;
         });
     addItem(
         t(p, DLG_EDIT_PROF_PASSWORD),
         [this]() {
             DialogManager::get().push<PlayerChangePasswordDialog>(mPlayerId);
-            return true;
         });
     addItem(
         t(p, DLG_EDIT_PROF_NICKNAME) + p->getNickname(),
         [this]() {
             DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId);
-            return true;
         });
 }
 
 PlayerViewProfileDialog::PlayerViewProfileDialog(
     int playerid, int targetplayer) :
-    MessageDialog(playerid, "", "")
+    MessageDialog(playerid, ""), mTargetPlayer(targetplayer)
 {
-    auto tar = PlayerManager::get().getPlayer(targetplayer);
-    auto p = PlayerManager::get().getPlayer(playerid);
+}
+
+void PlayerViewProfileDialog::build()
+{
+    auto tar = PlayerManager::get().getPlayer(mTargetPlayer);
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(tar == nullptr || p == nullptr)
     {
         mTitle = "Player's Profile";
@@ -199,10 +222,22 @@ PlayerViewProfileDialog::PlayerViewProfileDialog(
 }
 
 PlayerChangePasswordDialog::PlayerChangePasswordDialog(int playerid) :
-    InputDialog(playerid,
-        t(playerid, DLG_CHANGE_PASSWORD_TITLE),
-        t(playerid, DLG_CHANGE_PASSWORD_MSG))
+    InputDialog(playerid, t(playerid, DLG_CHANGE_PASSWORD_TITLE)),
+    mState(INIT)
 {
+}
+
+void PlayerChangePasswordDialog::build()
+{
+    switch(mState)
+    {
+        case INIT:
+        setMessage(t(mPlayerId, DLG_CHANGE_PASSWORD_MSG));
+        break;
+        case FAIL:
+        setMessage(t(mPlayerId, DLG_CHANGE_PASSWORD_FAIL));
+        break;
+    }
 }
 
 bool PlayerChangePasswordDialog::handleCallback(
@@ -226,7 +261,7 @@ bool PlayerChangePasswordDialog::handleCallback(
     }
     if(!p->changePassword(inputtext))
     {
-        mMessage = t(p, DLG_CHANGE_PASSWORD_FAIL);
+        mState = FAIL;
         return false;
     }
     else
@@ -238,10 +273,22 @@ bool PlayerChangePasswordDialog::handleCallback(
 }
 
 PlayerChangeLogNameDialog::PlayerChangeLogNameDialog(int playerid) :
-    InputDialog(playerid,
-        t(playerid, DLG_CHANGE_LOGNAME_TITLE),
-        t(playerid, DLG_CHANGE_LOGNAME_MSG))
+    InputDialog(playerid, t(playerid, DLG_CHANGE_LOGNAME_TITLE)),
+    mState(INIT)
 {
+}
+
+void PlayerChangeLogNameDialog::build()
+{
+    switch(mState)
+    {
+        case INIT:
+        setMessage(t(mPlayerId, DLG_CHANGE_LOGNAME_MSG));
+        break;
+        case FAIL:
+        setMessage(t(mPlayerId, DLG_CHANGE_LOGNAME_FAIL));
+        break;
+    }
 }
 
 bool PlayerChangeLogNameDialog::handleCallback(
@@ -265,7 +312,7 @@ bool PlayerChangeLogNameDialog::handleCallback(
     }
     if(!p->setLogName(inputtext))
     {
-        mMessage = t(p, DLG_CHANGE_LOGNAME_FAIL);
+        mState = FAIL;
         return false;
     }
     else
@@ -277,10 +324,22 @@ bool PlayerChangeLogNameDialog::handleCallback(
 }
 
 PlayerChangeNicknameDialog::PlayerChangeNicknameDialog(int playerid) :
-    InputDialog(playerid,
-        t(playerid, DLG_CHANGE_NICKNAME_TITLE),
-        t(playerid, DLG_CHANGE_NICKNAME_MSG))
+    InputDialog(playerid, t(playerid, DLG_CHANGE_NICKNAME_TITLE)),
+    mState(INIT)
 {
+}
+
+void PlayerChangeNicknameDialog::build()
+{
+    switch(mState)
+    {
+        case INIT:
+        setMessage(t(mPlayerId, DLG_CHANGE_NICKNAME_MSG));
+        break;
+        case FAIL:
+        setMessage(t(mPlayerId, DLG_CHANGE_NICKNAME_FAIL));
+        break;
+    }
 }
 
 bool PlayerChangeNicknameDialog::handleCallback(
@@ -304,7 +363,7 @@ bool PlayerChangeNicknameDialog::handleCallback(
     }
     if(!p->setNickname(inputtext))
     {
-        mMessage = t(p, DLG_CHANGE_NICKNAME_FAIL);
+        mState = FAIL;
         return false;
     }
     else

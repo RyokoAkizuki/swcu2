@@ -20,20 +20,34 @@ namespace swcu {
 
 class PlayerRegisterDialog : public InputDialog
 {
+protected:
+    enum State
+    {
+        INIT, MUST_REG, ERROR
+    } mState;
+
 public:
                     PlayerRegisterDialog(int playerid);
     virtual         ~PlayerRegisterDialog() {}
 
+    virtual void    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
 
 class PlayerLoginDialog : public InputDialog
 {
+protected:
+    enum State
+    {
+        INIT, MUST_LOGIN, BAD_LOGIN
+    } mState;
+
 public:
                     PlayerLoginDialog(int playerid);
     virtual         ~PlayerLoginDialog() {}
 
+    virtual void    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -44,43 +58,68 @@ public:
                     PlayerEditProfileDialog(int playerid);
     virtual         ~PlayerEditProfileDialog() {}
 
-    virtual bool    display();
-            void    _buildItems();
+    virtual void    build();
 };
 
 class PlayerViewProfileDialog : public MessageDialog
 {
+protected:
+    int             mTargetPlayer;
+
 public:
                     PlayerViewProfileDialog(int playerid, int targetplayer);
     virtual         ~PlayerViewProfileDialog() {}
+
+    virtual void    build();
 };
 
 class PlayerChangePasswordDialog : public InputDialog
 {
+protected:
+    enum State
+    {
+        INIT, FAIL
+    } mState;
+
 public:
                     PlayerChangePasswordDialog(int playerid);
     virtual         ~PlayerChangePasswordDialog() {}
 
+    virtual void    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
 
 class PlayerChangeLogNameDialog : public InputDialog
 {
+protected:
+    enum State
+    {
+        INIT, FAIL
+    } mState;
+
 public:
                     PlayerChangeLogNameDialog(int playerid);
     virtual         ~PlayerChangeLogNameDialog() {}
 
+    virtual void    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
 
 class PlayerChangeNicknameDialog : public InputDialog
 {
+protected:
+    enum State
+    {
+        INIT, FAIL
+    } mState;
+
 public:
                     PlayerChangeNicknameDialog(int playerid);
     virtual         ~PlayerChangeNicknameDialog() {}
 
+    virtual void    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };

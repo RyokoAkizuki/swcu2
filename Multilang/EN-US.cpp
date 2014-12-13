@@ -127,6 +127,22 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
 
     // DLG_MAP_MGR_TITLE
     "Map Manager",
+    // DLG_MAP_MGR_LOADED
+    "Loaded Maps",
+    // DLG_MAP_MGR_RELOAD_ALL
+    "Reload All",
+
+    // DLG_MAP_LOADED_TITLE
+    "Loaded Maps",
+
+    // DLG_MAP_EDIT_TITLE
+    "Edit Map",
+    // DLG_MAP_EDIT_UNLOAD
+    "Unload",
+    // DLG_MAP_EDIT_CALC_BOUND
+    "Calculate Bounding Shpere",
+    // DLG_MAP_EDIT_LOAD
+    "Load",
 
     // LANG_ENTRY_END
     ""

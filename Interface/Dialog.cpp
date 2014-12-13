@@ -25,6 +25,11 @@ MenuDialog::MenuDialog(int playerid, const std::string &title) :
 {
 }
 
+void MenuDialog::clear()
+{
+    mItemList.clear();
+}
+
 void MenuDialog::addItem(const std::string &title, const Functor& callback)
 {
     mItemList.push_back({title, callback});
@@ -32,6 +37,9 @@ void MenuDialog::addItem(const std::string &title, const Functor& callback)
 
 bool MenuDialog::display()
 {
+    clear();
+    build();
+
     std::stringstream serial;
     for(auto &i : mItemList)
     {
@@ -58,12 +66,18 @@ bool MenuDialog::handleCallback(bool response, int listitem,
         LOG(ERROR) << "listitem > mItemList.size()";
         return false;
     }
-    return mItemList[listitem].callback();
+    mItemList[listitem].callback();
+    return false;
 }
 
 CheckListDialog::CheckListDialog(int playerid, const std::string &title) :
     Dialog(playerid, title)
 {
+}
+
+void CheckListDialog::clear()
+{
+    mItemList.clear();
 }
 
 void CheckListDialog::addItem(const std::string &title,
@@ -74,6 +88,9 @@ void CheckListDialog::addItem(const std::string &title,
 
 bool CheckListDialog::display()
 {
+    clear();
+    build();
+    
     std::stringstream serial;
     for(auto &i : mItemList)
     {

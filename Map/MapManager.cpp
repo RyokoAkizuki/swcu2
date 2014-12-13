@@ -24,17 +24,17 @@ namespace swcu {
 MapManager::MapManager()
 {
     getDBConn()->createCollection(Config::colNameMap);
-    getDBConn()->ensureIndex(Config::colNameMap, 
+    getDBConn()->ensureIndex(Config::colNameMap,
         BSON("name" << 1), true);
-    getDBConn()->ensureIndex(Config::colNameMap, 
+    getDBConn()->ensureIndex(Config::colNameMap,
         BSON("activated" << 1), false);
 
     getDBConn()->createCollection(Config::colNameMapObject);
-    getDBConn()->ensureIndex(Config::colNameMapObject, 
+    getDBConn()->ensureIndex(Config::colNameMapObject,
         BSON("map" << 1), false);
 
     getDBConn()->createCollection(Config::colNameMapVehicle);
-    getDBConn()->ensureIndex(Config::colNameMapVehicle, 
+    getDBConn()->ensureIndex(Config::colNameMapVehicle,
         BSON("map" << 1), false);
 }
 
@@ -66,7 +66,7 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
             stream >> model >> x >> y >> z >> rx >> ry >> rz;
             map->addObject(model, x, y, z, rx, ry, rz, false, -1);
         }
-        else if (span == "CreateVehicle" || span == "AddStaticVehicle" 
+        else if (span == "CreateVehicle" || span == "AddStaticVehicle"
             || span == "AddStaticVehicleEx")
         {
             stream >> model >> x >> y >> z >> angle;
@@ -75,7 +75,7 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
     }
 
     map->calculateBoundingSphere();
-    
+
     mLoadedMaps.insert(std::make_pair(name, std::move(map)));
     return true;
 }
@@ -108,6 +108,8 @@ bool MapManager::isMapLoaded(const std::string& name)
 
 size_t MapManager::loadAllMaps()
 {
+    mLoadedMaps.clear();
+    LOG(INFO) << "Loaded maps cleared.";
     MONGO_WRAPPER({
         size_t count = 0;
         auto cur = getDBConn()->query(
@@ -118,13 +120,33 @@ size_t MapManager::loadAllMaps()
         {
             std::unique_ptr<Map> map(new Map(cur->next()));
             std::string name = map->getName();
-            mLoadedMaps.insert(std::make_pair(name, std::move(map)));
-            ++count;
+            auto r = mLoadedMaps.insert(std::make_pair(name, std::move(map)));
+            if(r.second)
+            {
+                ++count;
+            }
+            else
+            {
+                LOG(WARNING) << "Error occurred while loading map " << name;
+            }
         }
         LOG(INFO) << "Loaded " << count << " map(s).";
         return count;
     });
     return 0;
+}
+
+Map* MapManager::findMap(const std::string& name)
+{
+    auto iter = mLoadedMaps.find(name);
+    if(iter == mLoadedMaps.end())
+    {
+        return nullptr;
+    }
+    else
+    {
+        return iter->second.get();
+    }
 }
 
 }

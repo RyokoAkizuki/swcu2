@@ -48,6 +48,10 @@
 			<Add option="-lboost_system" />
 			<Add option="-lboost_chrono" />
 		</Linker>
+		<Unit filename="Area/Area.cpp" />
+		<Unit filename="Area/Area.hpp" />
+		<Unit filename="Area/AreaManager.cpp" />
+		<Unit filename="Area/AreaManager.hpp" />
 		<Unit filename="Common/Common.cpp" />
 		<Unit filename="Common/Common.hpp" />
 		<Unit filename="Common/Internal/Config.cpp" />
@@ -69,6 +73,8 @@
 		<Unit filename="Map/Items.hpp" />
 		<Unit filename="Map/Map.cpp" />
 		<Unit filename="Map/Map.hpp" />
+		<Unit filename="Map/MapDialogs.cpp" />
+		<Unit filename="Map/MapDialogs.hpp" />
 		<Unit filename="Map/MapManager.cpp" />
 		<Unit filename="Map/MapManager.hpp" />
 		<Unit filename="Multilang/EN-US.cpp" />

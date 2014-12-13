@@ -31,9 +31,10 @@
 #include "../Player/PlayerDialogs.hpp"
 #include "../Interface/DialogManager.hpp"
 #include "../Map/MapManager.hpp"
+#include "../Map/MapDialogs.hpp"
 #include "../Area/AreaManager.hpp"
 
-/** ~~ Streamer Only ~~ **/
+/** ~~ Event Forwarding for Streamer ~~ **/
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerEnterCheckpoint(int playerid)
 {
@@ -91,7 +92,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
     return true;
 }
 
-/** ^^ Streamer Only ^^ **/
+/** ^^ Event Forwarding for Streamer ^^ **/
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
@@ -149,6 +150,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
     {
         return false;
     }
+    if(strcmp(cmdtext, "/map") == 0)
+    {
+        swcu::DialogManager::get().push<swcu::MapManagerDialog>(playerid);
+        return true;
+    }
     return false;
 }
 
@@ -170,6 +176,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
     }
     return true;
 }
+
+/** Streamer Callbacks **/
 
 void OnDynamicObjectMoved(int objectid)
 {

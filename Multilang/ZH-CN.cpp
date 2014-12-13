@@ -126,6 +126,22 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
 
     // DLG_MAP_MGR_TITLE
     "地图管理",
+    // DLG_MAP_MGR_LOADED
+    "查看已载入的地图",
+    // DLG_MAP_MGR_RELOAD_ALL
+    "重新载入所有地图",
+
+    // DLG_MAP_LOADED_TITLE
+    "已载入的地图",
+
+    // DLG_MAP_EDIT_TITLE
+    "地图管理",
+    // DLG_MAP_EDIT_UNLOAD
+    "卸载",
+    // DLG_MAP_EDIT_CALC_BOUND
+    "计算包围球",
+    // DLG_MAP_EDIT_LOAD
+    "加载",
     
     // LANG_ENTRY_END
     ""

@@ -33,7 +33,7 @@ protected:
                     MapManager();
                     
     friend class Singleton<MapManager>;
-    friend class MapManagementDialog;
+    friend class MapViewLoadedDialog;
 
 public:
     virtual         ~MapManager() {}
@@ -50,7 +50,8 @@ public:
             bool    loadMap(const std::string& name);
             bool    unloadMap(const std::string& name);
             bool    isMapLoaded(const std::string& name);
-
+            Map*    findMap(const std::string& name);
+            
     /**
      * Load all activated maps from database.
      * @return Amount of loaded maps.
