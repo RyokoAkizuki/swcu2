@@ -16,14 +16,34 @@
 
 #include <sampgdk/a_players.h>
 
+#include "../Streamer/Streamer.hpp"
+
 #include "Player.hpp"
 
 namespace swcu {
 
+const char* PoliceRankString[] =
+{
+    "平民[Civilian]",
+    "警员[Police Officer]",
+    "警探[Police Detective]",
+    "警长[Police Sergeant]",
+    "警督[Police Lieutenant]",
+    "警监[Police Captain]",
+    "指挥官[Police Commander]",
+    "副总警监[Police Deputy Chief]",
+    "助理总警监[Assistant Chief of Police]",
+    "总警监[Chief of Police]"
+};
+
 Player::Player(int gameid) :
     mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
-    mJoinTime(0), mGameTime(0), mLanguage(0), mRegistered(false),
-    mInGameId(gameid), mTimeEnteredServer(time(0)), mLoggedIn(false)
+    mJoinTime(0), mGameTime(0), mLanguage(0),
+    mPoliceRank(CIVILIAN), mWantedLevel(0), mTimeInPrison(0),
+    mTimeToFree(0),
+    mRegistered(false),
+    mInGameId(gameid), mTimeEnteredServer(time(0)), mLoggedIn(false),
+    mTextLabel(0)
 {
     mLogName = getPlayerNameFixed(mInGameId);
     LOG(INFO) << "Loading player " << mLogName << "'s profile.";
@@ -64,7 +84,11 @@ bool Player::createProfile(const std::string& password)
                 "flags"         << mFlags               <<
                 "nickname"      << GBKToUTF8(mNickname) <<
                 "money"         << mMoney               <<
-                "jointime"      << datetime
+                "jointime"      << datetime             <<
+                "policerank"    << mPoliceRank          <<
+                "wantedlevel"   << mWantedLevel         <<
+                "timeinprison"  << mTimeInPrison        <<
+                "timetofree"    << mTimeToFree
                 )
             );
         auto err = getDBConn()->getLastError();
@@ -185,6 +209,7 @@ bool Player::setLogName(const std::string& name)
         LOG(INFO) << "Player " << mLogName << "'s logname is set to "
             << name;
         mLogName = name;
+        updatePlayerLabel();
         return true;
     }
     return false;
@@ -201,6 +226,7 @@ bool Player::setNickname(const std::string& name)
         LOG(INFO) << "Player " << mLogName << "'s nickname is set to "
             << name;
         mNickname = name;
+        updatePlayerLabel();
         return true;
     }
     return false;
@@ -268,6 +294,102 @@ bool Player::setLanguage(int lang)
     return false;
 }
 
+bool Player::setPoliceRank(PoliceRank rank)
+{
+    if(rank > 9 || rank < 0)
+    {
+        LOG(WARNING) << "Police rank should range from 0~9.";
+        return false;
+    }
+    if(_updateField("$set", "policerank", rank))
+    {
+        LOG(INFO) << "Player " << mLogName << "'s police rank is set to "
+            << rank << ".";
+        mPoliceRank = rank;
+        updatePlayerLabel();
+        return true;
+    }
+    return false;
+}
+
+bool Player::setWantedLevel(int level)
+{
+    if(level > 6 || level < 0)
+    {
+        LOG(WARNING) << "Wanted level should range from 0~6.";
+        return false;
+    }
+    if(_updateField("$set", "wantedlevel", level))
+    {
+        LOG(INFO) << "Player " << mLogName << "'s wandted level is set to "
+            << level << ".";
+        mWantedLevel = level;
+        updatePlayerLabel();
+        return true;
+    }
+    return false;
+}
+
+bool Player::putIntoPrison(time_t prisonTerm)
+{
+    int64_t tofree = time(0) + prisonTerm;
+    if(_updateField("$set", "timetofree", tofree))
+    {
+        LOG(INFO) << "Player " << mLogName << " now have a prison term of "
+            << prisonTerm << " seconds.";
+        mTimeToFree = tofree;
+        setWantedLevel(0);
+        addFlags(STATUS_JAILED);
+        return true;
+    }
+    // TO-DO: jail
+    return false;
+}
+
+bool Player::isPrisonTermExceeded() const
+{
+    return time(0) > mTimeToFree;
+}
+
+bool Player::freeFromPrison()
+{
+    removeFlags(STATUS_JAILED);
+    updatePlayerLabel();
+    return true;
+}
+
+void Player::updatePlayerLabel()
+{
+    if(mTextLabel != 0)
+    {
+        DestroyDynamic3DTextLabel(mTextLabel);
+    }
+    std::stringstream label;
+    // Nickname
+    label << mNickname << "{FFFFFF}\n";
+    // Police Rank
+    if(static_cast<size_t>(mPoliceRank) >= sizeof(PoliceRankString))
+    {
+        LOG(WARNING) <<
+        "static_cast<size_t>(mPoliceRank) >= sizeof(PoliceRankString)";
+    }
+    else
+    {
+        label << "{33FFFF}" << PoliceRankString[mPoliceRank] << "{FFFFFF}\n";
+    }
+    // Wanted Level
+    if(mWantedLevel > 0)
+    {
+        label << "{FFFF00}通缉等级 " << mWantedLevel << "{FFFFFF}\n";
+    }
+    // Login Name and ID
+    label << "(" << mLogName << ")(" << mInGameId << ")\n";
+    mTextLabel = CreateDynamic3DTextLabel(label.str(), 0xFFFFFFFF,
+        0.0, 0.0, 0.2, 200.0, mInGameId);
+    LOG(INFO) << "Player " << mLogName << "'s label created with id " <<
+        mTextLabel;
+}
+
 void Player::_loadProfile(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
@@ -281,7 +403,16 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mJoinTime       = doc["jointime"].date().toTimeT();
         mGameTime       = doc["gametime"].numberLong();
         mLanguage       = doc["lang"].numberInt();
+        mPoliceRank     = PoliceRank(doc["policerank"].numberInt());
+        if(mPoliceRank > 9) mPoliceRank = CHIEF_OF_POLICE;
+        if(mPoliceRank < 0) mPoliceRank = CIVILIAN;
+        mWantedLevel    = doc["wantedlevel"].numberInt();
+        if(mWantedLevel > 9) mWantedLevel = 9;
+        if(mWantedLevel < 0) mWantedLevel = 0;
+        mTimeInPrison   = doc["timeinprison"].date().toTimeT();
+        mTimeToFree     = doc["timetofree"].date().toTimeT();
     });
+    updatePlayerLabel();
 }
 
 bool Player::_validatePassword(const std::string& password)

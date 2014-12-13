@@ -29,6 +29,20 @@ enum PlayerFlags
     NO_FLAGS            = 0b00000000
 };
 
+enum PoliceRank
+{
+    CHIEF_OF_POLICE     = 9,
+    ASSISTANT_CHIEF     = 8,
+    POLICE_DEPUTY_CHIEF = 7,
+    POLICE_COMMANDER    = 6,
+    POLICE_CAPTAIN      = 5,
+    POLICE_LIEUTENANT   = 4,
+    POLICE_SERGEANT     = 3,
+    POLICE_DETECTIVE    = 2,
+    POLICE_OFFICER      = 1,
+    CIVILIAN            = 0
+};
+
 class Player
 {
 protected:
@@ -47,6 +61,18 @@ protected:
     int64_t             mGameTime;
     int                 mLanguage;
 
+    /**
+     * Police System
+     */
+    // Default is 0, CIVILIAN.
+    PoliceRank          mPoliceRank;
+    // Default is 0.
+    int                 mWantedLevel;
+    // Time spent in prison in total.
+    int64_t             mTimeInPrison;
+    // Time to be freed from prison.
+    int64_t             mTimeToFree;
+
     bool                mRegistered;
 
     /**
@@ -55,6 +81,7 @@ protected:
     int                 mInGameId;
     int64_t             mTimeEnteredServer;
     bool                mLoggedIn;
+    int                 mTextLabel;
 
     /**
      * Houses, Weapons, Vehicles, etc.
@@ -184,6 +211,25 @@ public:
             { return mLanguage; }
 
             bool        setLanguage(int lang);
+
+            PoliceRank  getPoliceRank() const
+            { return mPoliceRank; }
+
+            bool        setPoliceRank(PoliceRank rank);
+
+            int         getWantedLevel() const
+            { return mWantedLevel; }
+
+            bool        setWantedLevel(int level);
+
+    /**
+     * prisinTerm is counted using seconds.
+     */
+            bool        putIntoPrison(time_t prisonTerm);
+            bool        isPrisonTermExceeded() const;
+            bool        freeFromPrison();
+
+            void        updatePlayerLabel();
 
 protected:
 

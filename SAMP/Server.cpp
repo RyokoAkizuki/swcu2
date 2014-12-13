@@ -96,6 +96,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
+    ShowNameTags(0);
     swcu::MapManager::get().loadAllMaps();
     LOG(INFO) << "Game mode initialized.";
     return true;
@@ -173,6 +174,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
     {
         swcu::DialogManager::get().push
             <swcu::PlayerEditProfileDialog>(playerid);
+    }
+    else
+    {
+        swcu::DialogManager::get().push
+            <swcu::PlayerViewProfileDialog>(playerid, clickedplayerid);
     }
     return true;
 }

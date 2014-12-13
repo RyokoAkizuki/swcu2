@@ -172,7 +172,7 @@ void PlayerEditProfileDialog::build()
             DialogManager::get().push<PlayerChangePasswordDialog>(mPlayerId);
         });
     addItem(
-        t(p, DLG_EDIT_PROF_NICKNAME) + p->getNickname(),
+        t(p, DLG_EDIT_PROF_NICKNAME) + p->getNickname() + "{FFFFFF}",
         [this]() {
             DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId);
         });
@@ -205,7 +205,8 @@ void PlayerViewProfileDialog::build()
                 << t(p, DLG_VIEW_PROF_LOGNAME)
                 << tar->getLogName() << "\n"
                 << t(p, DLG_VIEW_PROF_NICKNAME)
-                << tar->getNickname() << "\n"
+                // In case of colored text, reset color at the end.
+                << tar->getNickname() << "{FFFFFF}\n"
                 << t(p, DLG_VIEW_PROF_JOINTIME)
                 << tar->getJoinTime() << "\n"
                 << t(p, DLG_VIEW_PROF_GAMETIME)
