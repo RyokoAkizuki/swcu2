@@ -210,6 +210,13 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_SET_POLICE_RANK_TITLE
     "设置警衔",
 
+    // DLG_CTLPANEL_TITLE
+    "控制面板",
+    // DLG_CTLPANEL_PROFILE
+    "编辑资料",
+    // DLG_CTLPANEL_MAP_MGR
+    "地图管理",
+    
     // LANG_ENTRY_END
     ""
 };

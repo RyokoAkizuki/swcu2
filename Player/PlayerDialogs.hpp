@@ -176,4 +176,13 @@ public:
     virtual bool    process(PoliceRank rank);
 };
 
+class PlayerControlPanelDialog : public MenuDialog
+{
+public:
+                    PlayerControlPanelDialog(int playerid);
+    virtual         ~PlayerControlPanelDialog() {}
+
+    virtual void    build();
+};
+
 }

@@ -19,6 +19,7 @@
 
 #include "PlayerManager.hpp"
 #include "../Interface/DialogManager.hpp"
+#include "../Map/MapDialogs.hpp"
 #include "../Multilang/Language.hpp"
 
 #include "PlayerDialogs.hpp"
@@ -467,9 +468,10 @@ void PlayerControlDialog::build()
             std::bind(&SetPlayerHealth, targetid, 0.0)
         );
         // * Force Respawn
-        addItem(t(p, DLG_PLAYER_CTL_FORCERESPAWN),
-            std::bind(&ForceClassSelection, targetid)
-        );
+        addItem(t(p, DLG_PLAYER_CTL_FORCERESPAWN), [targetid]() {
+            ForceClassSelection(targetid);
+            SetPlayerHealth(targetid, 0.0);
+        });
         // * Kick
         addItem(t(p, DLG_PLAYER_CTL_KICK),
             std::bind(&Kick, targetid)
@@ -605,6 +607,34 @@ bool PlayerSetPoliceRankDialog::process(PoliceRank rank)
         return target->setPoliceRank(rank);
     }
     return false;
+}
+
+PlayerControlPanelDialog::PlayerControlPanelDialog(int playerid) :
+    MenuDialog(playerid, t(playerid, DLG_CTLPANEL_TITLE))
+{
+}
+
+void PlayerControlPanelDialog::build()
+{
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr)
+    {
+        return;
+    }
+    int playerid = mPlayerId;
+    // General Functions
+    // * Profile
+    addItem(t(p, DLG_CTLPANEL_PROFILE), [playerid]() {
+        DialogManager::get().push<PlayerEditProfileDialog>(playerid);
+    });
+    // Admin Level 3
+    // * Map Manager
+    if(p->getAdminLevel() >= 3)
+    {
+        addItem(t(p, DLG_CTLPANEL_MAP_MGR), [playerid]() {
+            DialogManager::get().push<MapManagerDialog>(playerid);
+        });
+    }
 }
 
 }

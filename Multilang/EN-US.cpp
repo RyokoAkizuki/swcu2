@@ -211,6 +211,13 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_SET_POLICE_RANK_TITLE
     "Set Police Rank",
 
+    // DLG_CTLPANEL_TITLE
+    "Control Panel",
+    // DLG_CTLPANEL_PROFILE
+    "Edit Profile",
+    // DLG_CTLPANEL_MAP_MGR
+    "Map Manager",
+
     // LANG_ENTRY_END
     ""
 };
