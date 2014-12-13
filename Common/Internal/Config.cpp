@@ -23,5 +23,6 @@ std::string Config::colNameMap          = "swcu2.map";
 std::string Config::colNameMapObject    = "swcu2.map.object";
 std::string Config::colNameMapVehicle   = "swcu2.map.vehicle";
 std::string Config::colNamePlayer       = "swcu2.playerprofile";
+std::string Config::colNameTeleport     = "swcu2.teleport";
 
 }

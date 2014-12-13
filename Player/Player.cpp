@@ -17,6 +17,7 @@
 #include <sampgdk/a_players.h>
 
 #include "../Streamer/Streamer.hpp"
+#include "../Multilang/Language.hpp"
 
 #include "Player.hpp"
 
@@ -367,6 +368,11 @@ void Player::updatePlayerLabel()
     std::stringstream label;
     // Nickname
     label << mNickname << "{FFFFFF}\n";
+    // Admin Level
+    if(mAdminLevel > 0)
+    {
+        label << "Level " << mAdminLevel << "\n";
+    }
     // Police Rank
     if(static_cast<size_t>(mPoliceRank) >= sizeof(PoliceRankString))
     {
@@ -388,6 +394,156 @@ void Player::updatePlayerLabel()
         0.0, 0.0, 0.2, 200.0, mInGameId);
     LOG(INFO) << "Player " << mLogName << "'s label created with id " <<
         mTextLabel;
+}
+
+void Player::teleportTo(float x, float y, float z, float facing,
+    int world, int interior)
+{
+    Streamer_UpdateEx(mInGameId, x, y, z, world, interior);
+
+                        SetPlayerPos(mInGameId, x, y, z);
+                        SetPlayerFacingAngle(mInGameId, facing);
+    if(world != -1)     SetPlayerInterior(mInGameId, interior);
+    if(interior != -1)  SetPlayerVirtualWorld(mInGameId, world);
+
+    if(IsPlayerInAnyVehicle(mInGameId)
+        && GetPlayerVehicleSeat(mInGameId) == 0 /* driver */)
+    {
+        int vid =           GetPlayerVehicleID(mInGameId);
+
+                            SetVehiclePos(vid, x, y, z);
+                            SetVehicleZAngle(vid, facing);
+        if(world != -1)     SetVehicleVirtualWorld(vid, world);
+        if(interior != -1)  LinkVehicleToInterior(vid, interior);
+
+        int max = GetMaxPlayers();
+        for(int i = 0; i < max; ++i)
+        {
+            if(GetPlayerVehicleID(i) == vid)
+            {
+                int seat =          GetPlayerVehicleSeat(i);
+
+                                    SetPlayerPos(i, x, y, z);
+                if(world != -1)     SetPlayerInterior(i, interior);
+                if(interior != -1)  SetPlayerVirtualWorld(i, world);
+
+                                    PutPlayerInVehicle(i, vid, seat);
+            }
+        }
+    }
+}
+
+void Player::teleportTo(int targetplayer)
+{
+    if(!IsPlayerConnected(targetplayer))
+    {
+        SendClientMessage(mInGameId, 0xFFFFFFFF, t(this, PLAYER_NOT_FOUND));
+        return;
+    }
+    float x, y, z, facing;
+    GetPlayerPos(targetplayer, &x, &y, &z);
+    GetPlayerFacingAngle(targetplayer, &facing);
+    teleportTo(x, y, z + 0.3, facing, GetPlayerVirtualWorld(targetplayer),
+        GetPlayerInterior(targetplayer));
+}
+
+bool Player::teleportTo(const std::string& placeName)
+{
+    MONGO_WRAPPER({
+        auto doc = getDBConn()->findOne(
+            Config::colNameTeleport,
+            QUERY("name" << GBKToUTF8(placeName))
+        );
+        if(doc.isEmpty())
+        {
+            LOG(WARNING) << "Teleport " << placeName << " can't be found.";
+            SendClientMessage(mInGameId, 0xFFFFFFFF,
+                t(this, TELEPORT_NOT_FOUND));
+            return false;
+        }
+        else
+        {
+            float x; float y; float z; float facing;
+            int world; int interior;
+            auto loc    = doc["location"].Array();
+            if(loc.size() >= 2)
+            {
+                x       = loc[0].numberDouble();
+                y       = loc[1].numberDouble();
+            }
+            else
+            {
+                LOG(ERROR) << "Teleport " << placeName <<
+                    " has an invalid location.";
+                SendClientMessage(mInGameId, 0xFFFFFFFF,
+                    t(this, TELEPORT_INVALID));
+                return false;
+            }
+            z           = doc["height"].numberDouble();
+            facing      = doc["facing"].numberDouble();
+            world       = doc["world"].numberInt();
+            interior    = doc["interior"].numberInt();
+            teleportTo(x, y, z, facing, world, interior);
+            getDBConn()->update(
+                Config::colNameTeleport,
+                BSON("_id" << doc["_id"].OID()),
+                BSON("$inc" << BSON("use" << 1))
+            );
+            LOG(INFO) << "Player " << mLogName << " teleported to "
+                << placeName;
+            return true;
+        }
+    });
+    SendClientMessage(mInGameId, 0xFFFFFFFF,
+        t(this, TELEPORT_INVALID));
+    return false;
+}
+
+bool Player::createTeleport(const std::string& placeName)
+{
+    if(!mRegistered)
+    {
+        LOG(ERROR) << "Can't create teleport because player " << mLogName <<
+        " hasn't registered.";
+        return false;
+    }
+    float x, y, z, facing;
+    GetPlayerPos(mInGameId, &x, &y, &z);
+    GetPlayerFacingAngle(mInGameId, &facing);
+    int world       = GetPlayerVirtualWorld(mInGameId);
+    int interior    = GetPlayerInterior(mInGameId);
+    MONGO_WRAPPER({
+        getDBConn()->insert(
+            Config::colNameTeleport,
+            BSON(
+                "_id"           << mongo::OID::gen()    <<
+                "name"          << GBKToUTF8(placeName) <<
+                "location"      << std::vector<float>({ x, y }) <<
+                "height"        << z                    <<
+                "facing"        << facing               <<
+                "world"         << world                <<
+                "interior"      << interior             <<
+                "creator"       << mId                  <<
+                "createtime"    << mongo::DATENOW       <<
+                "use"           << 0
+            )
+        );
+        auto err = getDBConn()->getLastError();
+        if (err.size())
+        {
+            LOG(ERROR) << "Failed to create teleport: " << err;
+            SendClientMessage(mInGameId, 0xFFFFFFFF,
+                t(this, TELEPORT_CREATE_FAILED));
+            return false;
+        }
+        SendClientMessage(mInGameId, 0xFFFFFFFF,
+            t(this, TELEPORT_CREATE_SUCCESS));
+        LOG(INFO) << "Teleport " << placeName << " is created.";
+        return true;
+    });
+    SendClientMessage(mInGameId, 0xFFFFFFFF,
+        t(this, TELEPORT_CREATE_FAILED));
+    return false;
 }
 
 void Player::_loadProfile(const mongo::BSONObj& doc)

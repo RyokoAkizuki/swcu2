@@ -273,7 +273,7 @@ public:
     }
 
     virtual bool    handleCallback(
-        bool response, int listitem, const std::string &inputtext)
+        bool response, int listitem, const std::string& /*inputtext*/)
     {
         if(!response)
         {
@@ -310,7 +310,7 @@ public:
     virtual         ~ItemListDialog() {}
 
     virtual bool    handleCallback(
-        bool response, int listitem, const std::string &inputtext)
+        bool response, int listitem, const std::string& /*inputtext*/)
     {
         if(!response)
         {

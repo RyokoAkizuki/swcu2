@@ -83,7 +83,7 @@ enum LanguageEntries
     DLG_CHANGE_NICKNAME_SUCCESS,
 
     DLG_EMPTY_CONTENT,
-    
+
     DLG_MAP_MGR_TITLE,
     DLG_MAP_MGR_LOADED,
     DLG_MAP_MGR_RELOAD_ALL,
@@ -95,10 +95,48 @@ enum LanguageEntries
     DLG_MAP_EDIT_CALC_BOUND,
     DLG_MAP_EDIT_LOAD,
 
+    TELEPORT_NOT_FOUND,
+    TELEPORT_INVALID,
+    TELEPORT_CREATE_SUCCESS,
+    TELEPORT_CREATE_FAILED,
+
+    DLG_PLAYER_CTL_TITLE,
+    DLG_PLAYER_CTL_SENDMSG,
+    DLG_PLAYER_CTL_VIEWPROFILE,
+    DLG_PLAYER_CTL_GOTO,
+    DLG_PLAYER_CTL_GETTHERE,
+    DLG_PLAYER_CTL_UNMUTE,
+    DLG_PLAYER_CTL_MUTE,
+    DLG_PLAYER_CTL_EJECT,
+    DLG_PLAYER_CTL_UNFREEZE,
+    DLG_PLAYER_CTL_FREEZE,
+    DLG_PLAYER_CTL_KILL,
+    DLG_PLAYER_CTL_FORCERESPAWN,
+    DLG_PLAYER_CTL_KICK,
+    DLG_PLAYER_CTL_EXPLODE,
+    DLG_PLAYER_CTL_BAN,
+    DLG_PLAYER_CTL_SET_ADMIN,
+    DLG_PLAYER_CTL_SET_POLICE,
+
+    DLG_PM_TITLE,
+    DLG_PM_MSG,
+    DLG_PM_SENT,
+    DLG_PM_RECEIVE,
+
+    DLG_SET_ADMIN_LEVEL_TITLE,
+    ADMIN_LEVEL_0,
+    ADMIN_LEVEL_1,
+    ADMIN_LEVEL_2,
+    ADMIN_LEVEL_3,
+
+    DLG_SET_POLICE_RANK_TITLE,
+
     LANG_ENTRY_END
 };
 
-const char* t(int playerid, int entry);
-const char* t(class Player* player, int entry);
+class Player;
+
+const char* t(int playerid, LanguageEntries entry);
+const char* t(Player* player, LanguageEntries entry);
 
 }

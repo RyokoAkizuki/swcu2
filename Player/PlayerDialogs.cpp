@@ -28,7 +28,6 @@ namespace swcu {
 PlayerRegisterDialog::PlayerRegisterDialog(int playerid) :
     InputDialog(playerid, t(playerid, DLG_REG_TITLE)), mState(INIT)
 {
-
 }
 
 void PlayerRegisterDialog::build()
@@ -373,6 +372,239 @@ bool PlayerChangeNicknameDialog::handleCallback(
             t(p, DLG_CHANGE_NICKNAME_SUCCESS));
         return true;
     }
+}
+
+PlayerControlDialog::PlayerControlDialog(int playerid, int targetplayer)
+    : MenuDialog(playerid, t(playerid, DLG_PLAYER_CTL_TITLE)),
+    mTargetPlayer(targetplayer)
+{
+}
+
+void PlayerControlDialog::build()
+{
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(target == nullptr || p == nullptr)
+    {
+        return;
+    }
+    setTitle(target->getNickname());
+
+    int playerid = mPlayerId, targetid = mTargetPlayer;
+
+    // General Functions
+    // * Private Message
+    addItem(t(p, DLG_PLAYER_CTL_SENDMSG), [playerid, targetid]() {
+        DialogManager::get().push<PlayerSendMessageDialog>(
+            playerid, targetid
+        );
+    });
+    // * View Profile
+    addItem(t(p, DLG_PLAYER_CTL_VIEWPROFILE), [playerid, targetid]() {
+        DialogManager::get().push<PlayerViewProfileDialog>(
+            playerid, targetid
+        );
+    });
+    // * Spectate
+
+    // Admin Level 1
+    if(p->getAdminLevel() >= 1)
+    {
+        // * Go To
+        addItem(t(p, DLG_PLAYER_CTL_GOTO), [playerid, targetid]() {
+            auto p = PlayerManager::get().getPlayer(playerid);
+            if(p != nullptr) p->teleportTo(targetid);
+        });
+        // * Get There
+        addItem(t(p, DLG_PLAYER_CTL_GETTHERE), [playerid, targetid]() {
+            auto target = PlayerManager::get().getPlayer(targetid);
+            if(target != nullptr) target->teleportTo(playerid);
+        });
+        // * Mute / Unmute
+        if(target->hasFlags(STATUS_MUTED))
+        {
+            addItem(t(p, DLG_PLAYER_CTL_UNMUTE), [targetid]() {
+                auto target = PlayerManager::get().getPlayer(targetid);
+                if(target != nullptr) target->removeFlags(STATUS_MUTED);
+            });
+        }
+        else
+        {
+            addItem(t(p, DLG_PLAYER_CTL_MUTE), [targetid]() {
+                auto target = PlayerManager::get().getPlayer(targetid);
+                if(target != nullptr) target->addFlags(STATUS_MUTED);
+            });
+        }
+        // * Eject
+        if(IsPlayerInAnyVehicle(targetid))
+        {
+            addItem(t(p, DLG_PLAYER_CTL_EJECT),
+                std::bind(&RemovePlayerFromVehicle, targetid)
+            );
+        }
+    }
+
+    // Admin Level 2
+    if(p->getAdminLevel() >= 2)
+    {
+        // * Freeze / Unfreeze
+        if(target->hasFlags(STATUS_FREEZED))
+        {
+            addItem(t(p, DLG_PLAYER_CTL_UNFREEZE), [targetid]() {
+                auto target = PlayerManager::get().getPlayer(targetid);
+                if(target != nullptr) target->removeFlags(STATUS_FREEZED);
+            });
+        }
+        else
+        {
+            addItem(t(p, DLG_PLAYER_CTL_FREEZE), [targetid]() {
+                auto target = PlayerManager::get().getPlayer(targetid);
+                if(target != nullptr) target->addFlags(STATUS_FREEZED);
+            });
+        }
+        // * Kill
+        addItem(t(p, DLG_PLAYER_CTL_KILL),
+            std::bind(&SetPlayerHealth, targetid, 0.0)
+        );
+        // * Force Respawn
+        addItem(t(p, DLG_PLAYER_CTL_FORCERESPAWN),
+            std::bind(&ForceClassSelection, targetid)
+        );
+        // * Kick
+        addItem(t(p, DLG_PLAYER_CTL_KICK),
+            std::bind(&Kick, targetid)
+        );
+    }
+
+    // Admin Level 3
+    if(p->getAdminLevel() >= 3)
+    {
+        // * Explode
+        addItem(t(p, DLG_PLAYER_CTL_EXPLODE), [targetid]() {
+            float x, y, z;
+            GetPlayerPos(targetid, &x, &y, &z);
+            CreateExplosion(x, y, z, 0, 5.0);
+        });
+        // * Ban
+        addItem(t(p, DLG_PLAYER_CTL_BAN), [targetid]() {
+            auto target = PlayerManager::get().getPlayer(targetid);
+            if(target != nullptr) target->addFlags(STATUS_BANNED);
+            Kick(targetid);
+        });
+        // * Set Admin Level
+        addItem(t(p, DLG_PLAYER_CTL_SET_ADMIN),
+        [playerid, targetid]() {
+            DialogManager::get().push<PlayerSetAdminLevelDialog>(
+                playerid, targetid
+            );
+        });
+        // * Set Police Rank
+        addItem(t(p, DLG_PLAYER_CTL_SET_POLICE),
+        [playerid, targetid]() {
+            DialogManager::get().push<PlayerSetPoliceRankDialog>(
+                playerid, targetid
+            );
+        });
+    }
+}
+
+PlayerSendMessageDialog::PlayerSendMessageDialog(int playerid, int target) :
+    InputDialog(playerid, t(playerid, DLG_PM_TITLE)), mTargetPlayer(target)
+{
+}
+
+void PlayerSendMessageDialog::build()
+{
+    setMessage(t(mPlayerId, DLG_PM_MSG));
+}
+
+bool PlayerSendMessageDialog::handleCallback(
+    bool response, int /* listitem */, const std::string &inputtext)
+{
+    if(!response)
+    {
+        return true;
+    }
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr)
+    {
+        return true;
+    }
+    if(!IsPlayerConnected(mTargetPlayer))
+    {
+        SendClientMessage(mPlayerId, 0xFFFFFFFF,
+            t(p, PLAYER_NOT_FOUND));
+        return true;
+    }
+    SendClientMessage(mPlayerId, 0xFFFFFFFF, t(p, DLG_PM_SENT));
+    std::stringstream msg;
+    msg << t(mTargetPlayer, DLG_PM_RECEIVE) << p->getNickname()
+        << "{FFFFFF}(" << p->getInGameId() << "): " << inputtext;
+    SendClientMessage(mTargetPlayer, 0xFFFFFFFF, msg.str().c_str());
+    return false;
+}
+
+PlayerSetAdminLevelDialog::PlayerSetAdminLevelDialog(int playerid,
+    int target) : RadioListDialog<int>(playerid,
+    t(playerid, DLG_SET_ADMIN_LEVEL_TITLE)), mTargetPlayer(target)
+{
+}
+
+void PlayerSetAdminLevelDialog::build()
+{
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(target == nullptr || p == nullptr)
+    {
+        return;
+    }
+    addItem(0, t(p, ADMIN_LEVEL_0), target->getAdminLevel() == 0);
+    addItem(1, t(p, ADMIN_LEVEL_1), target->getAdminLevel() == 1);
+    addItem(2, t(p, ADMIN_LEVEL_2), target->getAdminLevel() == 2);
+    addItem(3, t(p, ADMIN_LEVEL_3), target->getAdminLevel() == 3);
+}
+
+bool PlayerSetAdminLevelDialog::process(int adminlevel)
+{
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
+    if(target != nullptr)
+    {
+        return target->setAdminLevel(adminlevel);
+    }
+    return false;
+}
+
+PlayerSetPoliceRankDialog::PlayerSetPoliceRankDialog(int playerid,
+    int target) : RadioListDialog<PoliceRank>(playerid,
+    t(playerid, DLG_SET_POLICE_RANK_TITLE)), mTargetPlayer(target)
+{
+}
+
+void PlayerSetPoliceRankDialog::build()
+{
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
+    if(target == nullptr)
+    {
+        return;
+    }
+    addItem(CIVILIAN, PoliceRankString[CIVILIAN],
+        target->getPoliceRank() == CIVILIAN);
+    addItem(POLICE_OFFICER, PoliceRankString[POLICE_OFFICER],
+        target->getPoliceRank() == POLICE_OFFICER);
+    addItem(POLICE_DEPUTY_CHIEF, PoliceRankString[POLICE_DEPUTY_CHIEF],
+        target->getPoliceRank() == POLICE_DEPUTY_CHIEF);
+    addItem(CHIEF_OF_POLICE, PoliceRankString[CHIEF_OF_POLICE],
+        target->getPoliceRank() == CHIEF_OF_POLICE);
+}
+
+bool PlayerSetPoliceRankDialog::process(PoliceRank rank)
+{
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
+    if(target != nullptr)
+    {
+        return target->setPoliceRank(rank);
+    }
+    return false;
 }
 
 }

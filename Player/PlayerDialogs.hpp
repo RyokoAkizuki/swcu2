@@ -124,4 +124,56 @@ public:
         bool response, int listitem, const std::string &inputtext);
 };
 
+class PlayerControlDialog : public MenuDialog
+{
+protected:
+    int             mTargetPlayer;
+
+public:
+                    PlayerControlDialog(int playerid, int targetplayer);
+    virtual         ~PlayerControlDialog() {}
+
+    virtual void    build();
+};
+
+class PlayerSendMessageDialog : public InputDialog
+{
+protected:
+    int             mTargetPlayer;
+
+public:
+                    PlayerSendMessageDialog(int playerid, int target);
+    virtual         ~PlayerSendMessageDialog() {}
+
+    virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
+class PlayerSetAdminLevelDialog : public RadioListDialog<int>
+{
+protected:
+    int             mTargetPlayer;
+
+public:
+                    PlayerSetAdminLevelDialog(int playerid, int target);
+    virtual         ~PlayerSetAdminLevelDialog() {}
+
+    virtual void    build();
+    virtual bool    process(int adminlevel);
+};
+
+class PlayerSetPoliceRankDialog : public RadioListDialog<PoliceRank>
+{
+protected:
+    int             mTargetPlayer;
+
+public:
+                    PlayerSetPoliceRankDialog(int playerid, int target);
+    virtual         ~PlayerSetPoliceRankDialog() {}
+
+    virtual void    build();
+    virtual bool    process(PoliceRank rank);
+};
+
 }

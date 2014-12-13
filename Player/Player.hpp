@@ -29,6 +29,8 @@ enum PlayerFlags
     NO_FLAGS            = 0b00000000
 };
 
+extern const char* PoliceRankString[10];
+
 enum PoliceRank
 {
     CHIEF_OF_POLICE     = 9,
@@ -188,7 +190,6 @@ public:
             bool        increaseMoney(int amount);
 
     /**
-
      * Verify inputed password by comparing its hash with correct hash.
      * @param  password Plaintext password.
      * @return          True if password is correct.
@@ -223,6 +224,13 @@ public:
             bool        setWantedLevel(int level);
 
     /**
+     * ************ Game Features ************
+     */
+
+            int         getInGameId() const
+            { return mInGameId; }
+            
+    /**
      * prisinTerm is counted using seconds.
      */
             bool        putIntoPrison(time_t prisonTerm);
@@ -230,6 +238,16 @@ public:
             bool        freeFromPrison();
 
             void        updatePlayerLabel();
+
+    /**
+     * If interior or world is -1, player's old settings of them will
+     * be preserved.
+     */
+            void        teleportTo(float x, float y, float z, float facing,
+                int world = -1, int interior = -1);
+            void        teleportTo(int targetplayer);
+            bool        teleportTo(const std::string& placeName);
+            bool        createTeleport(const std::string& placeName);
 
 protected:
 

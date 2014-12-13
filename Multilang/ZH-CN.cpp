@@ -142,7 +142,74 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "计算包围球",
     // DLG_MAP_EDIT_LOAD
     "加载",
+
+    // TELEPORT_NOT_FOUND
+    "传送点不存在.",
+    // TELEPORT_INVALID
+    "传送点无效.",
+    // TELEPORT_CREATE_SUCCESS
+    "传送点创建成功.",
+    // TELEPORT_CREATE_FAILED
+    "传送点创建失败.",
+
+    // DLG_PLAYER_CTL_TITLE
+    "玩家",
+    // DLG_PLAYER_CTL_SENDMSG
+    "发送密语",
+    // DLG_PLAYER_CTL_VIEWPROFILE
+    "查看资料",
+    // DLG_PLAYER_CTL_GOTO
+    "传送过去",
+    // DLG_PLAYER_CTL_GETTHERE
+    "拉过来",
+    // DLG_PLAYER_CTL_UNMUTE
+    "允许发言",
+    // DLG_PLAYER_CTL_MUTE
+    "禁止发言",
+    // DLG_PLAYER_CTL_EJECT
+    "拉下车",
+    // DLG_PLAYER_CTL_UNFREEZE
+    "解冻",
+    // DLG_PLAYER_CTL_FREEZE
+    "冻结",
+    // DLG_PLAYER_CTL_KILL
+    "重置生命",
+    // DLG_PLAYER_CTL_FORCERESPAWN
+    "强制重新选人",
+    // DLG_PLAYER_CTL_KICK
+    "踢出服务器",
+    // DLG_PLAYER_CTL_EXPLODE
+    "爆炸",
+    // DLG_PLAYER_CTL_BAN
+    "封禁",
+    // DLG_PLAYER_CTL_SET_ADMIN
+    "更改管理员等级",
+    // DLG_PLAYER_CTL_SET_POLICE
+    "更改警衔",
+
+    // DLG_PM_TITLE
+    "发送密语",
+    // DLG_PM_MSG
+    "请输入你要发送的消息",
+    // DLG_PM_SENT
+    "消息已发送.",
+    // DLG_PM_RECEIVE
+    "消息来自 ",
     
+    // DLG_SET_ADMIN_LEVEL_TITLE
+    "更改管理员等级",
+    // ADMIN_LEVEL_0
+    "无管理权限",
+    // ADMIN_LEVEL_1
+    "1级 调解员",
+    // ADMIN_LEVEL_2
+    "2级 管理员",
+    // ADMIN_LEVEL_3
+    "3级 领袖",
+
+    // DLG_SET_POLICE_RANK_TITLE
+    "设置警衔",
+
     // LANG_ENTRY_END
     ""
 };

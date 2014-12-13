@@ -27,6 +27,7 @@ struct Config
     static std::string colNameMapObject;
     static std::string colNameMapVehicle;
     static std::string colNamePlayer;
+    static std::string colNameTeleport;
 };
 
 }

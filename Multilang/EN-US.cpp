@@ -144,6 +144,73 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_MAP_EDIT_LOAD
     "Load",
 
+    // TELEPORT_NOT_FOUND
+    "Teleport not found.",
+    // TELEPORT_INVALID
+    "Invalid teleport.",
+    // TELEPORT_CREATE_SUCCESS
+    "Teleport has been created.",
+    // TELEPORT_CREATE_FAILED
+    "Failed to create teleport.",
+
+    // DLG_PLAYER_CTL_TITLE
+    "Player",
+    // DLG_PLAYER_CTL_SENDMSG
+    "Send Message",
+    // DLG_PLAYER_CTL_VIEWPROFILE
+    "View Profile",
+    // DLG_PLAYER_CTL_GOTO
+    "Go To",
+    // DLG_PLAYER_CTL_GETTHERE
+    "Get Here",
+    // DLG_PLAYER_CTL_UNMUTE
+    "Unmute",
+    // DLG_PLAYER_CTL_MUTE
+    "Mute",
+    // DLG_PLAYER_CTL_EJECT
+    "Eject",
+    // DLG_PLAYER_CTL_UNFREEZE
+    "Unfreeze",
+    // DLG_PLAYER_CTL_FREEZE
+    "Freeze",
+    // DLG_PLAYER_CTL_KILL
+    "Reset Health",
+    // DLG_PLAYER_CTL_FORCERESPAWN
+    "Force To Respawn Screen",
+    // DLG_PLAYER_CTL_KICK
+    "Kick",
+    // DLG_PLAYER_CTL_EXPLODE
+    "Explode",
+    // DLG_PLAYER_CTL_BAN
+    "Ban",
+    // DLG_PLAYER_CTL_SET_ADMIN
+    "Set Admin Level",
+    // DLG_PLAYER_CTL_SET_POLICE
+    "Set Police Rank",
+
+    // DLG_PM_TITLE
+    "Send Private Message",
+    // DLG_PM_MSG
+    "Please enter your message to send.",
+    // DLG_PM_SENT
+    "Your message has been sent.",
+    // DLG_PM_RECEIVE
+    "Received message from ",
+    
+    // DLG_SET_ADMIN_LEVEL_TITLE
+    "Set Admin Level",
+    // ADMIN_LEVEL_0
+    "No Authority",
+    // ADMIN_LEVEL_1
+    "Level 1 Moderator",
+    // ADMIN_LEVEL_2
+    "Level 2 Administrator",
+    // ADMIN_LEVEL_3
+    "Level 3 Game Master",
+
+    // DLG_SET_POLICE_RANK_TITLE
+    "Set Police Rank",
+
     // LANG_ENTRY_END
     ""
 };

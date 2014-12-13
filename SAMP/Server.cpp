@@ -151,6 +151,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
     {
         return false;
     }
+    if(cmdtext[1] == '/' && sizeof(cmdtext) > 2)
+    {
+        p->teleportTo(cmdtext + 2);
+        return true;
+    }
     if(strcmp(cmdtext, "/map") == 0)
     {
         swcu::DialogManager::get().push<swcu::MapManagerDialog>(playerid);
@@ -178,7 +183,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
     else
     {
         swcu::DialogManager::get().push
-            <swcu::PlayerViewProfileDialog>(playerid, clickedplayerid);
+            <swcu::PlayerControlDialog>(playerid, clickedplayerid);
     }
     return true;
 }

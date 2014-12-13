@@ -29,13 +29,13 @@ const char** LANGUAGES[MAX_LANGUAGES] = {
     LANG_EN_US
 };
 
-const char* t(int playerid, int entry)
+const char* t(int playerid, LanguageEntries entry)
 {
     auto p = PlayerManager::get().getPlayer(playerid);
     return t(p, entry);
 }
 
-const char* t(Player* player, int entry)
+const char* t(Player* player, LanguageEntries entry)
 {
     int lang = (player != nullptr) ? player->getLanguage() : 0;
     if(lang > MAX_LANGUAGES - 1 || entry > LANG_ENTRY_END)
