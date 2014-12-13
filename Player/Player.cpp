@@ -53,6 +53,7 @@ Player::Player(int gameid) :
 
 Player::~Player()
 {
+    if(mTextLabel != 0) DestroyDynamic3DTextLabel(mTextLabel);
     saveProfile();
 }
 

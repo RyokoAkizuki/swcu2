@@ -111,6 +111,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
         LOG(INFO) << "Player connected. ID = " << playerid;
         if(p->isRegistered())
         {
+            if(p->hasFlags(swcu::STATUS_BANNED))
+            {
+                Kick(playerid);
+                return false;
+            }
             swcu::DialogManager::get().push
                 <swcu::PlayerLoginDialog>(playerid);
         }
@@ -140,6 +145,34 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
         LOG(ERROR) << "Removal of player from PlayerManager instance failed.";
     }
     swcu::DialogManager::get().clearPlayerStack(playerid);
+    return true;
+}
+
+PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
+{
+    auto p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr)
+    {
+        return false;
+    }
+    if(p->hasFlags(swcu::STATUS_FREEZED))
+    {
+        return false;
+    }
+    return true;
+}
+
+PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid, const char * text)
+{
+    auto p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr)
+    {
+        return false;
+    }
+    if(p->hasFlags(swcu::STATUS_MUTED))
+    {
+        return false;
+    }
     return true;
 }
 
@@ -195,19 +228,19 @@ void OnDynamicObjectMoved(int objectid)
 
 }
 
-void OnPlayerEditDynamicObject(int playerid, int objectid, 
+void OnPlayerEditDynamicObject(int playerid, int objectid,
     int response, float x, float y, float z, float rx, float ry, float rz)
 {
 
 }
 
-void OnPlayerSelectDynamicObject(int playerid, int objectid, 
+void OnPlayerSelectDynamicObject(int playerid, int objectid,
     int modelid, float x, float y, float z)
 {
 
 }
 
-void OnPlayerShootDynamicObject(int playerid, int weaponid, 
+void OnPlayerShootDynamicObject(int playerid, int weaponid,
     int objectid, float x, float y, float z)
 {
 
