@@ -62,11 +62,11 @@ int convert(const char *from_charset, const char *to_charset,
 std::string GBKToUTF8(const std::string& src)
 {
     size_t len = src.size();
-    std::unique_ptr<char[]> srcCopy(new char[len]);
-    std::unique_ptr<char[]> dest(new char[len * 3]);
+    std::unique_ptr<char[]> srcCopy(new char[len + 1]);
+    std::unique_ptr<char[]> dest(new char[len * 3 + 1]);
     memset(dest.get(), 0, sizeof(*dest.get()));
-    memcpy(srcCopy.get(), src.c_str(), src.size());
-    int r = convert("GBK", "UTF-8", srcCopy.get(), len, dest.get(), len * 3);
+    memcpy(srcCopy.get(), src.c_str(), len + 1);
+    int r = convert("GBK", "UTF-8", srcCopy.get(), len + 1, dest.get(), len*3+1);
     std::string retStr;
     if(r == 0)
     {
@@ -78,11 +78,11 @@ std::string GBKToUTF8(const std::string& src)
 std::string UTF8ToGBK(const std::string& src)
 {
     size_t len = src.size();
-    std::unique_ptr<char[]> srcCopy(new char[len]);
-    std::unique_ptr<char[]> dest(new char[len]);
+    std::unique_ptr<char[]> srcCopy(new char[len + 1]);
+    std::unique_ptr<char[]> dest(new char[len + 1]);
     memset(dest.get(), 0, sizeof(*dest.get()));
-    memcpy(srcCopy.get(), src.c_str(), src.size());
-    int r = convert("UTF-8", "GBK", srcCopy.get(), len, dest.get(), len);
+    memcpy(srcCopy.get(), src.c_str(), len + 1);
+    int r = convert("UTF-8", "GBK", srcCopy.get(), len + 1, dest.get(), len + 1);
     std::string retStr;
     if(r == 0)
     {

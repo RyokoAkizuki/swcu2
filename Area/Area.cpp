@@ -43,12 +43,12 @@ Area::~Area()
     AreaManager::get()._removeArea(this);
 }
 
-void Area::onEnter(int playerid)
+void Area::onEnter(int /* playerid */)
 {
     LOG(WARNING) << "Unimplemented function Area::onEnter called.";
 }
 
-void Area::onLeave(int playerid)
+void Area::onLeave(int /* playerid */)
 {
     LOG(WARNING) << "Unimplemented function Area::onLeave called.";
 }
