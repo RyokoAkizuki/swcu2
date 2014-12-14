@@ -158,6 +158,8 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "发送密语",
     // DLG_PLAYER_CTL_VIEWPROFILE
     "查看资料",
+    // DLG_PLAYER_CTL_SETWANTED
+    "通缉",
     // DLG_PLAYER_CTL_GOTO
     "传送过去",
     // DLG_PLAYER_CTL_GETTHERE
@@ -192,7 +194,7 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_PM_MSG
     "请输入你要发送的消息",
     // DLG_PM_SENT
-    "消息已发送.",
+    "消息发送给 ",
     // DLG_PM_RECEIVE
     "消息来自 ",
     
@@ -216,7 +218,31 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "编辑资料",
     // DLG_CTLPANEL_MAP_MGR
     "地图管理",
-    
+
+    // INFO_PUT_IN_PRISON
+    "你被送进了监狱.",
+    // WARN_ESCAPE_FROM_PRISON
+    "不要越狱.",
+
+    // DLG_SET_WANDTED_TITLE
+    "设置通缉等级",
+    // WANDTED_LEVEL_0
+    "不通缉",
+    // WANDTED_LEVEL_1
+    "一星通缉",
+    // WANDTED_LEVEL_2
+    "二星通缉",
+    // WANDTED_LEVEL_3
+    "三星通缉",
+    // WANDTED_LEVEL_4
+    "四星通缉",
+    // WANDTED_LEVEL_5
+    "五星通缉",
+    // WANDTED_LEVEL_6
+    "六星通缉",
+    // DLG_SET_WANTED_BEYOND_AUTH
+    "你没有权限降低他的通缉等级.",
+
     // LANG_ENTRY_END
     ""
 };

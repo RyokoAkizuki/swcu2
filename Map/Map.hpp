@@ -36,13 +36,25 @@ public:
     virtual void    onLeave(int playerid);
 };
 
+class PrisonMapArea : public SphereArea
+{
+public:
+                    PrisonMapArea(float x, float y, float z, float radius,
+        int virtualworld = -1, int interior = -1, int playerid = -1);
+    virtual         ~PrisonMapArea() {}
+
+    virtual void    onEnter(int playerid);
+    virtual void    onLeave(int playerid);
+};
+
 enum MapType
 {
     LANDSCAPE   = 0,
     DEATHMATCH  = 1,
     STUNT       = 2,
     HOUSE       = 3,
-    PROPERTY    = 4
+    PROPERTY    = 4,
+    PRISON      = 5
 };
 
 class Map

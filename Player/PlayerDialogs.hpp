@@ -185,4 +185,18 @@ public:
     virtual void    build();
 };
 
+class PlayerSetWantedLevelDialog : public RadioListDialog<int>
+{
+protected:
+    int             mTargetPlayer, mMin, mMax;
+
+public:
+                    PlayerSetWantedLevelDialog(int playerid, int target,
+                        int minlevel, int maxlevel);
+    virtual         ~PlayerSetWantedLevelDialog() {}
+
+    virtual void    build();
+    virtual bool    process(int level);
+};
+
 }

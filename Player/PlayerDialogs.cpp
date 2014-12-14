@@ -408,6 +408,37 @@ void PlayerControlDialog::build()
     });
     // * Spectate
 
+    // Police Rank POLICE_OFFICER
+    int rank = p->getPoliceRank();
+    if(rank >= POLICE_OFFICER && rank < POLICE_DEPUTY_CHIEF)
+    {
+        addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
+            DialogManager::get().push<PlayerSetWantedLevelDialog>(
+                playerid, targetid, 1, 2
+            );
+        });
+    }
+
+    // Police Rank POLICE_DEPUTY_CHIEF
+    if(rank >= POLICE_DEPUTY_CHIEF && rank < CHIEF_OF_POLICE)
+    {
+        addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
+            DialogManager::get().push<PlayerSetWantedLevelDialog>(
+                playerid, targetid, 0, 4
+            );
+        });
+    }
+
+    // Police Rank CHIEF_OF_POLICE
+    if(rank == CHIEF_OF_POLICE)
+    {
+        addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
+            DialogManager::get().push<PlayerSetWantedLevelDialog>(
+                playerid, targetid, 0, 6
+            );
+        });
+    }
+
     // Admin Level 1
     if(p->getAdminLevel() >= 1)
     {
@@ -454,6 +485,7 @@ void PlayerControlDialog::build()
             addItem(t(p, DLG_PLAYER_CTL_UNFREEZE), [targetid]() {
                 auto target = PlayerManager::get().getPlayer(targetid);
                 if(target != nullptr) target->removeFlags(STATUS_FREEZED);
+                TogglePlayerControllable(targetid, 1);
             });
         }
         else
@@ -461,6 +493,7 @@ void PlayerControlDialog::build()
             addItem(t(p, DLG_PLAYER_CTL_FREEZE), [targetid]() {
                 auto target = PlayerManager::get().getPlayer(targetid);
                 if(target != nullptr) target->addFlags(STATUS_FREEZED);
+                TogglePlayerControllable(targetid, 0);
             });
         }
         // * Kill
@@ -527,8 +560,9 @@ bool PlayerSendMessageDialog::handleCallback(
     {
         return true;
     }
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
     auto p = PlayerManager::get().getPlayer(mPlayerId);
-    if(p == nullptr)
+    if(target == nullptr || p == nullptr)
     {
         return true;
     }
@@ -538,10 +572,13 @@ bool PlayerSendMessageDialog::handleCallback(
             t(p, PLAYER_NOT_FOUND));
         return true;
     }
-    SendClientMessage(mPlayerId, 0xFFFFFFFF, t(p, DLG_PM_SENT));
+    std::stringstream info;
+    info << t(p, DLG_PM_SENT) << target->getNickname()
+        << "{FFFFFF}(" << mTargetPlayer << "): " << inputtext;
+    SendClientMessage(mPlayerId, 0xFFFFFFFF, info.str().c_str());
     std::stringstream msg;
-    msg << t(mTargetPlayer, DLG_PM_RECEIVE) << p->getNickname()
-        << "{FFFFFF}(" << p->getInGameId() << "): " << inputtext;
+    msg << t(target, DLG_PM_RECEIVE) << p->getNickname()
+        << "{FFFFFF}(" << mPlayerId << "): " << inputtext;
     SendClientMessage(mTargetPlayer, 0xFFFFFFFF, msg.str().c_str());
     return false;
 }
@@ -635,6 +672,57 @@ void PlayerControlPanelDialog::build()
             DialogManager::get().push<MapManagerDialog>(playerid);
         });
     }
+}
+
+PlayerSetWantedLevelDialog::PlayerSetWantedLevelDialog(int playerid,
+    int target, int minlevel, int maxlevel) :
+    RadioListDialog<int>(playerid, t(playerid, DLG_SET_WANDTED_TITLE)),
+    mTargetPlayer(target), mMin(minlevel < 0 ? 0 : minlevel),
+    mMax(maxlevel > 6 ? 6 : maxlevel)
+{
+}
+
+void PlayerSetWantedLevelDialog::build()
+{
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(target == nullptr || p == nullptr)
+    {
+        return;
+    }
+    if(0 >= mMin && 0 <= mMax)
+        addItem(0, t(p, WANDTED_LEVEL_0), target->getWantedLevel() == 0);
+    if(1 >= mMin && 1 <= mMax)
+        addItem(1, t(p, WANDTED_LEVEL_1), target->getWantedLevel() == 1);
+    if(2 >= mMin && 2 <= mMax)
+        addItem(2, t(p, WANDTED_LEVEL_2), target->getWantedLevel() == 2);
+    if(3 >= mMin && 3 <= mMax)
+        addItem(3, t(p, WANDTED_LEVEL_3), target->getWantedLevel() == 3);
+    if(4 >= mMin && 4 <= mMax)
+        addItem(4, t(p, WANDTED_LEVEL_4), target->getWantedLevel() == 4);
+    if(5 >= mMin && 5 <= mMax)
+        addItem(5, t(p, WANDTED_LEVEL_5), target->getWantedLevel() == 5);
+    if(6 >= mMin && 6 <= mMax)
+        addItem(6, t(p, WANDTED_LEVEL_6), target->getWantedLevel() == 6);
+}
+
+bool PlayerSetWantedLevelDialog::process(int level)
+{
+    auto target = PlayerManager::get().getPlayer(mTargetPlayer);
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(target == nullptr || p == nullptr)
+    {
+        return false;
+    }
+    // You can't down set wanted level if it's beyond your authority.
+    if(target->getWantedLevel() > level && target->getWantedLevel() > mMax)
+    {
+        SendClientMessage(mPlayerId, 0xFFFFFFFF,
+            t(p, DLG_SET_WANTED_BEYOND_AUTH));
+        return false;
+    }
+    target->setWantedLevel(level);
+    return true;
 }
 
 }

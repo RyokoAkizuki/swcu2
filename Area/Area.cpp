@@ -55,7 +55,9 @@ void Area::onLeave(int /* playerid */)
 
 SphereArea::SphereArea(float x, float y, float z, float radius,
         int world, int interior, int playerid) :
-    Area(CreateDynamicSphere(x, y, z, radius, world, interior, playerid))
+    Area(CreateDynamicSphere(x, y, z, radius, world, interior, playerid)),
+    mX(x), mY(y), mZ(z), mRadius(radius), mWorld(world),
+    mInterior(interior), mPlayer(playerid)
 {}
 
 }

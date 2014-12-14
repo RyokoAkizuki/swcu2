@@ -159,6 +159,8 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Send Message",
     // DLG_PLAYER_CTL_VIEWPROFILE
     "View Profile",
+    // DLG_PLAYER_CTL_SETWANTED
+    "Wanted to Arrest",
     // DLG_PLAYER_CTL_GOTO
     "Go To",
     // DLG_PLAYER_CTL_GETTHERE
@@ -193,7 +195,7 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_PM_MSG
     "Please enter your message to send.",
     // DLG_PM_SENT
-    "Your message has been sent.",
+    "Message sent to ",
     // DLG_PM_RECEIVE
     "Received message from ",
     
@@ -217,6 +219,30 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Edit Profile",
     // DLG_CTLPANEL_MAP_MGR
     "Map Manager",
+
+    // INFO_PUT_IN_PRISON
+    "You've been put in prison.",
+    // WARN_ESCAPE_FROM_PRISON
+    "Don't try to escape from prison.",
+
+    // DLG_SET_WANDTED_TITLE
+    "Set Wanted Level",
+    // WANDTED_LEVEL_0
+    "Not Wanted",
+    // WANDTED_LEVEL_1
+    "Wanted Level 1",
+    // WANDTED_LEVEL_2
+    "Wanted Level 2",
+    // WANDTED_LEVEL_3
+    "Wanted Level 3",
+    // WANDTED_LEVEL_4
+    "Wanted Level 4",
+    // WANDTED_LEVEL_5
+    "Wanted Level 5",
+    // WANDTED_LEVEL_6
+    "Wanted Level 6",
+    // DLG_SET_WANTED_BEYOND_AUTH
+    "It's beyond your authority to lower his wanted level.",
 
     // LANG_ENTRY_END
     ""

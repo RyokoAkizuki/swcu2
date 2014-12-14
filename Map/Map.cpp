@@ -17,6 +17,9 @@
 #include <sampgdk/a_samp.h>
 #include <eigen3/Eigen/Core>
 
+#include "../Player/PlayerManager.hpp"
+#include "../Multilang/Language.hpp"
+ 
 #include "Map.hpp"
 
 namespace swcu {
@@ -25,7 +28,6 @@ HouseMapArea::HouseMapArea(float x, float y, float z, float radius,
     int virtualworld, int interior, int playerid) :
     SphereArea(x, y, z, radius, virtualworld, interior, playerid)
 {
-
 }
 
 void HouseMapArea::onEnter(int playerid)
@@ -36,6 +38,34 @@ void HouseMapArea::onEnter(int playerid)
 void HouseMapArea::onLeave(int playerid)
 {
     SendClientMessage(playerid, 0xFFFFFFFF, "You've exited the house.");
+}
+
+PrisonMapArea::PrisonMapArea(float x, float y, float z, float radius,
+    int virtualworld, int interior, int playerid) :
+    SphereArea(x, y, z, radius, virtualworld, interior, playerid)
+{
+}
+
+void PrisonMapArea::onEnter(int playerid)
+{
+    auto p = PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr) return;
+    if(!p->isPrisonTermExceeded())
+    {
+        SendClientMessage(playerid, 0xFFFFFFFF, t(p, INFO_PUT_IN_PRISON));
+    }
+}
+
+void PrisonMapArea::onLeave(int playerid)
+{
+    auto p = PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr) return;
+    if(!p->isPrisonTermExceeded())
+    {
+        SendClientMessage(playerid, 0xFFFFFFFF,
+            t(p, WARN_ESCAPE_FROM_PRISON));
+        p->teleportTo(mX, mY, mZ, 0.0, mWorld, mInterior);
+    }
 }
 
 Map::Map() : mType(LANDSCAPE), mAddTime(0),
@@ -300,8 +330,20 @@ bool Map::calculateBoundingSphere()
 
 void Map::_createBoundingSphereArea()
 {
-    mBoundingArea.reset(new HouseMapArea(mBoundX, mBoundY, mBoundZ,
-        mBoundRadius, mVirtualWorld, -1, -1));
+    switch(mType)
+    {
+        case HOUSE:
+        mBoundingArea.reset(new HouseMapArea(mBoundX, mBoundY, mBoundZ,
+            mBoundRadius, mVirtualWorld, -1, -1));
+        break;
+        case PRISON:
+        mBoundingArea.reset(new PrisonMapArea(mBoundX, mBoundY, mBoundZ,
+            mBoundRadius, mVirtualWorld, -1, -1));
+        break;
+        default:
+        LOG(WARNING) << "No proper bounding for map type " << mType;
+        break;
+    }
 }
 
 bool Map::_loadMap(const mongo::BSONObj& data)

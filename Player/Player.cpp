@@ -352,11 +352,13 @@ bool Player::setColor(int color)
 bool Player::putIntoPrison(time_t prisonTerm)
 {
     int64_t tofree = time(0) + prisonTerm;
-    if(_updateField("$set", "timetofree", tofree))
+    if(_updateField("$set", "timetofree", tofree) &&
+        _updateField("$inc", "timeinprison", tofree))
     {
         LOG(INFO) << "Player " << mLogName << " now have a prison term of "
             << prisonTerm << " seconds.";
         mTimeToFree = tofree;
+        mTimeInPrison += tofree;
         setWantedLevel(0);
         addFlags(STATUS_JAILED);
         return true;

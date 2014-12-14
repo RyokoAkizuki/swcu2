@@ -36,6 +36,10 @@ public:
 
 class SphereArea : public Area
 {
+protected:
+    float           mX, mY, mZ, mRadius;
+    int             mWorld, mInterior, mPlayer;
+    
 public:
                     SphereArea(float x, float y, float z, float radius,
         int virtualworld = -1, int interior = -1, int playerid = -1);
