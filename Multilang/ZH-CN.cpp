@@ -74,7 +74,7 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_EDIT_PROF_NICKNAME
     "我的昵称: ",
 
-    // DLG_EDIT_PROF_TITLE_POSTFIX
+    // DLG_VIEW_PROF_TITLE_POST_FIX
     "的资料",
     // DLG_VIEW_PROF_ID
     "ID: ",

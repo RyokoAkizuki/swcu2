@@ -580,6 +580,8 @@ bool PlayerSendMessageDialog::handleCallback(
     msg << t(target, DLG_PM_RECEIVE) << p->getNickname()
         << "{FFFFFF}(" << mPlayerId << "): " << inputtext;
     SendClientMessage(mTargetPlayer, 0xFFFFFFFF, msg.str().c_str());
+    LOG(INFO) << "Private message sent from " << p->getLogName()
+        << " to " << target->getLogName() << ": " << inputtext;
     return false;
 }
 

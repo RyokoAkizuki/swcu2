@@ -86,7 +86,7 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_VIEW_PROF_JOINTIME
     "Join Time: ",
     // DLG_VIEW_PROF_GAMETIME
-    "Gaming Time: "
+    "Gaming Time: ",
     // DLG_VIEW_PROF_ADMINLEVEL
     "Admin Level: ",
     // DLG_VIEW_PROF_TARGET_NOT_LOGGED_IN
@@ -217,7 +217,7 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Control Panel",
     // DLG_CTLPANEL_PROFILE
     "Edit Profile",
-    // DLG_CTLPANEL_LANG,
+    // DLG_CTLPANEL_LANG
     "Change Language",
     // DLG_CTLPANEL_MAP_MGR
     "Map Manager",
