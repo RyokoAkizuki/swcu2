@@ -18,6 +18,7 @@
 
 #include "../Streamer/Streamer.hpp"
 #include "../Multilang/Language.hpp"
+#include "PlayerColors.hpp"
 
 #include "Player.hpp"
 
@@ -39,7 +40,7 @@ const char* PoliceRankString[] =
 
 Player::Player(int gameid) :
     mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
-    mJoinTime(0), mGameTime(0), mLanguage(0),
+    mJoinTime(0), mGameTime(0), mLanguage(0), mColor(getRandomColor()),
     mPoliceRank(CIVILIAN), mWantedLevel(0), mTimeInPrison(0),
     mTimeToFree(0),
     mRegistered(false),
@@ -48,6 +49,7 @@ Player::Player(int gameid) :
 {
     mLogName = getPlayerNameFixed(mInGameId);
     LOG(INFO) << "Loading player " << mLogName << "'s profile.";
+    SetPlayerColor(mInGameId, mColor);
     loadProfile();
 }
 
@@ -81,6 +83,7 @@ bool Player::createProfile(const std::string& password)
                 "logname"       << GBKToUTF8(mLogName)  <<
                 "password"      << tPasswordHash        <<
                 "lang"          << mLanguage            <<
+                "color"         << mColor               <<
                 "gametime"      << 0                    <<
                 "adminlevel"    << mAdminLevel          <<
                 "flags"         << mFlags               <<
@@ -327,6 +330,20 @@ bool Player::setWantedLevel(int level)
             << level << ".";
         mWantedLevel = level;
         updatePlayerLabel();
+        _applyWantedLevel();
+        return true;
+    }
+    return false;
+}
+
+bool Player::setColor(int color)
+{
+    if(_updateField("$set", "color", color))
+    {
+        LOG(INFO) << "Player " << mLogName << "'s color is set to "
+            << color << ".";
+        mColor = color;
+        SetPlayerColor(mInGameId, mColor);
         return true;
     }
     return false;
@@ -560,6 +577,9 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mJoinTime       = doc["jointime"].date().toTimeT();
         mGameTime       = doc["gametime"].numberLong();
         mLanguage       = doc["lang"].numberInt();
+        mColor          = doc["color"].numberInt();
+        if(mColor == 0) mColor = getRandomColor();
+        SetPlayerColor(mInGameId, mColor);
         mPoliceRank     = PoliceRank(doc["policerank"].numberInt());
         if(mPoliceRank > 9) mPoliceRank = CHIEF_OF_POLICE;
         if(mPoliceRank < 0) mPoliceRank = CIVILIAN;
@@ -569,7 +589,14 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mTimeInPrison   = doc["timeinprison"].date().toTimeT();
         mTimeToFree     = doc["timetofree"].date().toTimeT();
     });
+    _applyWantedLevel();
     updatePlayerLabel();
+}
+
+void Player::_applyWantedLevel()
+{
+    SetPlayerWantedLevel(mInGameId, mWantedLevel);
+    SetPlayerColor(mInGameId, (mWantedLevel > 0) ? 0xFF0000FF : mColor);
 }
 
 bool Player::_validatePassword(const std::string& password)

@@ -29,6 +29,7 @@
 #include "../Streamer/Streamer.hpp"
 #include "../Player/PlayerManager.hpp"
 #include "../Player/PlayerDialogs.hpp"
+#include "../Player/PlayerColors.hpp"
 #include "../Interface/DialogManager.hpp"
 #include "../Map/MapManager.hpp"
 #include "../Map/MapDialogs.hpp"
@@ -173,7 +174,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid, const char * text)
     {
         return false;
     }
-    return true;
+    std::stringstream chat;
+    chat << swcu::toEmbedString(p->getColor()) << p->getNickname()
+        << "{FFFFFF}(" << playerid << "): " << text;
+    SendClientMessageToAll(0xFFFFFFFF, chat.str().c_str());
+    return false;
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,

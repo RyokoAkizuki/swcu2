@@ -62,6 +62,7 @@ protected:
     int64_t             mJoinTime;
     int64_t             mGameTime;
     int                 mLanguage;
+    int                 mColor;
 
     /**
      * Police System
@@ -223,6 +224,11 @@ public:
 
             bool        setWantedLevel(int level);
 
+            int         getColor() const
+            { return mColor; }
+
+            bool        setColor(int color);
+
     /**
      * ************ Game Features ************
      */
@@ -252,6 +258,7 @@ public:
 protected:
 
             void        _loadProfile(const mongo::BSONObj& doc);
+            void        _applyWantedLevel();
 
     template<typename T>
             bool        _updateField(const char* operation,
