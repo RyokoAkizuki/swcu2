@@ -156,6 +156,13 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
     {
         return false;
     }
+    if(p->hasFlags(swcu::STATUS_JAILED))
+    {
+        if(p->isPrisonTermExceeded())
+        {
+            p->freeFromPrison();
+        }
+    }
     if(p->hasFlags(swcu::STATUS_FREEZED))
     {
         return false;

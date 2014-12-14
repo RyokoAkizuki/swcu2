@@ -230,6 +230,8 @@ public:
     virtual         ~ArrestDialog() {}
 
     virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
 };
 
 class CreateTeleportDialog : public InputDialog

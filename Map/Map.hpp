@@ -25,6 +25,14 @@
 
 namespace swcu {
 
+enum VirtualWorld
+{
+    WORLD_MAIN      = 0,
+    WORLD_PRISON    = 1,
+    WORLD_STUNT     = 2,
+    WORLD_MAX       = 2147483647
+};
+
 class HouseMapArea : public SphereArea
 {
 public:

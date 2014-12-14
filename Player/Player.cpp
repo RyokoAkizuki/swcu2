@@ -18,6 +18,7 @@
 
 #include "../Streamer/Streamer.hpp"
 #include "../Multilang/Language.hpp"
+#include "../Map/Map.hpp"
 #include "PlayerColors.hpp"
 
 #include "Player.hpp"
@@ -358,7 +359,7 @@ bool Player::putIntoPrison(time_t prisonTerm)
     }
     int64_t tofree = time(0) + prisonTerm;
     if(_updateField("$set", "timetofree", tofree) &&
-        _updateField("$inc", "timeinprison", tofree))
+        _updateField("$inc", "timeinprison", static_cast<int64_t>(prisonTerm)))
     {
         LOG(INFO) << "Player " << mLogName << " now have a prison term of "
             << prisonTerm << " seconds.";
@@ -379,6 +380,9 @@ bool Player::isPrisonTermExceeded() const
 bool Player::freeFromPrison()
 {
     removeFlags(STATUS_JAILED);
+    ForceClassSelection(mInGameId);
+    SetPlayerHealth(mInGameId, 0.0);
+    SetPlayerVirtualWorld(mInGameId, WORLD_MAIN);
     updatePlayerLabel();
     return true;
 }

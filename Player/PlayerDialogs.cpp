@@ -426,31 +426,40 @@ void PlayerControlDialog::build()
 
     if(rank >= POLICE_OFFICER && rank < POLICE_DEPUTY_CHIEF)
     {
-        addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
-            DialogManager::get().push<PlayerSetWantedLevelDialog>(
-                playerid, targetid, 1, 2
-            );
-        });
+        if(!target->hasFlags(STATUS_JAILED))
+        {
+            addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
+                DialogManager::get().push<PlayerSetWantedLevelDialog>(
+                    playerid, targetid, 1, 2
+                );
+            });
+        }
     }
 
     // Police Rank POLICE_DEPUTY_CHIEF
     if(rank >= POLICE_DEPUTY_CHIEF && rank < CHIEF_OF_POLICE)
     {
-        addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
-            DialogManager::get().push<PlayerSetWantedLevelDialog>(
-                playerid, targetid, 0, 4
-            );
-        });
+        if(!target->hasFlags(STATUS_JAILED))
+        {
+            addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
+                DialogManager::get().push<PlayerSetWantedLevelDialog>(
+                    playerid, targetid, 0, 4
+                );
+            });
+        }
     }
 
     // Police Rank CHIEF_OF_POLICE
     if(rank == CHIEF_OF_POLICE)
     {
-        addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
-            DialogManager::get().push<PlayerSetWantedLevelDialog>(
-                playerid, targetid, 0, 6
-            );
-        });
+        if(!target->hasFlags(STATUS_JAILED))
+        {
+            addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
+                DialogManager::get().push<PlayerSetWantedLevelDialog>(
+                    playerid, targetid, 0, 6
+                );
+            });
+        }
     }
 
     // Admin Level 1
@@ -834,6 +843,13 @@ void ArrestDialog::build()
         if(target != nullptr && target->getWantedLevel() > 0)
             target->putIntoPrison(60 * 15);
     });
+}
+
+bool ArrestDialog::handleCallback(
+    bool response, int listitem, const std::string &inputtext)
+{
+    MenuDialog::handleCallback(response, listitem, inputtext);
+    return true;
 }
 
 CreateTeleportDialog::CreateTeleportDialog(int playerid) :

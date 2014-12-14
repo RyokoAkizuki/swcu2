@@ -23,6 +23,12 @@ PlayerManager::PlayerManager()
     getDBConn()->createCollection(Config::colNamePlayer);
     getDBConn()->ensureIndex(Config::colNamePlayer, 
         BSON("logname" << 1), true);
+
+    getDBConn()->createCollection(Config::colNameTeleport);
+    getDBConn()->ensureIndex(Config::colNameTeleport, 
+        BSON("name" << 1), true);
+    getDBConn()->ensureIndex(Config::colNameTeleport, 
+        BSON("location" << "2d"), false);
 }
 
 Player* PlayerManager::addPlayer(int playerid)
