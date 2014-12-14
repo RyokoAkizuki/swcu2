@@ -159,6 +159,8 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Send Message",
     // DLG_PLAYER_CTL_VIEWPROFILE
     "View Profile",
+    // DLG_PLAYER_CTL_ARREST
+    "Arrest",
     // DLG_PLAYER_CTL_SETWANTED
     "Wanted to Arrest",
     // DLG_PLAYER_CTL_GOTO
@@ -221,6 +223,8 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Change Language",
     // DLG_CTLPANEL_MAP_MGR
     "Map Manager",
+    // DLG_CTLPANEL_SURRENDER
+    "Surrender to Police",
 
     // INFO_PUT_IN_PRISON
     "You've been put in prison.",
@@ -248,6 +252,22 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
 
     // DLG_SELECT_LANG_TITLE
     "Select Language",
+
+    // DLG_SURRENDER_TITLE
+    "Surrender",
+    // DLG_SURRENDER_MSG
+    "You're wanted by police. You can give yourself up\n"
+        "and enjoy a prison term of 2 minutes or just run away.\n"
+        "Do you want to surrender?",
+
+    // DLG_ARREST_TITLE
+    "Arrest",
+    // DLG_ARREST_5MIN
+    "Jail for 5 minutes",
+    // DLG_ARREST_10MIN
+    "Jail for 10 minutes",
+    // DLG_ARREST_15MIN
+    "Jail for 15 minutes",
 
     // LANG_ENTRY_END
     ""

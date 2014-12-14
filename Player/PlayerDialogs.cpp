@@ -410,6 +410,20 @@ void PlayerControlDialog::build()
 
     // Police Rank POLICE_OFFICER
     int rank = p->getPoliceRank();
+
+    if(rank > CIVILIAN && target->getWantedLevel() > 0)
+    {
+        float x, y, z;
+        GetPlayerPos(targetid, &x, &y, &z);
+        float d = GetPlayerDistanceFromPoint(playerid, x, y, z);
+        if(d < 10.0)
+        {
+            addItem(t(p, DLG_PLAYER_CTL_ARREST), [playerid, targetid]() {
+                DialogManager::get().push<ArrestDialog>(playerid, targetid);
+            });
+        }
+    }
+
     if(rank >= POLICE_OFFICER && rank < POLICE_DEPUTY_CHIEF)
     {
         addItem(t(p, DLG_PLAYER_CTL_SETWANTED), [playerid, targetid]() {
@@ -678,6 +692,13 @@ void PlayerControlPanelDialog::build()
             DialogManager::get().push<MapManagerDialog>(playerid);
         });
     }
+    // Police System
+    if(p->getWantedLevel() > 0)
+    {
+        addItem(t(p, DLG_CTLPANEL_SURRENDER), [playerid]() {
+            DialogManager::get().push<ArrestSurrenderDialog>(playerid);
+        });
+    }
 }
 
 PlayerSetWantedLevelDialog::PlayerSetWantedLevelDialog(int playerid,
@@ -728,6 +749,10 @@ bool PlayerSetWantedLevelDialog::process(int level)
         return false;
     }
     target->setWantedLevel(level);
+    if(level > 0)
+    {
+        DialogManager::get().push<ArrestSurrenderDialog>(mTargetPlayer);
+    }
     return true;
 }
 
@@ -755,6 +780,56 @@ bool PlayerSelectLanguageDialog::process(Languages language)
         return false;
     }
     return p->setLanguage(language);
+}
+
+ArrestSurrenderDialog::ArrestSurrenderDialog(int playerid) :
+    ConfirmDialog(playerid, t(playerid, DLG_SURRENDER_TITLE))
+{
+}
+
+void ArrestSurrenderDialog::build()
+{
+    setMessage(t(mPlayerId, DLG_SURRENDER_MSG));
+}
+
+bool ArrestSurrenderDialog::handleCallback(
+    bool response, int /* listitem */, const std::string& /* inputtext */)
+{
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr) return true;
+    if(response && p->getWantedLevel() > 0)
+    {
+        p->putIntoPrison(60 * 2);
+    }
+    return true;
+}
+
+ArrestDialog::ArrestDialog(int playerid, int target) :
+    MenuDialog(playerid, t(playerid, DLG_ARREST_TITLE)),
+    mTarget(target)
+{
+}
+
+void ArrestDialog::build()
+{
+    int targetid = mTarget;
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr) return;
+    addItem(t(p, DLG_ARREST_5MIN), [targetid]() {
+        auto target = PlayerManager::get().getPlayer(targetid);
+        if(target != nullptr && target->getWantedLevel() > 0)
+            target->putIntoPrison(60 * 5);
+    });
+    addItem(t(p, DLG_ARREST_10MIN), [targetid]() {
+        auto target = PlayerManager::get().getPlayer(targetid);
+        if(target != nullptr && target->getWantedLevel() > 0)
+            target->putIntoPrison(60 * 10);
+    });
+    addItem(t(p, DLG_ARREST_15MIN), [targetid]() {
+        auto target = PlayerManager::get().getPlayer(targetid);
+        if(target != nullptr && target->getWantedLevel() > 0)
+            target->putIntoPrison(60 * 15);
+    });
 }
 
 }

@@ -352,6 +352,10 @@ bool Player::setColor(int color)
 
 bool Player::putIntoPrison(time_t prisonTerm)
 {
+    if(!teleportToPrison())
+    {
+        return false;
+    }
     int64_t tofree = time(0) + prisonTerm;
     if(_updateField("$set", "timetofree", tofree) &&
         _updateField("$inc", "timeinprison", tofree))
@@ -364,7 +368,6 @@ bool Player::putIntoPrison(time_t prisonTerm)
         addFlags(STATUS_JAILED);
         return true;
     }
-    // TO-DO: jail
     return false;
 }
 
@@ -598,12 +601,18 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
     });
     _applyWantedLevel();
     updatePlayerLabel();
+    if(!isPrisonTermExceeded()) teleportToPrison();
 }
 
 void Player::_applyWantedLevel()
 {
     SetPlayerWantedLevel(mInGameId, mWantedLevel);
     SetPlayerColor(mInGameId, (mWantedLevel > 0) ? 0xFF0000FF : mColor);
+}
+
+bool Player::teleportToPrison()
+{
+    return teleportTo("##prison");
 }
 
 bool Player::_validatePassword(const std::string& password)

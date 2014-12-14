@@ -158,6 +158,8 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "发送密语",
     // DLG_PLAYER_CTL_VIEWPROFILE
     "查看资料",
+    // DLG_PLAYER_CTL_ARREST
+    "逮捕",
     // DLG_PLAYER_CTL_SETWANTED
     "通缉",
     // DLG_PLAYER_CTL_GOTO
@@ -220,6 +222,8 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "更改语言 Select Language",
     // DLG_CTLPANEL_MAP_MGR
     "地图管理",
+    // DLG_CTLPANEL_SURRENDER
+    "自首",
 
     // INFO_PUT_IN_PRISON
     "你被送进了监狱.",
@@ -247,6 +251,20 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
 
     // DLG_SELECT_LANG_TITLE
     "选择语言 Select Language",
+
+    // DLG_SURRENDER_TITLE
+    "通缉",
+    // DLG_SURRENDER_MSG
+    "你被通缉了, 你可以自首(只关押两分钟)或逃跑. 你要自首吗?",
+
+    // DLG_ARREST_TITLE
+    "逮捕",
+    // DLG_ARREST_5MIN
+    "关押5分钟",
+    // DLG_ARREST_10MIN
+    "关押10分钟",
+    // DLG_ARREST_15MIN
+    "关押15分钟",
 
     // LANG_ENTRY_END
     ""

@@ -163,6 +163,17 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
     return true;
 }
 
+PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
+{
+    auto p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr)
+    {
+        return false;
+    }
+    if(!p->isPrisonTermExceeded()) p->teleportToPrison();
+    return true;
+}
+
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid, const char * text)
 {
     auto p = swcu::PlayerManager::get().getPlayer(playerid);

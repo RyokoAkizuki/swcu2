@@ -242,6 +242,7 @@ public:
             bool        putIntoPrison(time_t prisonTerm);
             bool        isPrisonTermExceeded() const;
             bool        freeFromPrison();
+            bool        teleportToPrison();
 
             void        updatePlayerLabel();
 
@@ -259,7 +260,7 @@ protected:
 
             void        _loadProfile(const mongo::BSONObj& doc);
             void        _applyWantedLevel();
-
+            
     template<typename T>
             bool        _updateField(const char* operation,
                 const char* fieldname, T value)

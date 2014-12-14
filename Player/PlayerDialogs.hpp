@@ -209,4 +209,27 @@ public:
     virtual bool    process(Languages language);
 };
 
+class ArrestSurrenderDialog : public ConfirmDialog
+{
+public:
+                    ArrestSurrenderDialog(int playerid);
+    virtual         ~ArrestSurrenderDialog() {}
+
+    virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
+class ArrestDialog : public MenuDialog
+{
+protected:
+    int             mTarget;
+
+public:
+                    ArrestDialog(int playerid, int target);
+    virtual         ~ArrestDialog() {}
+
+    virtual void    build();
+};
+
 }
