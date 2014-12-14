@@ -277,6 +277,7 @@ bool Player::setAdminLevel(int level)
         LOG(INFO) << "Player " << mLogName << "'s admin level is set to "
             << level << ".";
         mAdminLevel = level;
+        updatePlayerLabel();
         return true;
     }
     return false;
@@ -401,7 +402,11 @@ void Player::updatePlayerLabel()
     }
     else
     {
-        label << "{33FFFF}" << PoliceRankString[mPoliceRank] << "{FFFFFF}\n";
+        if(mPoliceRank > CIVILIAN)
+        {
+            label << "{33FFFF}" << PoliceRankString[mPoliceRank]
+                << "{FFFFFF}\n";
+        }
     }
     // Wanted Level
     if(mWantedLevel > 0)

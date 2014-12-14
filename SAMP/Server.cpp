@@ -202,6 +202,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid,
 {
     swcu::DialogManager::get().handleCallback(playerid, dialogid, response,
         listitem, inputtext);
+    Streamer_Update(playerid);
     return true;
 }
 

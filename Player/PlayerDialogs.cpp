@@ -664,6 +664,10 @@ void PlayerControlPanelDialog::build()
     addItem(t(p, DLG_CTLPANEL_PROFILE), [playerid]() {
         DialogManager::get().push<PlayerEditProfileDialog>(playerid);
     });
+    // * Languages
+    addItem(t(p, DLG_CTLPANEL_LANG), [playerid]() {
+        DialogManager::get().push<PlayerSelectLanguageDialog>(playerid);
+    });
     // Admin Level 3
     // * Map Manager
     if(p->getAdminLevel() >= 3)
@@ -723,6 +727,32 @@ bool PlayerSetWantedLevelDialog::process(int level)
     }
     target->setWantedLevel(level);
     return true;
+}
+
+PlayerSelectLanguageDialog::PlayerSelectLanguageDialog(int playerid) :
+    RadioListDialog<Languages>(playerid, t(playerid, DLG_SELECT_LANG_TITLE))
+{
+}
+
+void PlayerSelectLanguageDialog::build()
+{
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr)
+    {
+        return;
+    }
+    addItem(ZH_CN, "ÖÐÎÄ", p->getLanguage() == ZH_CN);
+    addItem(EN_US, "English", p->getLanguage() == EN_US);
+}
+
+bool PlayerSelectLanguageDialog::process(Languages language)
+{
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr)
+    {
+        return false;
+    }
+    return p->setLanguage(language);
 }
 
 }

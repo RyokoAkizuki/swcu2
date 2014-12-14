@@ -216,6 +216,8 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "控制面板",
     // DLG_CTLPANEL_PROFILE
     "编辑资料",
+    // DLG_CTLPANEL_LANG
+    "更改语言 Select Language",
     // DLG_CTLPANEL_MAP_MGR
     "地图管理",
 
@@ -242,6 +244,9 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "六星通缉",
     // DLG_SET_WANTED_BEYOND_AUTH
     "你没有权限降低他的通缉等级.",
+
+    // DLG_SELECT_LANG_TITLE
+    "选择语言 Select Language",
 
     // LANG_ENTRY_END
     ""

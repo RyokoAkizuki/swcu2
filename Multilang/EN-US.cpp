@@ -217,6 +217,8 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Control Panel",
     // DLG_CTLPANEL_PROFILE
     "Edit Profile",
+    // DLG_CTLPANEL_LANG,
+    "Change Language",
     // DLG_CTLPANEL_MAP_MGR
     "Map Manager",
 
@@ -243,6 +245,9 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Wanted Level 6",
     // DLG_SET_WANTED_BEYOND_AUTH
     "It's beyond your authority to lower his wanted level.",
+
+    // DLG_SELECT_LANG_TITLE
+    "Select Language",
 
     // LANG_ENTRY_END
     ""

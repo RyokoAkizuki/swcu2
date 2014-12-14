@@ -199,4 +199,14 @@ public:
     virtual bool    process(int level);
 };
 
+class PlayerSelectLanguageDialog : public RadioListDialog<Languages>
+{
+public:
+                    PlayerSelectLanguageDialog(int playerid);
+    virtual         ~PlayerSelectLanguageDialog() {}
+
+    virtual void    build();
+    virtual bool    process(Languages language);
+};
+
 }
