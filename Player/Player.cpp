@@ -597,8 +597,7 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mGameTime       = doc["gametime"].numberLong();
         mLanguage       = doc["lang"].numberInt();
         mColor          = doc["color"].numberInt();
-        if(mColor == 0) mColor = getRandomColor();
-        SetPlayerColor(mInGameId, mColor);
+        if(mColor == 0) setColor(getRandomColor());
         mPoliceRank     = PoliceRank(doc["policerank"].numberInt());
         if(mPoliceRank > 9) mPoliceRank = CHIEF_OF_POLICE;
         if(mPoliceRank < 0) mPoliceRank = CIVILIAN;
