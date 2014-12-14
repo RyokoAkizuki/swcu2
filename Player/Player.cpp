@@ -605,8 +605,8 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mWantedLevel    = doc["wantedlevel"].numberInt();
         if(mWantedLevel > 9) mWantedLevel = 9;
         if(mWantedLevel < 0) mWantedLevel = 0;
-        mTimeInPrison   = doc["timeinprison"].date().toTimeT();
-        mTimeToFree     = doc["timetofree"].date().toTimeT();
+        mTimeInPrison   = doc["timeinprison"].numberLong();
+        mTimeToFree     = doc["timetofree"].numberLong();
     });
     _applyWantedLevel();
     updatePlayerLabel();
