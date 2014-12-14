@@ -232,4 +232,15 @@ public:
     virtual void    build();
 };
 
+class CreateTeleportDialog : public InputDialog
+{
+public:
+                    CreateTeleportDialog(int playerid);
+    virtual         ~CreateTeleportDialog() {}
+
+    virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
 }

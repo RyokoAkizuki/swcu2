@@ -225,6 +225,8 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Map Manager",
     // DLG_CTLPANEL_SURRENDER
     "Surrender to Police",
+    // DLG_CTLPANEL_CREATE_TP
+    "Create Teleport Here",
 
     // INFO_PUT_IN_PRISON
     "You've been put in prison.",
@@ -269,6 +271,11 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_ARREST_15MIN
     "Jail for 15 minutes",
 
+    // DLG_CREATE_TP_TITLE
+    "Create Teleport",
+    // DLG_CREATE_TP_MESSAGE
+    "Select a name for your teleport",
+    
     // LANG_ENTRY_END
     ""
 };

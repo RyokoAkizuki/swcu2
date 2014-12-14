@@ -224,6 +224,8 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "地图管理",
     // DLG_CTLPANEL_SURRENDER
     "自首",
+    // DLG_CTLPANEL_CREATE_TP
+    "在此创建传送点",
 
     // INFO_PUT_IN_PRISON
     "你被送进了监狱.",
@@ -266,6 +268,11 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_ARREST_15MIN
     "关押15分钟",
 
+    // DLG_CREATE_TP_TITLE
+    "创建传送点",
+    // DLG_CREATE_TP_MESSAGE
+    "请给传送点命名",
+    
     // LANG_ENTRY_END
     ""
 };

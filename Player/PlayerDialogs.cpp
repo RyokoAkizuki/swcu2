@@ -684,6 +684,10 @@ void PlayerControlPanelDialog::build()
     addItem(t(p, DLG_CTLPANEL_LANG), [playerid]() {
         DialogManager::get().push<PlayerSelectLanguageDialog>(playerid);
     });
+    // * Create Teleport
+    addItem(t(p, DLG_CTLPANEL_CREATE_TP), [playerid]() {
+        DialogManager::get().push<CreateTeleportDialog>(playerid);
+    });
     // Admin Level 3
     // * Map Manager
     if(p->getAdminLevel() >= 3)
@@ -830,6 +834,25 @@ void ArrestDialog::build()
         if(target != nullptr && target->getWantedLevel() > 0)
             target->putIntoPrison(60 * 15);
     });
+}
+
+CreateTeleportDialog::CreateTeleportDialog(int playerid) :
+    InputDialog(playerid, t(playerid, DLG_CREATE_TP_TITLE))
+{
+}
+
+void CreateTeleportDialog::build()
+{
+    setMessage(t(mPlayerId, DLG_CREATE_TP_MESSAGE));
+}
+
+bool CreateTeleportDialog::handleCallback(
+    bool response, int /* listitem */, const std::string &inputtext)
+{
+    if(!response) return true;
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr) return false;
+    return p->createTeleport(inputtext);
 }
 
 }
