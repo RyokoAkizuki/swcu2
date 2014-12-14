@@ -162,6 +162,8 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "逮捕",
     // DLG_PLAYER_CTL_SETWANTED
     "通缉",
+    // DLG_PLAYER_CTL_FREE
+    "释放",
     // DLG_PLAYER_CTL_GOTO
     "传送过去",
     // DLG_PLAYER_CTL_GETTHERE

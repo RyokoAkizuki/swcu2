@@ -462,6 +462,18 @@ void PlayerControlDialog::build()
         }
     }
 
+    // Police Rank >= POLICE_DEPUTY_CHIEF
+    if(rank >= POLICE_DEPUTY_CHIEF)
+    {
+        if(target->hasFlags(STATUS_JAILED))
+        {
+            addItem(t(p, DLG_PLAYER_CTL_FREE), [targetid]() {
+                auto target = PlayerManager::get().getPlayer(targetid);
+                if(target != nullptr) target->freeFromPrison();
+            });
+        }
+    }
+
     // Admin Level 1
     if(p->getAdminLevel() >= 1)
     {

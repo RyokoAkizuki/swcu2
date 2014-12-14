@@ -163,6 +163,8 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Arrest",
     // DLG_PLAYER_CTL_SETWANTED
     "Wanted to Arrest",
+    // DLG_PLAYER_CTL_FREE
+    "Free from Prison",
     // DLG_PLAYER_CTL_GOTO
     "Go To",
     // DLG_PLAYER_CTL_GETTHERE

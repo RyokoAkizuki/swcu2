@@ -353,6 +353,7 @@ bool Player::setColor(int color)
 
 bool Player::putIntoPrison(time_t prisonTerm)
 {
+    if(hasFlags(STATUS_JAILED)) return false;
     if(!teleportToPrison())
     {
         return false;
@@ -379,11 +380,15 @@ bool Player::isPrisonTermExceeded() const
 
 bool Player::freeFromPrison()
 {
+    if(!hasFlags(STATUS_JAILED)) return false;
+    if(!_updateField("$set", "timetofree", 0)) return false;
+    mTimeToFree = 0;
     removeFlags(STATUS_JAILED);
     ForceClassSelection(mInGameId);
     SetPlayerHealth(mInGameId, 0.0);
     SetPlayerVirtualWorld(mInGameId, WORLD_MAIN);
     updatePlayerLabel();
+    LOG(INFO) << "Player " << mLogName << " is freed from prison.";
     return true;
 }
 
