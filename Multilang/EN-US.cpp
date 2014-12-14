@@ -199,7 +199,7 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_PM_SENT
     "Message sent to ",
     // DLG_PM_RECEIVE
-    "Received message from ",
+    "Message from ",
     
     // DLG_SET_ADMIN_LEVEL_TITLE
     "Set Admin Level",
