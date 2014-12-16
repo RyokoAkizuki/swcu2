@@ -44,6 +44,7 @@
 
 namespace swcu {
 
-mongo::DBClientConnection* getDBConn();
+mongo::DBClientConnection*  getDBConn();
+bool                        dbCheckError();
 
 }

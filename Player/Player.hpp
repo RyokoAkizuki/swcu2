@@ -277,14 +277,7 @@ protected:
                 BSON("_id" << mId),
                 BSON(operation << BSON(fieldname << value))
                 );
-            auto err = getDBConn()->getLastError();
-            if (err.size())
-            {
-                LOG(ERROR) << "Failed to " << operation << " field "
-                    << fieldname << " to " << value;
-                return false;
-            }
-            return true;
+            return dbCheckError();
         });
         return false;
     }

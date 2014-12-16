@@ -102,10 +102,12 @@ bool Map::addObject(int model, float x, float y, float z,
     std::unique_ptr<Object>
         obj(new Object(model, x, y, z, rx, ry, rz, editable, mId,
             mVirtualWorld, interior));
-    obj->save();
-    mObjects.push_back(std::move(obj));
-    LOG(INFO) << "Object added to map.";
-    return true;
+    if(obj->save())
+    {
+        mObjects.push_back(std::move(obj));
+        return true;
+    }
+    return false;
 }
 
 bool Map::addVehicle(int model, float x, float y, float z,
@@ -120,10 +122,12 @@ bool Map::addVehicle(int model, float x, float y, float z,
     std::unique_ptr<LandscapeVehicle>
         veh(new LandscapeVehicle(model, x, y, z, angle, mId,
             mVirtualWorld, interior, respawndelay));
-    veh->save();
-    mVehicles.push_back(std::move(veh));
-    LOG(INFO) << "Vehicle added to map.";
-    return true;
+    if(veh->save())
+    {
+        mVehicles.push_back(std::move(veh));
+        return true;
+    }
+    return false;
 }
 
 bool Map::setWorld(int world)
@@ -142,9 +146,12 @@ bool Map::setWorld(int world)
                 "world" << world
             ))
         );
-        mVirtualWorld = world;
-        LOG(INFO) << "Map " << mName << "'s world is set to " << world;
-        return true;
+        if(dbCheckError())
+        {
+            mVirtualWorld = world;
+            LOG(INFO) << "Map " << mName << "'s world is set to " << world;
+            return true;
+        }
     });
     return false;
 }
@@ -165,9 +172,12 @@ bool Map::setOwner(const mongo::OID& owner)
                 "owner" << owner
             ))
         );
-        mOwner = owner;
-        LOG(INFO) << "Map " << mName << "'s owner is set to " << owner;
-        return true;
+        if(dbCheckError())
+        {
+            mOwner = owner;
+            LOG(INFO) << "Map " << mName << "'s owner is set to " << owner;
+            return true;
+        }
     });
     return false;
 }
@@ -217,18 +227,15 @@ bool Map::save(const std::string& name)
                 "area"          << mArea
                 )
             );
-        auto err = getDBConn()->getLastError();
-        if (err.size())
+        if(dbCheckError())
         {
-            LOG(ERROR) << "Map saving failed: " << err;
-            return false;
+            mId                     = id;
+            mAddTime                = datetime.toTimeT();
+            mName                   = name;
+            mSaved                  = true;
+            LOG(INFO) << "Map " << mName << " saved.";
+            return true;
         }
-        mId                     = id;
-        mAddTime                = datetime.toTimeT();
-        mName                   = name;
-        mSaved                  = true;
-        LOG(INFO) << "Map " << mName << " saved.";
-        return true;
     });
     return false;
 }
@@ -322,8 +329,11 @@ bool Map::calculateBoundingSphere()
                 "boundr" << mBoundRadius
             ))
         );
-        LOG(INFO) << "Map " << mName << "'s bounding shpere updated.";
-        return true;
+        if(dbCheckError())
+        {
+            LOG(INFO) << "Map " << mName << "'s bounding shpere updated.";
+            return true;
+        }
     });
     return false;
 }

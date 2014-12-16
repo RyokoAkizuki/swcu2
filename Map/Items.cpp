@@ -84,8 +84,7 @@ bool Object::save()
             Config::colNameMapObject,
             _buildDocument()
         );
-        LOG(INFO) << "Object saved " << mID.str();
-        return true;
+        return dbCheckError();
     });
     return false;
 }
@@ -135,8 +134,7 @@ bool Object::update()
                 "rz"    << mRZ
             ))
         );
-        LOG(INFO) << "Object " << mID.str() << "'s new position is saved.";
-        return true;
+        return dbCheckError();
     });
     return false;
 }
@@ -220,8 +218,7 @@ bool LandscapeVehicle::save()
             Config::colNameMapVehicle,
             _buildDocument()
         );
-        LOG(INFO) << "Vehicle saved " << mID.str();
-        return true;
+        return dbCheckError();
     });
     return false;
 }

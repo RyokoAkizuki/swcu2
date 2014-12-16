@@ -97,19 +97,16 @@ bool Player::createProfile(const std::string& password)
                 "timetofree"    << mTimeToFree
                 )
             );
-        auto err = getDBConn()->getLastError();
-        if (err.size())
+        if(dbCheckError())
         {
-            LOG(ERROR) << "Profile create failed: " << err;
-            return false;
+            mRegistered         = true;
+            mId                 = tId;
+            mIdStr              = mId.str();
+            mPasswordHash       = tPasswordHash;
+            mJoinTime           = datetime.toTimeT();
+            LOG(INFO) << "Player " << mLogName << "'s profile is created.";
+            return true;
         }
-        mRegistered             = true;
-        mId                     = tId;
-        mIdStr                  = mId.str();
-        mPasswordHash           = tPasswordHash;
-        mJoinTime               = datetime.toTimeT();
-        LOG(INFO) << "Player " << mLogName << "'s profile is created.";
-        return true;
     });
     return false;
 }
@@ -132,15 +129,12 @@ bool Player::saveProfile()
             QUERY("_id" << mId),
             BSON("$inc" << BSON("gametime" << now - mTimeEnteredServer))
         );
-        auto err = getDBConn()->getLastError();
-        if (err.size())
+        if(dbCheckError())
         {
-            LOG(ERROR) << "Profile save failed: " << err;
-            return false;
+            mTimeEnteredServer = now;
+            LOG(INFO) << "Player " << mLogName << "'s profile is saved.";
+            return true;
         }
-        mTimeEnteredServer = now;
-        LOG(INFO) << "Player " << mLogName << "'s profile is saved.";
-        return true;
     });
     return false;
 }
@@ -526,6 +520,7 @@ bool Player::teleportTo(const std::string& placeName)
                 BSON("_id" << doc["_id"].OID()),
                 BSON("$inc" << BSON("use" << 1))
             );
+            dbCheckError();
             LOG(INFO) << "Player " << mLogName << " teleported to "
                 << placeName;
             return true;
@@ -565,19 +560,15 @@ bool Player::createTeleport(const std::string& placeName)
                 "use"           << 0
             )
         );
-        auto err = getDBConn()->getLastError();
-        if (err.size())
+        if(dbCheckError())
         {
-            LOG(ERROR) << "Failed to create teleport: " << err;
             SendClientMessage(mInGameId, 0xFFFFFFFF,
-                t(this, TELEPORT_CREATE_FAILED));
-            return false;
+                t(this, TELEPORT_CREATE_SUCCESS));
+            LOG(INFO) << "Teleport " << placeName << " is created.";
+            return true;
         }
-        SendClientMessage(mInGameId, 0xFFFFFFFF,
-            t(this, TELEPORT_CREATE_SUCCESS));
-        LOG(INFO) << "Teleport " << placeName << " is created.";
-        return true;
     });
+    LOG(ERROR) << "Failed to create teleport.";
     SendClientMessage(mInGameId, 0xFFFFFFFF,
         t(this, TELEPORT_CREATE_FAILED));
     return false;

@@ -39,4 +39,15 @@ mongo::DBClientConnection* getDBConn()
     return &db.mConn;
 }
 
+bool dbCheckError()
+{
+    auto err = getDBConn()->getLastError();
+    if (err.size())
+    {
+        LOG(ERROR) << err;
+        return false;
+    }
+    return true;
+}
+
 }
