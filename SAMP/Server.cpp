@@ -34,6 +34,7 @@
 #include "../Map/MapManager.hpp"
 #include "../Map/MapDialogs.hpp"
 #include "../Area/AreaManager.hpp"
+#include "../Web/WebServiceManager.hpp"
 
 /** ~~ Event Forwarding for Streamer ~~ **/
 
@@ -99,6 +100,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
     ShowNameTags(0);
     swcu::MapManager::get().loadAllMaps();
+    swcu::WebServiceManager::get().bindMethod("^/hello/?$", "GET",
+    [](std::ostream& response, swcu::HTTPRequertPtr request) {
+        swcu::writeResponse(response, 200, "Hello.");
+    });
+    swcu::WebServiceManager::get().startServer();
     LOG(INFO) << "Game mode initialized.";
     return true;
 }

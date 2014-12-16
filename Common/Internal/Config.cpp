@@ -24,5 +24,7 @@ std::string Config::colNameMapObject    = "swcu2.map.object";
 std::string Config::colNameMapVehicle   = "swcu2.map.vehicle";
 std::string Config::colNamePlayer       = "swcu2.playerprofile";
 std::string Config::colNameTeleport     = "swcu2.teleport";
+int         Config::webServerPort       = 8081;
+size_t      Config::webServerThread     = 4;
 
 }

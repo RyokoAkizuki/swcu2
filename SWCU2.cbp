@@ -124,6 +124,9 @@
 		<Unit filename="Streamer/Internal/src/utility.h" />
 		<Unit filename="Streamer/Streamer.hpp" />
 		<Unit filename="Utility/Singleton.hpp" />
+		<Unit filename="Web/WebServiceManager.cpp" />
+		<Unit filename="Web/WebServiceManager.hpp" />
+		<Unit filename="Web/server_http.hpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

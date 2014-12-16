@@ -22,12 +22,14 @@ namespace swcu {
 
 struct Config
 {
-    static std::string dbHost;
-    static std::string colNameMap;
-    static std::string colNameMapObject;
-    static std::string colNameMapVehicle;
-    static std::string colNamePlayer;
-    static std::string colNameTeleport;
+    static std::string  dbHost;
+    static std::string  colNameMap;
+    static std::string  colNameMapObject;
+    static std::string  colNameMapVehicle;
+    static std::string  colNamePlayer;
+    static std::string  colNameTeleport;
+    static int          webServerPort;
+    static size_t       webServerThread;
 };
 
 }
