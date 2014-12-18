@@ -180,7 +180,6 @@ LandscapeVehicle::LandscapeVehicle(
         mInGameID = CreateVehicle(mModel, mX, mY, mZ, mAngle,
             // TO-DO: Random color or whatever.
             1, 1, mRespawnDelay);
-        LOG(INFO) << "Vehicle loaded from database.";
         return;
     });
     LOG(ERROR) << "Error occured while loading a vehicle.";

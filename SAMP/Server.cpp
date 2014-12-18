@@ -35,6 +35,7 @@
 #include "../Map/MapDialogs.hpp"
 #include "../Area/AreaManager.hpp"
 #include "../Web/WebServiceManager.hpp"
+#include "../Migration/Migration.hpp"
 
 /** ~~ Event Forwarding for Streamer ~~ **/
 
@@ -98,6 +99,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
+    // swcu::migratePlayerProfiles();
+    // swcu::migrateMaps();
     ShowNameTags(0);
     swcu::MapManager::get().loadAllMaps();
     swcu::WebServiceManager::get().bindMethod("^/hello$", "GET",
