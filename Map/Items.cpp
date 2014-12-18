@@ -176,7 +176,7 @@ LandscapeVehicle::LandscapeVehicle(
         mZ              = data["z"].numberDouble();
         mAngle          = data["rotate"].numberDouble();
         mInterior       = data["interior"].numberInt();
-        mRespawnDelay   = data["respawndelay"].boolean();
+        mRespawnDelay   = data["respawndelay"].numberInt();
         mInGameID = CreateVehicle(mModel, mX, mY, mZ, mAngle,
             // TO-DO: Random color or whatever.
             1, 1, mRespawnDelay);
