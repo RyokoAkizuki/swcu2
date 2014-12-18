@@ -57,6 +57,8 @@ public:
      * @return Amount of loaded maps.
      */
             size_t  loadAllMaps();
+
+            void    addWebServices();
 };
 
 }

@@ -35,7 +35,7 @@ protected:
 
                     WebServiceManager();
     friend class Singleton<WebServiceManager>;
-    
+
 public:
     typedef std::function<void(std::ostream&, HTTPRequertPtr)>
         WebRequestHandler;
@@ -56,12 +56,25 @@ public:
 
         std::string getStatusString(int status);
 
+enum ContentType
+{
+    CONTENT_TYPE_TEXT_PLAIN,
+    CONTENT_TYPE_TEXT_HTML,
+    CONTENT_TYPE_APP_JSON,
+    CONTENT_TYPE_APP_JAVASCRIPT,
+
+    CONTENT_TYPE_END
+};
+
+extern const char* gContentTypes[CONTENT_TYPE_END];
+
 inline  void        writeResponse(
     std::ostream& response,
-    int status,
+    int status, ContentType ctype,
     const std::string& content)
 {
     response << "HTTP/1.1 " << getStatusString(status) << "\r\n"
+        "Content-Type: " << gContentTypes[ctype] << "\r\n"
         "Content-Length: " << content.length() << "\r\n\r\n"
         << content;
 }

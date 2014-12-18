@@ -19,7 +19,7 @@
 
 #include "../Player/PlayerManager.hpp"
 #include "../Multilang/Language.hpp"
- 
+
 #include "Map.hpp"
 
 namespace swcu {
@@ -279,7 +279,7 @@ bool Map::calculateBoundingSphere()
         for(auto& pos : vertices)
         {
             diff    = pos - center;
-            len     = powf(diff(0) * diff(0) + diff(1) * diff(1) + 
+            len     = powf(diff(0) * diff(0) + diff(1) * diff(1) +
                         diff(2) * diff(2), 0.5); // length
             if(len > radius)
             {
@@ -296,7 +296,7 @@ bool Map::calculateBoundingSphere()
     for(auto& pos : vertices)
     {
         diff    = pos - center;
-        len     = powf(diff(0) * diff(0) + diff(1) * diff(1) + 
+        len     = powf(diff(0) * diff(0) + diff(1) * diff(1) +
                     diff(2) * diff(2), 0.5); // length
         if(len > radius)
         {
@@ -413,6 +413,53 @@ bool Map::_loadMap(const mongo::BSONObj& data)
         }
 
         LOG(INFO) << "Map " << mName << " loaded.";
+        return true;
+    });
+    return false;
+}
+
+std::string Map::getJSON() const
+{
+    if(!mSaved) return "";
+    std::stringstream json;
+    json <<
+    "{\n"
+    "  \"id\": \""      << mId.str() << "\",\n"
+    "  \"name\": \""    << GBKToUTF8(mName) << "\",\n"
+    "  \"type\": "      << mType << ",\n"
+    "  \"owner\": \""   << mOwner.str() << "\",\n"
+    "  \"addtime\": "   << mAddTime << ",\n"
+    "  \"activated\": " << (mActivated ? "true,\n" : "false,\n") <<
+    "  \"world\": "     << mVirtualWorld << "\n"
+    "}";
+    return json.str();
+}
+
+bool Map::deleteFromDatabase()
+{
+    if(!mSaved)
+    {
+        LOG(ERROR) << "Cannot delete a map not saved.";
+        return false;
+    }
+    MONGO_WRAPPER({
+        getDBConn()->remove(
+            Config::colNameMap,
+            QUERY("_id" << mId)
+        );
+        dbCheckError();
+        getDBConn()->remove(
+            Config::colNameMapObject,
+            QUERY("map" << mId)
+        );
+        dbCheckError();
+        getDBConn()->remove(
+            Config::colNameMapVehicle,
+            QUERY("map" << mId)
+        );
+        dbCheckError();
+        LOG(INFO) << "Map " << mName << " is removed.";
+        mSaved = false;
         return true;
     });
     return false;

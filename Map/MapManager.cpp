@@ -17,6 +17,8 @@
 #include <sstream>
 #include <algorithm>
 
+#include "../Web/WebServiceManager.hpp"
+
 #include "MapManager.hpp"
 
 namespace swcu {
@@ -147,6 +149,43 @@ Map* MapManager::findMap(const std::string& name)
     {
         return iter->second.get();
     }
+}
+
+void MapManager::addWebServices()
+{
+    /**
+     * Get map indices.
+     * Example URI:
+     * /maps/
+     */
+    WebServiceManager::get().bindMethod(
+        "^/maps/([^/]*)$", "GET",
+    [this](std::ostream& response, HTTPRequertPtr /* request*/ ) {
+        std::stringstream array;
+        array << "[";
+        for(auto& i : mLoadedMaps)
+        {
+            array << i.second->getJSON() << ",";
+        }
+        std::string resp = array.str();
+        resp[resp.size() - 1] = ']';
+        writeResponse(response, 200, CONTENT_TYPE_APP_JSON, resp);
+    });
+    /**
+     * Get info of a map.
+     * Example URI:
+     * /map/name/exampleMap
+     */
+    WebServiceManager::get().bindMethod(
+        "^/maps/name/([^/]+)$", "GET",
+    [this](std::ostream& response, HTTPRequertPtr request) {
+        auto map = findMap(UTF8ToGBK(request->path_match[1]));
+        if(map == nullptr)
+        {
+            writeResponse(response, 404, CONTENT_TYPE_TEXT_PLAIN, "");
+        }
+        writeResponse(response, 200, CONTENT_TYPE_APP_JSON, map->getJSON());
+    });
 }
 
 }

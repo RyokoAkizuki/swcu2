@@ -137,6 +137,13 @@ public:
             bool        reload();
             bool        save(const std::string& name);
 
+            mongo::OID  getOwner() const
+            { return mOwner; }
+
+            std::string getJSON() const;
+
+            bool        deleteFromDatabase();
+            
     /**
      * Calculate a bounding sphere which covers all positions of objects.
      * Normally, this should only be done when a map's responsibility requires

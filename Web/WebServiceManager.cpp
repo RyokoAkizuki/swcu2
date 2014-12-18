@@ -22,6 +22,13 @@
 
 namespace swcu {
 
+const char* gContentTypes[CONTENT_TYPE_END] = {
+    "text/plain",
+    "text/html",
+    "application/json",
+    "application/javascript"
+};
+
 WebServiceManager::WebServiceManager()
 {
     mServer.reset(new SimpleWeb::Server<SimpleWeb::HTTP>(

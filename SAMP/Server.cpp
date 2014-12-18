@@ -100,10 +100,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
     ShowNameTags(0);
     swcu::MapManager::get().loadAllMaps();
-    swcu::WebServiceManager::get().bindMethod("^/hello/?$", "GET",
+    swcu::WebServiceManager::get().bindMethod("^/hello$", "GET",
     [](std::ostream& response, swcu::HTTPRequertPtr request) {
-        swcu::writeResponse(response, 200, "Hello.");
+        swcu::writeResponse(response, 200, swcu::CONTENT_TYPE_TEXT_PLAIN,
+        "Hello.");
     });
+    swcu::MapManager::get().addWebServices();
     swcu::WebServiceManager::get().startServer();
     LOG(INFO) << "Game mode initialized.";
     return true;
