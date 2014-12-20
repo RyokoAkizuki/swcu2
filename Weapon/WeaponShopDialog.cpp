@@ -26,15 +26,16 @@ namespace swcu {
 struct WeaponItem
 {
     int         id;
-    const char* enName, cnName;
+    const char* enName;
+    const char* cnName;
 };
 
-std::vector<WeaponItem> gWeaponShopItems = 
+std::vector<WeaponItem> gWeaponShopItems =
 {
     // *** HP & AP ***
     { 90, "100 Health Points",  "补满血" },
     { 91, "100 Armour Points",  "补满甲" },
-    
+
     // *** 突击步枪 ***
     { 30, "AK-47",              "AK-47 突击步枪" },
     { 31, "M4",                 "M4 卡宾枪" },
@@ -78,7 +79,7 @@ std::vector<WeaponItem> gWeaponShopItems =
     // { 44, "Night Vis Goggles",  "夜视镜" },
     // { 45, "Thermal Goggles",    "热成像夜视镜" },
     { 46, "Parachute",          "降落伞" },
-    
+
     // *** 徒手 ***
     // { 0, "Fist",               "拳头" },
     {  1, "Brass Knuckles",     "铜指虎" },
@@ -92,12 +93,12 @@ std::vector<WeaponItem> gWeaponShopItems =
     {  9, "Chainsaw",           "电锯" },
 
     // *** 其他物品 ***
-    { 10, "Purple Dildo",       "紫色的假阳具"},
-    { 11, "Dildo",              "白色的震动棒(小)"},
-    { 12, "Vibrator",           "白色的震动棒(大)"},
-    { 13, "Silver Vibrator",    "银色的震动棒"},
-    { 14, "Flowers",            "花束"},
-    { 15, "Cane",               "拐杖"}
+    { 10, "Purple Dildo",       "紫色的假阳具" },
+    { 11, "Dildo",              "白色的震动棒(小)" },
+    { 12, "Vibrator",           "白色的震动棒(大)" },
+    { 13, "Silver Vibrator",    "银色的震动棒" },
+    { 14, "Flowers",            "花束" },
+    { 15, "Cane",               "拐杖" }
 };
 
 WeaponShopDialog::WeaponShopDialog(int playerid) :
@@ -125,7 +126,7 @@ bool WeaponShopDialog::process(int key)
         SetPlayerArmour(mPlayerId, 100.0);
         return false;
     }
-    GivePlayerWeapon(player->getInGameID(), key, 1000);
+    GivePlayerWeapon(mPlayerId, key, 1000);
     return false;
 }
 
