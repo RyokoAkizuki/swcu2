@@ -148,10 +148,12 @@ int getRandomColor()
 
 std::string toEmbedString(int color)
 {
-    if(color & 0xFF000000) color >>= 8;
-    std::stringstream stream;
-    stream << "{" << std::hex << color << "}";
-    return stream.str();
+    color >>= 8;
+    std::stringstream num;
+    num.width(6);
+    num.fill('0');
+    num << std::fixed << std::hex << color;
+    return "{" + num.str() + "}";
 }
 
 }
