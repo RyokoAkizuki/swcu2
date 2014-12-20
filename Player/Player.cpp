@@ -15,6 +15,7 @@
  */
 
 #include <sampgdk/a_players.h>
+#include <boost/algorithm/string.hpp>
 
 #include "../Streamer/Streamer.hpp"
 #include "../Multilang/Language.hpp"
@@ -481,14 +482,17 @@ void Player::teleportTo(int targetplayer)
 
 bool Player::teleportTo(const std::string& placeName)
 {
+    using namespace boost::algorithm;
+    std::string trimmedName = placeName;
+    trim(trimmedName);
     MONGO_WRAPPER({
         auto doc = getDBConn()->findOne(
             Config::colNameTeleport,
-            QUERY("name" << GBKToUTF8(placeName))
+            QUERY("name" << GBKToUTF8(trimmedName))
         );
         if(doc.isEmpty())
         {
-            LOG(WARNING) << "Teleport " << placeName << " can't be found.";
+            LOG(WARNING) << "Teleport " << trimmedName << " can't be found.";
             SendClientMessage(mInGameId, 0xFFFFFFFF,
                 t(this, TELEPORT_NOT_FOUND));
             return false;
@@ -528,6 +532,9 @@ bool Player::createTeleport(const std::string& placeName)
         " hasn't registered.";
         return false;
     }
+    using namespace boost::algorithm;
+    std::string trimmedName = placeName;
+    trim(trimmedName);
     float x, y, z, facing;
     GetPlayerPos(mInGameId, &x, &y, &z);
     GetPlayerFacingAngle(mInGameId, &facing);
@@ -538,7 +545,7 @@ bool Player::createTeleport(const std::string& placeName)
             Config::colNameTeleport,
             BSON(
                 "_id"           << mongo::OID::gen()    <<
-                "name"          << GBKToUTF8(placeName) <<
+                "name"          << GBKToUTF8(trimmedName)<<
                 "x"             << x                    <<
                 "y"             << y                    <<
                 "z"             << z                    <<
@@ -554,7 +561,7 @@ bool Player::createTeleport(const std::string& placeName)
         {
             SendClientMessage(mInGameId, 0xFFFFFFFF,
                 t(this, TELEPORT_CREATE_SUCCESS));
-            LOG(INFO) << "Teleport " << placeName << " is created.";
+            LOG(INFO) << "Teleport " << trimmedName << " is created.";
             return true;
         }
     });
