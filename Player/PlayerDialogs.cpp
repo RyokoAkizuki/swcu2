@@ -389,7 +389,7 @@ void PlayerControlDialog::build()
     {
         return;
     }
-    setTitle(target->getNickname());
+    setTitle(target->getLogName());
 
     int playerid = mPlayerId, targetid = mTargetPlayer;
 

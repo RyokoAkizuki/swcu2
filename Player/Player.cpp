@@ -88,7 +88,8 @@ bool Player::createProfile(const std::string& password)
                 "gametime"      << 0                    <<
                 "adminlevel"    << mAdminLevel          <<
                 "flags"         << mFlags               <<
-                "nickname"      << GBKToUTF8(mNickname) <<
+                // A fix.
+                "nickname"      << GBKToUTF8(mLogName)  <<
                 "money"         << mMoney               <<
                 "jointime"      << datetime             <<
                 "policerank"    << mPoliceRank          <<
@@ -159,8 +160,8 @@ bool Player::loadProfile()
         }
         else
         {
-            _loadProfile(doc);
             mRegistered = true;
+            _loadProfile(doc);
             LOG(INFO) << "Player " << mLogName << "'s profile is loaded.";
             return true;
         }
@@ -569,6 +570,7 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mId             = doc["_id"].OID();
         mIdStr          = mId.str();
         mNickname       = UTF8ToGBK(doc["nickname"].str());
+        if(mNickname.size() == 0) setNickname(mLogName);
         mPasswordHash   = doc["password"].str();
         mAdminLevel     = doc["adminlevel"].numberInt();
         mMoney          = doc["money"].numberInt();
