@@ -30,7 +30,9 @@
 #include "../Player/PlayerManager.hpp"
 #include "../Player/PlayerDialogs.hpp"
 #include "../Player/PlayerColors.hpp"
+#include "../Player/PlayerCommands.hpp"
 #include "../Interface/DialogManager.hpp"
+#include "../Interface/CommandManager.hpp"
 #include "../Map/MapManager.hpp"
 #include "../Map/MapDialogs.hpp"
 #include "../Area/AreaManager.hpp"
@@ -103,6 +105,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
     // swcu::migrateMaps("localhost");
     // swcu::migrateTeleports("tele.cfg");
     ShowNameTags(0);
+    swcu::registerPlayerCommands();
     swcu::MapManager::get().loadAllMaps();
     swcu::WebServiceManager::get().bindMethod("^/hello$", "GET",
     [](std::ostream& response, swcu::HTTPRequertPtr request) {
@@ -224,7 +227,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerCommandText(int playerid,
         p->teleportTo(cmdtext + 2);
         return true;
     }
-    return false;
+    return swcu::CommandManager::get().handleCallback(playerid, cmdtext);
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid,

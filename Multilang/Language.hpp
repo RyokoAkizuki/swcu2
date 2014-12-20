@@ -170,6 +170,8 @@ enum LanguageEntries
     
     DLG_WEAPONSHOP_TITLE,
 
+    SKIN_ID_INVALID,
+    
     LANG_ENTRY_END
 };
 

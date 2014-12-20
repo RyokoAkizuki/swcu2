@@ -283,6 +283,9 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_WEAPONSHOP_TITLE
     "Weapon Shop",
 
+    // SKIN_ID_INVALID
+    "Invalid skin id.",
+
     // LANG_ENTRY_END
     ""
 };

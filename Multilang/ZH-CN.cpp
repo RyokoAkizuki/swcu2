@@ -280,6 +280,9 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_WEAPONSHOP_TITLE
     "Œ‰∆˜…ÃµÍ",
 
+    // SKIN_ID_INVALID
+    "∆§∑ÙIDŒﬁ–ß",
+    
     // LANG_ENTRY_END
     ""
 };
