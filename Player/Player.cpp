@@ -496,21 +496,9 @@ bool Player::teleportTo(const std::string& placeName)
         {
             float x; float y; float z; float facing;
             int world; int interior;
-            auto loc    = doc["location"].Array();
-            if(loc.size() >= 2)
-            {
-                x       = loc[0].numberDouble();
-                y       = loc[1].numberDouble();
-            }
-            else
-            {
-                LOG(ERROR) << "Teleport " << placeName <<
-                    " has an invalid location.";
-                SendClientMessage(mInGameId, 0xFFFFFFFF,
-                    t(this, TELEPORT_INVALID));
-                return false;
-            }
-            z           = doc["height"].numberDouble();
+            x           = doc["x"].numberDouble();
+            y           = doc["y"].numberDouble();
+            z           = doc["z"].numberDouble();
             facing      = doc["facing"].numberDouble();
             world       = doc["world"].numberInt();
             interior    = doc["interior"].numberInt();
@@ -550,8 +538,9 @@ bool Player::createTeleport(const std::string& placeName)
             BSON(
                 "_id"           << mongo::OID::gen()    <<
                 "name"          << GBKToUTF8(placeName) <<
-                "location"      << std::vector<float>({ x, y }) <<
-                "height"        << z                    <<
+                "x"             << x                    <<
+                "y"             << y                    <<
+                "z"             << z                    <<
                 "facing"        << facing               <<
                 "world"         << world                <<
                 "interior"      << interior             <<
