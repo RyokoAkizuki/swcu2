@@ -168,20 +168,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
     {
         return false;
     }
-    if(!p->isLoggedIn())
-    {
-        if(p->isRegistered())
-        {
-            swcu::DialogManager::get().push
-                <swcu::PlayerLoginDialog>(playerid);
-        }
-        else
-        {
-            swcu::DialogManager::get().push
-                <swcu::PlayerRegisterDialog>(playerid);
-        }
-        return false;
-    }
     if(p->hasFlags(swcu::STATUS_JAILED))
     {
         if(p->isPrisonTermExceeded())
