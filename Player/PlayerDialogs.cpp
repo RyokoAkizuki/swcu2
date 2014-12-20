@@ -178,6 +178,12 @@ void PlayerEditProfileDialog::build()
         [playerid]() {
             DialogManager::get().push<PlayerChangeNicknameDialog>(playerid);
         });
+    {
+        std::stringstream al;
+        al << t(p, DLG_EDIT_PROF_ADMINLEVEL) << p->getAdminLevel();
+        addItem(al.str(), []() {});
+    }
+    addItem(t(p, DLG_EDIT_PROF_POLICERANK) + p->getPoliceRankStr(), [](){});
 }
 
 PlayerViewProfileDialog::PlayerViewProfileDialog(

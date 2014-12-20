@@ -74,6 +74,10 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Change Password",
     // DLG_EDIT_PROF_NICKNAME
     "My Nickname: ",
+    // DLG_EDIT_PROF_ADMINLEVEL
+    "My Admin Level: ",
+    // DLG_EDIT_PROF_POLICERANK
+    "My Police Rank: ",
 
     // DLG_VIEW_PROF_TITLE_POST_FIX
     "'s Profile",
@@ -220,9 +224,9 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_CTLPANEL_TITLE
     "Control Panel",
     // DLG_CTLPANEL_PROFILE
-    "Edit Profile",
+    "My Profile",
     // DLG_CTLPANEL_LANG
-    "Change Language",
+    "Language",
     // DLG_CTLPANEL_MAP_MGR
     "Map Manager",
     // DLG_CTLPANEL_SURRENDER

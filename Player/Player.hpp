@@ -219,6 +219,7 @@ public:
             { return mPoliceRank; }
 
             bool        setPoliceRank(PoliceRank rank);
+            std::string getPoliceRankStr() const;
 
             int         getWantedLevel() const
             { return mWantedLevel; }

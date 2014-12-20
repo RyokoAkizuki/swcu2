@@ -73,6 +73,10 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "更改密码",
     // DLG_EDIT_PROF_NICKNAME
     "我的昵称: ",
+    // DLG_EDIT_PROF_ADMINLEVEL
+    "我的管理员等级: ",
+    // DLG_EDIT_PROF_POLICERANK
+    "我的警衔: ",
 
     // DLG_VIEW_PROF_TITLE_POST_FIX
     "的资料",
@@ -219,9 +223,9 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_CTLPANEL_TITLE
     "控制面板",
     // DLG_CTLPANEL_PROFILE
-    "编辑资料",
+    "我的资料",
     // DLG_CTLPANEL_LANG
-    "Select Language",
+    "Language",
     // DLG_CTLPANEL_MAP_MGR
     "地图管理",
     // DLG_CTLPANEL_SURRENDER

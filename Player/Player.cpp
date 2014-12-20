@@ -315,6 +315,17 @@ bool Player::setPoliceRank(PoliceRank rank)
     return false;
 }
 
+std::string Player::getPoliceRankStr() const
+{
+    if(static_cast<size_t>(mPoliceRank) >= sizeof(PoliceRankString))
+    {
+        LOG(WARNING) <<
+        "static_cast<size_t>(mPoliceRank) >= sizeof(PoliceRankString)";
+        return "";
+    }
+    return PoliceRankString[mPoliceRank];
+}
+
 bool Player::setWantedLevel(int level)
 {
     if(level > 6 || level < 0)
@@ -403,18 +414,9 @@ void Player::updatePlayerLabel()
         label << "Level " << mAdminLevel << "\n";
     }
     // Police Rank
-    if(static_cast<size_t>(mPoliceRank) >= sizeof(PoliceRankString))
+    if(mPoliceRank > CIVILIAN)
     {
-        LOG(WARNING) <<
-        "static_cast<size_t>(mPoliceRank) >= sizeof(PoliceRankString)";
-    }
-    else
-    {
-        if(mPoliceRank > CIVILIAN)
-        {
-            label << "{33FFFF}" << PoliceRankString[mPoliceRank]
-                << "{FFFFFF}\n";
-        }
+        label << "{33FFFF}" << getPoliceRankStr() << "{FFFFFF}\n";
     }
     // Wanted Level
     if(mWantedLevel > 0)
