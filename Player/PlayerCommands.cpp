@@ -17,13 +17,29 @@
 #include <sampgdk/a_samp.h>
 #include <sampgdk/a_players.h>
 #include <sampgdk/a_vehicles.h>
+#include <algorithm>
 
 #include "../Interface/CommandManager.hpp"
+#include "../Interface/DialogManager.hpp"
 #include "../Multilang/Language.hpp"
+#include "../Player/PlayerManager.hpp"
+#include "../Weapon/WeaponShopDialog.hpp"
 
 #include "PlayerCommands.hpp"
 
 namespace swcu {
+
+bool pcmdFixCar(int playerid, std::stringstream& /* cmdline */)
+{
+    RepairVehicle(GetPlayerVehicleID(playerid));
+    return true;
+}
+
+bool pcmdSpawnJetPack(int playerid, std::stringstream& /* cmdline */)
+{
+    SetPlayerSpecialAction(playerid, SPECIAL_ACTION_USEJETPACK);
+    return true;
+}
 
 bool pcmdChangeSkin(int playerid, std::stringstream& cmdline)
 {
@@ -38,29 +54,81 @@ bool pcmdChangeSkin(int playerid, std::stringstream& cmdline)
     return SetPlayerSkin(playerid, skinid);
 }
 
-bool pcmdCreateVehicle(int playerid, std::stringstream& cmdline)
+bool pcmdVehicle(int playerid, std::stringstream& cmdline)
 {
-    int vehiclemodel;
-    cmdline >> vehiclemodel;
-    float x, y, z, a;
-    int interior, world;
-    GetPlayerPos(playerid, &x, &y, &z);
-    GetPlayerFacingAngle(playerid, &a);
-    interior = GetPlayerInterior(playerid);
-    world = GetPlayerVirtualWorld(playerid);
-    int v = CreateVehicle(vehiclemodel, x, y, z, a,
-        rand() % 256, rand() % 256, 60);
-    PutPlayerInVehicle(playerid, v, 0);
-    LinkVehicleToInterior(v, interior);
-    SetVehicleVirtualWorld(v, world);
+    auto p = PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr) return false;
+
+    std::string subfunc;
+    cmdline >> subfunc;
+
+    if(subfunc.size() > 0 &&
+        std::all_of(subfunc.begin(), subfunc.end(), ::isdigit))
+    {
+        p->createPrivateVehicle(atoi(subfunc.c_str()));
+        return true;
+    }
+    if(subfunc == "wode" || subfunc == "mine")
+    {
+        p->teleportPrivateVehicleToPlayer();
+        return true;
+    }
+    if(subfunc == "color")
+    {
+        int c1, c2;
+        cmdline >> c1 >> c2;
+        ChangeVehicleColor(p->getPrivateVehicleId(), c1, c2);
+        return true;
+    }
+    if(subfunc == "rengdiao" || subfunc == "drop")
+    {
+        p->dropPrivateVehicle();
+        return true;
+    }
+    return true;
+}
+
+bool pcmdSuicide(int playerid, std::stringstream& /* cmdline */)
+{
+    SetPlayerHealth(playerid, 0.0);
+    return true;
+}
+
+bool pcmdChangeWorld(int playerid, std::stringstream& cmdline)
+{
+    int vworld;
+    cmdline >> vworld;
+    SetPlayerVirtualWorld(playerid, vworld);
+    return true;
+}
+
+bool pcmdWeaponShop(int playerid, std::stringstream& /* cmdline */)
+{
+    DialogManager::get().push<WeaponShopDialog>(playerid);
     return true;
 }
 
 void registerPlayerCommands()
 {
+    CommandManager::get().registerCommand("repair",     &pcmdFixCar);
+    CommandManager::get().registerCommand("fix",        &pcmdFixCar);
+    CommandManager::get().registerCommand("xiuche",     &pcmdFixCar);
+
+    CommandManager::get().registerCommand("jetpack",    &pcmdSpawnJetPack);
+    CommandManager::get().registerCommand("fxq",        &pcmdSpawnJetPack);
+
     CommandManager::get().registerCommand("hf",         &pcmdChangeSkin);
     CommandManager::get().registerCommand("skin",       &pcmdChangeSkin);
-    CommandManager::get().registerCommand("c",          &pcmdCreateVehicle);
+
+    CommandManager::get().registerCommand("c",          &pcmdVehicle);
+
+    CommandManager::get().registerCommand("k",          &pcmdSuicide);
+    CommandManager::get().registerCommand("kill",       &pcmdSuicide);
+
+    CommandManager::get().registerCommand("w",          &pcmdChangeWorld);
+
+    CommandManager::get().registerCommand("wuqi",       &pcmdWeaponShop);
+    CommandManager::get().registerCommand("weapon",     &pcmdWeaponShop);
 }
 
 }

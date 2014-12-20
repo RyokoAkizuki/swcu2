@@ -47,7 +47,7 @@ Player::Player(int gameid) :
     mTimeToFree(0),
     mRegistered(false),
     mInGameId(gameid), mTimeEnteredServer(time(0)), mLoggedIn(false),
-    mTextLabel(0)
+    mTextLabel(0), mPrivateVehicle(INVALID_VEHICLE_ID)
 {
     mLogName = getPlayerNameFixed(mInGameId);
     LOG(INFO) << "Loading player " << mLogName << "'s profile.";
@@ -569,6 +569,42 @@ bool Player::createTeleport(const std::string& placeName)
     SendClientMessage(mInGameId, 0xFFFFFFFF,
         t(this, TELEPORT_CREATE_FAILED));
     return false;
+}
+
+bool Player::createPrivateVehicle(int model)
+{
+    dropPrivateVehicle();
+    mPrivateVehicle = CreateVehicle(model, 0.0, 0.0, 0.0, 0.0,
+        rand() % 256, rand() % 256, 60);
+    teleportPrivateVehicleToPlayer();
+    return mPrivateVehicle != INVALID_VEHICLE_ID;
+}
+
+bool Player::dropPrivateVehicle()
+{
+    if(mPrivateVehicle != INVALID_VEHICLE_ID)
+    {
+        DestroyVehicle(mPrivateVehicle);
+        return true;
+    }
+    return false;
+}
+
+void Player::teleportPrivateVehicleToPlayer()
+{
+    if(mPrivateVehicle == INVALID_VEHICLE_ID) return;
+    
+    float   x, y, z, a;
+    GetPlayerPos(mInGameId, &x, &y, &z);
+    GetPlayerFacingAngle(mInGameId, &a);
+    int     interior    = GetPlayerInterior(mInGameId);
+    int     world       = GetPlayerVirtualWorld(mInGameId);
+
+    SetVehiclePos(mPrivateVehicle, x, y, z);
+    SetVehicleZAngle(mPrivateVehicle, a);
+    SetVehicleVirtualWorld(mPrivateVehicle, world);
+    LinkVehicleToInterior(mPrivateVehicle, interior);
+    PutPlayerInVehicle(mInGameId, mPrivateVehicle, 0 /* driver */);
 }
 
 void Player::_loadProfile(const mongo::BSONObj& doc)

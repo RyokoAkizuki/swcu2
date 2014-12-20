@@ -85,6 +85,7 @@ protected:
     int64_t             mTimeEnteredServer;
     bool                mLoggedIn;
     int                 mTextLabel;
+    int                 mPrivateVehicle;
 
     /**
      * Houses, Weapons, Vehicles, etc.
@@ -255,6 +256,15 @@ public:
             void        teleportTo(int targetplayer);
             bool        teleportTo(const std::string& placeName);
             bool        createTeleport(const std::string& placeName);
+
+            bool        createPrivateVehicle(int model);
+            // bool        setPrivateVehicleLock(bool lock);
+            // bool        isPrivateVehicleLocked() const;
+            bool        dropPrivateVehicle();
+            void        teleportPrivateVehicleToPlayer();
+
+            int         getPrivateVehicleId() const
+            { return mPrivateVehicle; }
 
 protected:
 
