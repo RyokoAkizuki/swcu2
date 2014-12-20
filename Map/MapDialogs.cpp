@@ -29,8 +29,9 @@ MapManagerDialog::MapManagerDialog(int playerid) :
 
 void MapManagerDialog::build()
 {
-    addItem(t(mPlayerId, DLG_MAP_MGR_LOADED), [this]() {
-        DialogManager::get().push<MapViewLoadedDialog>(mPlayerId);
+    int playerid = mPlayerId;
+    addItem(t(mPlayerId, DLG_MAP_MGR_LOADED), [playerid]() {
+        DialogManager::get().push<MapViewLoadedDialog>(playerid);
     });
     addItem(t(mPlayerId, DLG_MAP_MGR_RELOAD_ALL),
         std::bind(&MapManager::loadAllMaps, std::ref(MapManager::get()))
@@ -70,8 +71,9 @@ void MapEditDialog::build()
             std::bind(&MapManager::unloadMap,
                 std::ref(MapManager::get()), mName)
         );
-        addItem(t(mPlayerId, DLG_MAP_EDIT_CALC_BOUND), [this]() {
-            Map* map = MapManager::get().findMap(mName);
+        std::string name = mName;
+        addItem(t(mPlayerId, DLG_MAP_EDIT_CALC_BOUND), [name]() {
+            Map* map = MapManager::get().findMap(name);
             if(map != nullptr)
             {
                 map->calculateBoundingSphere();

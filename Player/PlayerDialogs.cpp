@@ -161,20 +161,21 @@ void PlayerEditProfileDialog::build()
         return;
     }
     mItemList.clear();
+    int playerid = mPlayerId;
     addItem(
         t(p, DLG_EDIT_PROF_LOG_NAME) + p->getLogName(),
-        [this]() {
-            DialogManager::get().push<PlayerChangeLogNameDialog>(mPlayerId);
+        [playerid]() {
+            DialogManager::get().push<PlayerChangeLogNameDialog>(playerid);
         });
     addItem(
         t(p, DLG_EDIT_PROF_PASSWORD),
-        [this]() {
-            DialogManager::get().push<PlayerChangePasswordDialog>(mPlayerId);
+        [playerid]() {
+            DialogManager::get().push<PlayerChangePasswordDialog>(playerid);
         });
     addItem(
         t(p, DLG_EDIT_PROF_NICKNAME) + p->getNickname() + "{FFFFFF}",
-        [this]() {
-            DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId);
+        [playerid]() {
+            DialogManager::get().push<PlayerChangeNicknameDialog>(playerid);
         });
 }
 
