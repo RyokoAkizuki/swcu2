@@ -162,13 +162,14 @@ void MapManager::addWebServices()
         "^/maps/([^/]*)$", "GET",
     [this](std::ostream& response, HTTPRequertPtr /* request*/ ) {
         std::stringstream array;
-        array << "[";
+        array << "{ \"data\" : [";
         for(auto& i : mLoadedMaps)
         {
             array << i.second->getJSON() << ",";
         }
         std::string resp = array.str();
         resp[resp.size() - 1] = ']';
+        resp += "}";
         writeResponse(response, 200, CONTENT_TYPE_APP_JSON, resp);
     });
     /**

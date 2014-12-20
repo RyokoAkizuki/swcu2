@@ -342,7 +342,7 @@ void Map::_createBoundingSphereArea()
 {
     switch(mType)
     {
-        case HOUSE:
+        case PROPERTY:
         mBoundingArea.reset(new HouseMapArea(mBoundX, mBoundY, mBoundZ,
             mBoundRadius, mVirtualWorld, -1, -1));
         break;

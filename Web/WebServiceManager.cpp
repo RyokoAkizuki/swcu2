@@ -33,6 +33,49 @@ WebServiceManager::WebServiceManager()
 {
     mServer.reset(new SimpleWeb::Server<SimpleWeb::HTTP>(
         Config::webServerPort, Config::webServerThread));
+
+    // The following codes are from Simple-Web-Server.
+    // Please refer to its license.
+    mServer->default_resource["^/?(.*)$"]["GET"] = 
+    [](std::ostream& response, HTTPRequertPtr request) {
+        std::string     filename    = "web/";
+        std::string     path        = request->path_match[1];
+
+        // Replace all ".." with "." (so we can't leave the web-directory)
+        size_t          pos;
+        while((pos = path.find("..")) != std::string::npos)
+        {
+            path.erase(pos, 1);
+        }
+
+        filename += path;
+        std::ifstream   ifs;
+        // A simple platform-independent file-or-directory check do not
+        // exist, but this works in most of the cases:
+        if(filename.find('.') == std::string::npos)
+        {
+            if(filename[filename.length() - 1] != '/')
+                filename += '/';
+            filename += "index.html";
+        }
+        ifs.open(filename, std::ifstream::in);
+        if(ifs)
+        {
+            ifs.seekg(0, std::ios::end);
+            size_t      length      = ifs.tellg();
+            ifs.seekg(0, std::ios::beg);
+            // The file-content is copied to the response-stream. 
+            // Should not be used for very large files.
+            response << "HTTP/1.1 200 OK\r\nContent-Length: "
+                << length << "\r\n\r\n" << ifs.rdbuf();
+            ifs.close();
+        }
+        else {
+            std::string content     = "Could not open file " + filename;
+            response << "HTTP/1.1 400 Bad Request\r\nContent-Length: "
+                << content.length() << "\r\n\r\n" << content;
+        }
+    };
 }
 
 void WebServiceManager::bindMethod(
