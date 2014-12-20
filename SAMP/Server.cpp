@@ -263,6 +263,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerKeyStateChange(int playerid,
         swcu::DialogManager::get().push
             <swcu::PlayerControlPanelDialog>(playerid);
     }
+    if((newkeys & (KEY_FIRE | KEY_ACTION))
+        && IsPlayerInAnyVehicle(playerid)
+        && GetPlayerVehicleSeat(playerid) == 0)
+    {
+        AddVehicleComponent(GetPlayerVehicleID(playerid), 1010);
+    }
     return true;
 }
 
