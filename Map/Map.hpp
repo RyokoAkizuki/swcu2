@@ -60,8 +60,8 @@ enum MapType
     LANDSCAPE   = 0,
     DEATHMATCH  = 1,
     STUNT       = 2,
-    HOUSE       = 3,
-    PROPERTY    = 4,
+    PROPERTY    = 3,
+    BUSINESS    = 4,
     PRISON      = 5
 };
 
