@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#pragma once
+ 
 #include <mongo/client/dbclient.h>
 
 #include "Internal/easylogging++.h"
