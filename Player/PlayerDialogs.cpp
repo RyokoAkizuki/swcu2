@@ -21,6 +21,7 @@
 #include "../Interface/DialogManager.hpp"
 #include "../Map/MapDialogs.hpp"
 #include "../Multilang/Language.hpp"
+#include "../Weapon/WeaponShopDialog.hpp"
 
 #include "PlayerDialogs.hpp"
 
@@ -709,6 +710,10 @@ void PlayerControlPanelDialog::build()
     // * Create Teleport
     addItem(t(p, DLG_CTLPANEL_CREATE_TP), [playerid]() {
         DialogManager::get().push<CreateTeleportDialog>(playerid);
+    });
+    // * Weapon Shop
+    addItem(t(p, DLG_CTLPANEL_WEAPONSHOP), [playerid]() {
+        DialogManager::get().push<WeaponShopDialog>(playerid);
     });
     // Admin Level 3
     // * Map Manager

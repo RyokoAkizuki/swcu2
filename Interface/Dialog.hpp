@@ -321,12 +321,8 @@ public:
             LOG(ERROR) << "listitem > mItemList.size()";
             return false;
         }
-        bool succeeded = this->process(this->mItemList[listitem].key);
-        if(succeeded)
-        {
-            this->mSelected = listitem;
-        }
-        return succeeded;
+        bool canclose = this->process(this->mItemList[listitem].key);
+        return canclose;
     }
 };
 

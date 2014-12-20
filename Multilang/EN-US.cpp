@@ -229,7 +229,9 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Surrender to Police",
     // DLG_CTLPANEL_CREATE_TP
     "Create Teleport Here",
-
+    // DLG_CTLPANEL_WEAPONSHOP
+    "Weapon Shop",
+    
     // INFO_PUT_IN_PRISON
     "You've been put in prison.",
     // WARN_ESCAPE_FROM_PRISON
@@ -278,6 +280,9 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     // DLG_CREATE_TP_MESSAGE
     "Select a name for your teleport",
     
+    // DLG_WEAPONSHOP_TITLE
+    "Weapon Shop",
+
     // LANG_ENTRY_END
     ""
 };

@@ -228,7 +228,9 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "自首",
     // DLG_CTLPANEL_CREATE_TP
     "在此创建传送点",
-
+    // DLG_CTLPANEL_WEAPONSHOP
+    "武器商店",
+    
     // INFO_PUT_IN_PRISON
     "你被送进了监狱.",
     // WARN_ESCAPE_FROM_PRISON
@@ -275,6 +277,9 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_CREATE_TP_MESSAGE
     "请给传送点命名",
     
+    // DLG_WEAPONSHOP_TITLE
+    "武器商店",
+
     // LANG_ENTRY_END
     ""
 };
