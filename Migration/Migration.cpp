@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <fstream>
+
 #include "../Common/Common.hpp"
 
 namespace swcu {
@@ -138,6 +140,36 @@ void migrateMaps()
 void migrateHouses()
 {
 
+}
+
+void migrateTeleports(const std::string& filename)
+{
+    std::ifstream s;
+    s.open(filename, std::ifstream::in);
+    std::string name; float x, y, z, angle; int interior, world, null;
+    while(s.good())
+    {
+        s >> name >> x >> y >> z >> angle >> interior >> world >> null;
+        MONGO_WRAPPER({
+            getDBConn()->insert(
+                Config::colNameTeleport,
+                BSON(
+                    "_id"           << mongo::OID::gen()    <<
+                    "name"          << GBKToUTF8(name)      <<
+                    "x"             << x                    <<
+                    "y"             << y                    <<
+                    "z"             << z                    <<
+                    "facing"        << angle                <<
+                    "world"         << world                <<
+                    "interior"      << interior             <<
+                    "creator"       << mongo::OID()         <<
+                    "createtime"    << mongo::DATENOW       <<
+                    "use"           << 0
+                )
+            );
+        });
+    } 
+    s.close();
 }
 
 }
