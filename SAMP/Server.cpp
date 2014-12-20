@@ -105,6 +105,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
     // swcu::migrateMaps("localhost");
     // swcu::migrateTeleports("tele.cfg");
     ShowNameTags(0);
+    for(int i = 0; i < 299; ++i)
+    {
+        AddPlayerClass(i, 1958.3783, 1343.1572, 15.3746, 270.1425,
+            0, 0, 0, 0, -1, -1);
+    }
     swcu::registerPlayerCommands();
     swcu::MapManager::get().loadAllMaps();
     swcu::WebServiceManager::get().bindMethod("^/hello$", "GET",
