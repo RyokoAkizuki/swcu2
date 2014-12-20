@@ -77,6 +77,7 @@ bool Player::createProfile(const std::string& password)
     mongo::OID tId              = mongo::OID::gen();
     std::string tPasswordHash   = sha1(password);
     auto datetime               = mongo::jsTime();
+    mNickname                   = mLogName;
     MONGO_WRAPPER({
         getDBConn()->insert(
             Config::colNamePlayer,
@@ -89,8 +90,7 @@ bool Player::createProfile(const std::string& password)
                 "gametime"      << 0                    <<
                 "adminlevel"    << mAdminLevel          <<
                 "flags"         << mFlags               <<
-                // A fix.
-                "nickname"      << GBKToUTF8(mLogName)  <<
+                "nickname"      << GBKToUTF8(mNickname) <<
                 "money"         << mMoney               <<
                 "jointime"      << datetime             <<
                 "policerank"    << mPoliceRank          <<
