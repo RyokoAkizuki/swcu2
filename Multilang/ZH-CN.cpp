@@ -221,7 +221,7 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     // DLG_CTLPANEL_PROFILE
     "编辑资料",
     // DLG_CTLPANEL_LANG
-    "更改语言 Select Language",
+    "Select Language",
     // DLG_CTLPANEL_MAP_MGR
     "地图管理",
     // DLG_CTLPANEL_SURRENDER
