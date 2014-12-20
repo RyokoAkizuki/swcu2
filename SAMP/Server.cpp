@@ -99,8 +99,9 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
-    // swcu::migratePlayerProfiles();
-    // swcu::migrateMaps();
+    // swcu::migratePlayerProfiles("localhost");
+    // swcu::migrateMaps("localhost");
+    // swcu::migrateTeleports("tele.cfg");
     ShowNameTags(0);
     swcu::MapManager::get().loadAllMaps();
     swcu::WebServiceManager::get().bindMethod("^/hello$", "GET",

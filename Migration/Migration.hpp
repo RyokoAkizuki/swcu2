@@ -18,9 +18,9 @@
 
 namespace swcu {
 
-void migratePlayerProfiles();
-void migrateMaps();
-void migrateHouses();
+void migratePlayerProfiles(const std::string& host);
+void migrateMaps(const std::string& host);
+void migrateHouses(const std::string& host);
 void migrateTeleports(const std::string& filename);
 
 }

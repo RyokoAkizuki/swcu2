@@ -20,10 +20,10 @@
 
 namespace swcu {
 
-void migratePlayerProfiles()
+void migratePlayerProfiles(const std::string& host)
 {
     mongo::DBClientConnection migrationSrcDb(true);
-    migrationSrcDb.connect("localhost");
+    migrationSrcDb.connect(host);
     MONGO_WRAPPER({
         auto oldcur = migrationSrcDb.query(
             "swcuserver.account", mongo::Query() // find all
@@ -58,10 +58,10 @@ void migratePlayerProfiles()
     });
 }
 
-void migrateMaps()
+void migrateMaps(const std::string& host)
 {
     mongo::DBClientConnection migrationSrcDb(true);
-    migrationSrcDb.connect("localhost");
+    migrationSrcDb.connect(host);
     MONGO_WRAPPER({
         auto oldcur = migrationSrcDb.query(
             "swcuserver.map.brief", mongo::Query() // find all
@@ -137,7 +137,7 @@ void migrateMaps()
     });
 }
 
-void migrateHouses()
+void migrateHouses(const std::string& host)
 {
 
 }
