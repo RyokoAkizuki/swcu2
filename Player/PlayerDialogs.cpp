@@ -699,6 +699,14 @@ void PlayerControlPanelDialog::build()
     }
     int playerid = mPlayerId;
     // General Functions
+    // * Weapon Shop
+    addItem(t(p, DLG_CTLPANEL_WEAPONSHOP), [playerid]() {
+        DialogManager::get().push<WeaponShopDialog>(playerid);
+    });
+    // * Create Teleport
+    addItem(t(p, DLG_CTLPANEL_CREATE_TP), [playerid]() {
+        DialogManager::get().push<CreateTeleportDialog>(playerid);
+    });
     // * Profile
     addItem(t(p, DLG_CTLPANEL_PROFILE), [playerid]() {
         DialogManager::get().push<PlayerEditProfileDialog>(playerid);
@@ -706,14 +714,6 @@ void PlayerControlPanelDialog::build()
     // * Languages
     addItem(t(p, DLG_CTLPANEL_LANG), [playerid]() {
         DialogManager::get().push<PlayerSelectLanguageDialog>(playerid);
-    });
-    // * Create Teleport
-    addItem(t(p, DLG_CTLPANEL_CREATE_TP), [playerid]() {
-        DialogManager::get().push<CreateTeleportDialog>(playerid);
-    });
-    // * Weapon Shop
-    addItem(t(p, DLG_CTLPANEL_WEAPONSHOP), [playerid]() {
-        DialogManager::get().push<WeaponShopDialog>(playerid);
     });
     // Admin Level 3
     // * Map Manager
