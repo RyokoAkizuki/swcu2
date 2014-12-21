@@ -184,6 +184,7 @@ void MapManager::addWebServices()
         if(map == nullptr)
         {
             writeResponse(response, 404, CONTENT_TYPE_TEXT_PLAIN, "");
+            return;
         }
         writeResponse(response, 200, CONTENT_TYPE_APP_JSON, map->getJSON());
     });
