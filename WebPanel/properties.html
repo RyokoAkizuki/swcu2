@@ -59,6 +59,10 @@
             { "data": "world" }
           ]
         });
+        $('#map-detail-table tbody').on('click', 'tr', function() {
+          var name = $('td', this).eq(0).text();
+          window.location.href = "properties-edit.html?name=" + name;
+        });
       });
     </script>
   </body>

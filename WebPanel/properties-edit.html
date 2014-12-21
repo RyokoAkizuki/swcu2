@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Properties | SWCU</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.5.0/pure-min.css">
+    <link rel="stylesheet" href="css/layouts/side-menu.css">
+  </head>
+  <body>
+    <div id="layout">
+      <!-- Menu toggle -->
+      <a href="#menu" id="menuLink" class="menu-link">
+          <!-- Hamburger icon -->
+          <span></span>
+      </a>
+      <!-- Nav Menu -->
+      <div id="menu">
+        <div class="pure-menu pure-menu-open">
+          <a class="pure-menu-heading" href="#">SWCU</a>
+          <ul>
+            <li><a href="index.html">Overview</a></li>
+            <li><a href="players.html">Players</a></li>
+            <li><a href="maps.html">Maps</a></li>
+            <li><a class="menu-item-divided pure-menu-selected" href="properties.html">Properties</a></li>
+          </ul>
+        </div>
+      </div>
+      <!-- Content -->
+      <div id="main">
+        <div class="header">
+          <h1>Private Property</h1>
+        </div>
+        <div style="padding:32px;margin:0 auto;width:500px">
+          <form class="pure-form pure-form-aligned">
+            <fieldset>
+              <div class="pure-control-group">
+                <label for="name">Name</label>
+                <input id="name" type="text" placeholder="Name">
+              </div>
+              <div class="pure-control-group">
+                <label for="type">Type</label>
+                <select id="type" style="width:196px">
+                  <option value="0">Landscape</option>
+                  <option value="1">Deathmatch</option>
+                  <option value="2">Stunt</option>
+                  <option value="3">Property</option>
+                  <option value="4">Business</option>
+                  <option value="5">Prison</option>
+                </select>
+              </div>
+              <div class="pure-control-group">
+                <label for="owner">Owner</label>
+                <input id="owner" type="text" placeholder="Owner">
+              </div>
+              <div class="pure-control-group">
+                <label for="activated" class="pure-checkbox">Use This Map
+                </label>
+                <input id="activated" type="checkbox">
+              </div>
+              <div class="pure-control-group">
+                <label for="world">World</label>
+                <input id="world" type="text" placeholder="World">
+              </div>
+              <div class="pure-controls">
+                <button type="submit" class="pure-button pure-button-primary">Submit</button>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="js/ui.js"></script>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/common.js"></script>
+    <script>
+      var id;
+      $(document).ready(function() {
+        var name = getUrlParameter('name');
+        $.getJSON('/maps/name/' + name, function(data) {
+          id = data['id'];
+          $('#name').val(data['name']);
+          $('#type').val(data['type']);
+          $('#owner').val(data['owner']);
+          $('#activated').prop('checked', data['activated']);
+          $('#world').val(data['world']);
+        });
+      });
+    </script>
+  </body>
+</html>
