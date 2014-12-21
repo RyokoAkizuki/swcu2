@@ -36,7 +36,7 @@ WebServiceManager::WebServiceManager()
 
     // The following codes are from Simple-Web-Server.
     // Please refer to its license.
-    mServer->default_resource["^/?(.*)$"]["GET"] = 
+    mServer->default_resource["^/([^?]*).*$"]["GET"] = 
     [](std::ostream& response, HTTPRequertPtr request) {
         std::string     filename    = "web/";
         std::string     path        = request->path_match[1];
