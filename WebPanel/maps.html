@@ -21,15 +21,14 @@
           <ul>
             <li><a href="index.html">Overview</a></li>
             <li><a href="players.html">Players</a></li>
-            <li><a href="maps.html">Maps</a></li>
-            <li><a class="menu-item-divided pure-menu-selected" href="properties.html">Properties</a></li>
+            <li><a class="menu-item-divided pure-menu-selected" href="maps.html">Maps</a></li>
           </ul>
         </div>
       </div>
       <!-- Content -->
       <div id="main">
         <div class="header">
-          <h1>Private Properties</h1>
+          <h1>Maps</h1>
         </div>
         <div style="padding:32px">
           <table id="map-detail-table" class="display" cellspacing="0" width="100%">
@@ -61,7 +60,7 @@
         });
         $('#map-detail-table tbody').on('click', 'tr', function() {
           var name = $('td', this).eq(0).text();
-          window.location.href = "properties-edit.html?name=" + name;
+          window.location.href = "map-edit.html?name=" + name;
         });
       });
     </script>
