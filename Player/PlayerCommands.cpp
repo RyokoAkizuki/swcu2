@@ -108,6 +108,14 @@ bool pcmdWeaponShop(int playerid, std::stringstream& /* cmdline */)
     return true;
 }
 
+bool pcmdTeleportToPos(int playerid, std::stringstream& cmdline)
+{
+    float x, y, z;
+    cmdline >> x >> y >> z;
+    SetPlayerPos(playerid, x, y, z);
+    return true;
+}
+
 void registerPlayerCommands()
 {
     CommandManager::get().registerCommand("repair",     &pcmdFixCar);
@@ -129,6 +137,8 @@ void registerPlayerCommands()
 
     CommandManager::get().registerCommand("wuqi",       &pcmdWeaponShop);
     CommandManager::get().registerCommand("weapon",     &pcmdWeaponShop);
+
+    CommandManager::get().registerCommand("t",          &pcmdTeleportToPos);
 }
 
 }
