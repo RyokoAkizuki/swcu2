@@ -76,7 +76,7 @@ void MapEditDialog::build()
             Map* map = MapManager::get().findMap(name);
             if(map != nullptr)
             {
-                map->calculateBoundingSphere();
+                map->updateBounding();
             }
         });
     }

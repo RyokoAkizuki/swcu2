@@ -45,7 +45,7 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
 {
     std::unique_ptr<Map> map(new Map(type, world, owner));
 
-    if(!map->save(name))
+    if(!map->create(name))
     {
         return false;
     }
@@ -76,7 +76,7 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
         }
     }
 
-    map->calculateBoundingSphere();
+    map->updateBounding();
 
     mLoadedMaps.insert(std::make_pair(name, std::move(map)));
     return true;

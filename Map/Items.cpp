@@ -38,7 +38,7 @@ Object::Object(const mongo::BSONObj& data, int vworld)
         mInterior   = data["interior"].numberInt();
         mEditable   = data["editable"].boolean();
         mInGameID = CreateDynamicObject(
-            mModel, mX, mY, mZ, mRX, mRY, mRZ, mWorld, mInterior
+            mModel, mX, mY, mZ, mRX, mRY, mRZ, mWorld, mInterior, -1, 300.0
         );
         if(mInGameID == 0)
         {

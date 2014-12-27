@@ -16,6 +16,7 @@
 
 #include <sampgdk/a_samp.h>
 #include <eigen3/Eigen/Core>
+#include <algorithm>
 
 #include "../Player/PlayerManager.hpp"
 #include "../Multilang/Language.hpp"
@@ -24,15 +25,17 @@
 
 namespace swcu {
 
-HouseMapArea::HouseMapArea(float x, float y, float z, float radius,
-    int virtualworld, int interior, int playerid) :
-    SphereArea(x, y, z, radius, virtualworld, interior, playerid)
+HouseMapArea::HouseMapArea(Map* map) :
+    SphereArea(map->mBoundX, map->mBoundY, map->mBoundZ,
+        map->mBoundRadius, map->mVirtualWorld, -1, -1),
+    mMap(map)
 {
 }
 
 void HouseMapArea::onEnter(int playerid)
 {
-    SendClientMessage(playerid, 0xFFFFFFFF, "You've enter a house.");
+    std::string msg = "You've enter " + mMap->getName();
+    SendClientMessage(playerid, 0xFFFFFFFF, msg.c_str());
 }
 
 void HouseMapArea::onLeave(int playerid)
@@ -40,9 +43,10 @@ void HouseMapArea::onLeave(int playerid)
     SendClientMessage(playerid, 0xFFFFFFFF, "You've exited the house.");
 }
 
-PrisonMapArea::PrisonMapArea(float x, float y, float z, float radius,
-    int virtualworld, int interior, int playerid) :
-    SphereArea(x, y, z, radius, virtualworld, interior, playerid)
+PrisonMapArea::PrisonMapArea(Map* map) :
+    SphereArea(map->mBoundX, map->mBoundY, map->mBoundZ,
+        map->mBoundRadius, map->mVirtualWorld, -1, -1),
+    mMap(map)
 {
 }
 
@@ -64,13 +68,13 @@ void PrisonMapArea::onLeave(int playerid)
     {
         SendClientMessage(playerid, 0xFFFFFFFF,
             t(p, WARN_ESCAPE_FROM_PRISON));
-        p->teleportTo(mX, mY, mZ, 0.0, mWorld, mInterior);
+        p->teleportTo("##prison");
     }
 }
 
 Map::Map() : mType(LANDSCAPE), mAddTime(0),
     mActivated(true), mVirtualWorld(0),
-    mArea(0.0), mSaved(false)
+    mSaved(false)
 {
 }
 
@@ -204,7 +208,7 @@ bool Map::reload()
     return false;
 }
 
-bool Map::save(const std::string& name)
+bool Map::create(const std::string& name)
 {
     if(hasEntryInDatabase())
     {
@@ -223,8 +227,7 @@ bool Map::save(const std::string& name)
                 "owner"         << mOwner           <<
                 "addtime"       << datetime         <<
                 "activated"     << mActivated       <<
-                "world"         << mVirtualWorld    <<
-                "area"          << mArea
+                "world"         << mVirtualWorld
                 )
             );
         if(dbCheckError())
@@ -240,14 +243,8 @@ bool Map::save(const std::string& name)
     return false;
 }
 
-bool Map::calculateBoundingSphere()
+bool Map::_calculateBoundingSphere()
 {
-    if(!hasEntryInDatabase())
-    {
-        LOG(ERROR) << "Doesn't have an entry in database. Won't calculate"
-            " bouding sphere.";
-        return false;
-    }
     if(mObjects.size() == 0)
     {
         LOG(WARNING) << "Attemt to calculate bouding sphere of an empty "
@@ -316,44 +313,59 @@ bool Map::calculateBoundingSphere()
      */
     mBoundRadius    = radius + 5.0;
 
-    _createBoundingSphereArea();
+    if(mBoundRadius > 500.0)
+    {
+        LOG(WARNING) << "Enormous bounding sphere radius " << mName;
+    }
 
-    MONGO_WRAPPER({
-        getDBConn()->update(
-            Config::colNameMap,
-            QUERY("_id" << mId),
-            BSON("$set" << BSON(
-                "boundx" << mBoundX <<
-                "boundy" << mBoundY <<
-                "boundz" << mBoundZ <<
-                "boundr" << mBoundRadius
-            ))
-        );
-        if(dbCheckError())
-        {
-            LOG(INFO) << "Map " << mName << "'s bounding shpere updated.";
-            return true;
-        }
-    });
-    return false;
+    return true;
 }
 
-void Map::_createBoundingSphereArea()
+bool Map::_calculateBoundingRectangle()
+{
+    if(mObjects.size() == 0)
+    {
+        LOG(WARNING) << "Calculate bouding rectangle of an empty "
+            "point set.";
+        return false;
+    }
+
+    mBoundMinX = mBoundMinY = mBoundMaxX = mBoundMaxY = 0.0;
+    for(auto& i : mObjects)
+    {
+        mBoundMinX = std::min(mBoundMinX, i->mX);
+        mBoundMaxX = std::max(mBoundMaxX, i->mX);
+        mBoundMinY = std::min(mBoundMinY, i->mY);
+        mBoundMaxY = std::max(mBoundMaxY, i->mY);
+    }
+    mBoundMinX -= 5.0; mBoundMinY -= 5.0;
+    mBoundMaxX += 5.0; mBoundMaxY += 5.0;
+    return true;
+}
+
+bool Map::updateBounding()
 {
     switch(mType)
     {
         case PROPERTY:
-        mBoundingArea.reset(new HouseMapArea(mBoundX, mBoundY, mBoundZ,
-            mBoundRadius, mVirtualWorld, -1, -1));
+        if(_calculateBoundingSphere())
+        {
+            mBoundingArea.reset(new HouseMapArea(this));
+            return true;
+        }
         break;
         case PRISON:
-        mBoundingArea.reset(new PrisonMapArea(mBoundX, mBoundY, mBoundZ,
-            mBoundRadius, mVirtualWorld, -1, -1));
+        if(_calculateBoundingSphere())
+        {
+            mBoundingArea.reset(new PrisonMapArea(this));
+            return true;
+        }
         break;
         default:
         LOG(WARNING) << "No proper bounding for map type " << mType;
         break;
     }
+    return false;
 }
 
 bool Map::_loadMap(const mongo::BSONObj& data)
@@ -371,7 +383,6 @@ bool Map::_loadMap(const mongo::BSONObj& data)
         mAddTime        = data["addtime"].date().toTimeT();
         mActivated      = data["activated"].boolean();
         mVirtualWorld   = data["world"].numberInt();
-        mArea           = data["area"].numberDouble();
         mSaved          = true;
 
         auto objcur = getDBConn()->query(
@@ -398,20 +409,7 @@ bool Map::_loadMap(const mongo::BSONObj& data)
             mVehicles.push_back(std::move(veh));
         }
         LOG(INFO) << "Loaded " << mVehicles.size() << " vehicle(s).";
-
-        if(data.hasField("boundr"))
-        {
-            mBoundX     = data["boundx"].numberDouble();
-            mBoundY     = data["boundy"].numberDouble();
-            mBoundZ     = data["boundz"].numberDouble();
-            mBoundRadius= data["boundr"].numberDouble();
-            _createBoundingSphereArea();
-        }
-        else
-        {
-            calculateBoundingSphere();
-        }
-
+        updateBounding();
         LOG(INFO) << "Map " << mName << " loaded.";
         return true;
     });
@@ -444,11 +442,6 @@ bool Map::deleteFromDatabase()
     }
     MONGO_WRAPPER({
         getDBConn()->remove(
-            Config::colNameMap,
-            QUERY("_id" << mId)
-        );
-        dbCheckError();
-        getDBConn()->remove(
             Config::colNameMapObject,
             QUERY("map" << mId)
         );
@@ -456,6 +449,11 @@ bool Map::deleteFromDatabase()
         getDBConn()->remove(
             Config::colNameMapVehicle,
             QUERY("map" << mId)
+        );
+        dbCheckError();
+        getDBConn()->remove(
+            Config::colNameMap,
+            QUERY("_id" << mId)
         );
         dbCheckError();
         LOG(INFO) << "Map " << mName << " is removed.";

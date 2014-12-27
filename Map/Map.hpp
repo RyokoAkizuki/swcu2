@@ -33,11 +33,15 @@ enum VirtualWorld
     WORLD_MAX       = 2147483647
 };
 
+class Map;
+
 class HouseMapArea : public SphereArea
 {
+protected:
+    Map*            mMap;
+
 public:
-                    HouseMapArea(float x, float y, float z, float radius,
-        int virtualworld = -1, int interior = -1, int playerid = -1);
+                    HouseMapArea(Map* map);
     virtual         ~HouseMapArea() {}
 
     virtual void    onEnter(int playerid);
@@ -46,9 +50,11 @@ public:
 
 class PrisonMapArea : public SphereArea
 {
+protected:
+    Map*            mMap;
+
 public:
-                    PrisonMapArea(float x, float y, float z, float radius,
-        int virtualworld = -1, int interior = -1, int playerid = -1);
+                    PrisonMapArea(Map* map);
     virtual         ~PrisonMapArea() {}
 
     virtual void    onEnter(int playerid);
@@ -67,6 +73,9 @@ enum MapType
 
 class Map
 {
+    friend class HouseMapArea;
+    friend class PrisonMapArea;
+
 protected:
     /**
      * If the id is not set, the map is not saved yet.
@@ -78,8 +87,8 @@ protected:
     time_t              mAddTime;
     bool                mActivated;
     int                 mVirtualWorld;
-    double              mArea;
     float               mBoundX, mBoundY, mBoundZ, mBoundRadius;
+    float               mBoundMinX, mBoundMinY, mBoundMaxX, mBoundMaxY;
 
     bool                mSaved;
 
@@ -135,7 +144,7 @@ public:
             bool        setWorld(int world);
             bool        setOwner(const mongo::OID& owner);
             bool        reload();
-            bool        save(const std::string& name);
+            bool        create(const std::string& name);
 
             mongo::OID  getOwner() const
             { return mOwner; }
@@ -143,25 +152,13 @@ public:
             std::string getJSON() const;
 
             bool        deleteFromDatabase();
-            
-    /**
-     * Calculate a bounding sphere which covers all positions of objects.
-     * Normally, this should only be done when a map's responsibility requires
-     * a bounding sphere, such as a property map, which detects player
-     * entrances to trigger property management functions, and a deathmatch
-     * map, which uses a bounding sphere to ensure players be within the
-     * battlefield. When a new object is added to map, the bounding sphere
-     * will not be updated immediately by default in case of a waste of
-     * computation when creating a new map. So you may call this manually.
-     * @return  True if bouding sphere is successfully updated and false
-     *          if the map doesn't have an entry in database or database
-     *          operation failed.
-     */
-            bool        calculateBoundingSphere();
+
+            bool        updateBounding();
 
 protected:
             bool        _loadMap(const mongo::BSONObj& data);
-            void        _createBoundingSphereArea();
+            bool        _calculateBoundingSphere();
+            bool        _calculateBoundingRectangle();
 };
 
 }
