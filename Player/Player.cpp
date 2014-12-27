@@ -77,7 +77,6 @@ bool Player::createProfile(const std::string& password)
     mongo::OID tId              = mongo::OID::gen();
     std::string tPasswordHash   = sha1(password);
     auto datetime               = mongo::jsTime();
-    mNickname                   = mLogName;
     MONGO_WRAPPER({
         getDBConn()->insert(
             Config::colNamePlayer,
@@ -106,6 +105,7 @@ bool Player::createProfile(const std::string& password)
             mIdStr              = mId.str();
             mPasswordHash       = tPasswordHash;
             mJoinTime           = datetime.toTimeT();
+            if(mNickname.size() == 0) setNickname(mLogName);
             LOG(INFO) << "Player " << mLogName << "'s profile is created.";
             return true;
         }
@@ -484,9 +484,8 @@ void Player::teleportTo(int targetplayer)
 
 bool Player::teleportTo(const std::string& placeName)
 {
-    using namespace boost::algorithm;
     std::string trimmedName = placeName;
-    trim(trimmedName);
+    boost::algorithm::trim(trimmedName);
     MONGO_WRAPPER({
         auto doc = getDBConn()->findOne(
             Config::colNameTeleport,
@@ -512,7 +511,7 @@ bool Player::teleportTo(const std::string& placeName)
             teleportTo(x, y, z, facing, world, interior);
             getDBConn()->update(
                 Config::colNameTeleport,
-                BSON("_id" << doc["_id"].OID()),
+                BSON("_id" << doc["_id"]),
                 BSON("$inc" << BSON("use" << 1))
             );
             dbCheckError();
@@ -534,9 +533,8 @@ bool Player::createTeleport(const std::string& placeName)
         " hasn't registered.";
         return false;
     }
-    using namespace boost::algorithm;
     std::string trimmedName = placeName;
-    trim(trimmedName);
+    boost::algorithm::trim(trimmedName);
     float x, y, z, facing;
     GetPlayerPos(mInGameId, &x, &y, &z);
     GetPlayerFacingAngle(mInGameId, &facing);
