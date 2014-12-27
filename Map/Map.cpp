@@ -265,6 +265,10 @@ bool Map::_calculateBoundingSphere()
     {
         vertices.push_back(Eigen::Vector3f(i->mX, i->mY, i->mZ));
     }
+    for(auto& i : mVehicles)
+    {
+        vertices.push_back(Eigen::Vector3f(i->mX, i->mY, i->mZ));
+    }
 
     Eigen::Vector3f                 center = vertices[0];
     Eigen::Vector3f                 diff;
@@ -321,7 +325,7 @@ bool Map::_calculateBoundingSphere()
     return true;
 }
 
-bool Map::_calculateBoundingRectangle()
+bool Map::_calculateBoundingBox()
 {
     if(mObjects.size() == 0)
     {
@@ -331,36 +335,43 @@ bool Map::_calculateBoundingRectangle()
     }
 
     mBoundMinX = mBoundMinY = mBoundMaxX = mBoundMaxY = 0.0;
+    mBoundMinZ = mBoundMaxZ = 0.0;
     for(auto& i : mObjects)
     {
         mBoundMinX = std::min(mBoundMinX, i->mX);
         mBoundMaxX = std::max(mBoundMaxX, i->mX);
         mBoundMinY = std::min(mBoundMinY, i->mY);
         mBoundMaxY = std::max(mBoundMaxY, i->mY);
+        mBoundMinZ = std::min(mBoundMinZ, i->mZ);
+        mBoundMaxZ = std::max(mBoundMaxZ, i->mZ);
+    }
+    for(auto& i : mVehicles)
+    {
+        mBoundMinX = std::min(mBoundMinX, i->mX);
+        mBoundMaxX = std::max(mBoundMaxX, i->mX);
+        mBoundMinY = std::min(mBoundMinY, i->mY);
+        mBoundMaxY = std::max(mBoundMaxY, i->mY);
+        mBoundMinZ = std::min(mBoundMinZ, i->mZ);
+        mBoundMaxZ = std::max(mBoundMaxZ, i->mZ);
     }
     mBoundMinX -= 5.0; mBoundMinY -= 5.0;
     mBoundMaxX += 5.0; mBoundMaxY += 5.0;
+    mBoundMinZ -= 5.0; mBoundMaxZ += 5.0;
     return true;
 }
 
 bool Map::updateBounding()
 {
+    _calculateBoundingSphere();
+    _calculateBoundingBox();
     switch(mType)
     {
         case PROPERTY:
-        if(_calculateBoundingSphere())
-        {
-            mBoundingArea.reset(new HouseMapArea(this));
-            return true;
-        }
-        break;
+        mBoundingArea.reset(new HouseMapArea(this));
+        return true;
         case PRISON:
-        if(_calculateBoundingSphere())
-        {
-            mBoundingArea.reset(new PrisonMapArea(this));
-            return true;
-        }
-        break;
+        mBoundingArea.reset(new PrisonMapArea(this));
+        return true;
         default:
         LOG(WARNING) << "No proper bounding for map type " << mType;
         break;

@@ -36,14 +36,19 @@ public:
 
 class SphereArea : public Area
 {
-protected:
-    float           mX, mY, mZ, mRadius;
-    int             mWorld, mInterior, mPlayer;
-    
 public:
                     SphereArea(float x, float y, float z, float radius,
         int virtualworld = -1, int interior = -1, int playerid = -1);
     virtual         ~SphereArea() {}
+};
+
+class BoxArea : public Area
+{
+public:
+                    BoxArea(float minx, float miny, float minz,
+        float maxx, float maxy, float maxz, 
+        int virtualworld = -1, int interior = -1, int playerid = -1);
+    virtual         ~BoxArea() {}
 };
 
 }

@@ -104,6 +104,8 @@ public:
 
 class LandscapeVehicle
 {
+    friend class Map;
+    
 protected:
     mongo::OID          mID, mMap;
     int                 mModel;

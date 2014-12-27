@@ -88,7 +88,8 @@ protected:
     bool                mActivated;
     int                 mVirtualWorld;
     float               mBoundX, mBoundY, mBoundZ, mBoundRadius;
-    float               mBoundMinX, mBoundMinY, mBoundMaxX, mBoundMaxY;
+    float               mBoundMinX, mBoundMinY, mBoundMaxX, mBoundMaxY,
+                        mBoundMinZ, mBoundMaxZ;
 
     bool                mSaved;
 
@@ -158,7 +159,7 @@ public:
 protected:
             bool        _loadMap(const mongo::BSONObj& data);
             bool        _calculateBoundingSphere();
-            bool        _calculateBoundingRectangle();
+            bool        _calculateBoundingBox();
 };
 
 }

@@ -54,10 +54,15 @@ void Area::onLeave(int /* playerid */)
 }
 
 SphereArea::SphereArea(float x, float y, float z, float radius,
-        int world, int interior, int playerid) :
-    Area(CreateDynamicSphere(x, y, z, radius, world, interior, playerid)),
-    mX(x), mY(y), mZ(z), mRadius(radius), mWorld(world),
-    mInterior(interior), mPlayer(playerid)
+    int world, int interior, int playerid) :
+    Area(CreateDynamicSphere(x, y, z, radius, world, interior, playerid))
+{}
+
+BoxArea::BoxArea(float minx, float miny, float minz,
+    float maxx, float maxy, float maxz,
+    int world, int interior, int playerid) :
+    Area(CreateDynamicCuboid(minx, miny, minz, maxx, maxy, maxz,
+        world, interior, playerid))
 {}
 
 }
