@@ -86,6 +86,7 @@ bool Player::createProfile(const std::string& password)
                 "password"      << tPasswordHash        <<
                 "lang"          << mLanguage            <<
                 "color"         << mColor               <<
+                "crew"          << mCrew                <<
                 "gametime"      << 0                    <<
                 "adminlevel"    << mAdminLevel          <<
                 "flags"         << mFlags               <<
@@ -623,6 +624,7 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mLanguage       = doc["lang"].numberInt();
         mColor          = doc["color"].numberInt();
         if(mColor == 0) setColor(getRandomColor());
+        mCrew           = doc["crew"].OID();
         mPoliceRank     = PoliceRank(doc["policerank"].numberInt());
         if(mPoliceRank > 9) mPoliceRank = CHIEF_OF_POLICE;
         if(mPoliceRank < 0) mPoliceRank = CIVILIAN;

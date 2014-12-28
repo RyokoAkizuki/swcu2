@@ -22,6 +22,7 @@
 #include "../Map/MapDialogs.hpp"
 #include "../Multilang/Language.hpp"
 #include "../Weapon/WeaponShopDialog.hpp"
+#include "../GangZone/GangZoneManager.hpp"
 
 #include "PlayerDialogs.hpp"
 
@@ -727,6 +728,10 @@ void PlayerControlPanelDialog::build()
     {
         addItem(t(p, DLG_CTLPANEL_MAP_MGR), [playerid]() {
             DialogManager::get().push<MapManagerDialog>(playerid);
+        });
+        addItem(t(p, DLG_CTLPANEL_RELOAD_ZONES), []() {
+            GangZoneManager::get().loadAll();
+            GangZoneManager::get().showAll();
         });
     }
     // Police System

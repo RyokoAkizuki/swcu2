@@ -28,6 +28,8 @@ struct Config
     static std::string  colNameMapVehicle;
     static std::string  colNamePlayer;
     static std::string  colNameTeleport;
+    static std::string  colNameCrew;
+    static std::string  colNameGangZone;
     static int          webServerPort;
     static size_t       webServerThread;
 };

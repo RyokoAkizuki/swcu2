@@ -234,7 +234,9 @@ const char* LANG_ZH_CN[LANG_ENTRY_END + 1] = {
     "在此创建传送点",
     // DLG_CTLPANEL_WEAPONSHOP
     "武器商店",
-    
+    // DLG_CTLPANEL_RELOAD_ZONES
+    "重新载入帮派地盘",
+
     // INFO_PUT_IN_PRISON
     "你被送进了监狱.",
     // WARN_ESCAPE_FROM_PRISON

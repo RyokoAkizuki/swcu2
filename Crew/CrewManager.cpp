@@ -14,19 +14,30 @@
  * limitations under the License.
  */
 
-#include "Config.hpp"
+#include "Crew.hpp"
+
+#include "CrewManager.hpp"
 
 namespace swcu {
 
-std::string Config::dbHost              = "localhost";
-std::string Config::colNameMap          = "swcu2.map";
-std::string Config::colNameMapObject    = "swcu2.map.object";
-std::string Config::colNameMapVehicle   = "swcu2.map.vehicle";
-std::string Config::colNamePlayer       = "swcu2.playerprofile";
-std::string Config::colNameTeleport     = "swcu2.teleport";
-std::string Config::colNameCrew         = "swcu2.crew";
-std::string Config::colNameGangZone     = "swcu2.gangzone";
-int         Config::webServerPort       = 8081;
-size_t      Config::webServerThread     = 4;
+CrewManager::CrewManager()
+{
+    getDBConn()->createCollection(Config::colNameCrew);
+    getDBConn()->ensureIndex(Config::colNameCrew,
+        BSON("name" << 1), true);
+}
+
+std::shared_ptr<Crew> CrewManager::getCrew(const mongo::OID& id)
+{
+    auto idstr = id.str();
+    auto iter = mCrews.find(idstr);
+    if(iter != mCrews.end())
+    {
+        return iter->second;
+    }
+    auto crew = std::make_shared<Crew>(id);
+    mCrews.insert(std::make_pair(idstr, crew));
+    return crew;
+}
 
 }

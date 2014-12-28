@@ -235,6 +235,8 @@ const char* LANG_EN_US[LANG_ENTRY_END + 1] = {
     "Create Teleport Here",
     // DLG_CTLPANEL_WEAPONSHOP
     "Weapon Shop",
+    // DLG_CTLPANEL_RELOAD_ZONES
+    "Reload Gang Zones",
     
     // INFO_PUT_IN_PRISON
     "You've been put in prison.",

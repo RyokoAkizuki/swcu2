@@ -64,6 +64,14 @@
 		<Unit filename="Common/Internal/easylogging++.h" />
 		<Unit filename="Common/Internal/sha1.cpp" />
 		<Unit filename="Common/Internal/sha1.h" />
+		<Unit filename="Crew/Crew.cpp" />
+		<Unit filename="Crew/Crew.hpp" />
+		<Unit filename="Crew/CrewManager.cpp" />
+		<Unit filename="Crew/CrewManager.hpp" />
+		<Unit filename="GangZone/GangZone.cpp" />
+		<Unit filename="GangZone/GangZone.hpp" />
+		<Unit filename="GangZone/GangZoneManager.cpp" />
+		<Unit filename="GangZone/GangZoneManager.hpp" />
 		<Unit filename="House/House.hpp" />
 		<Unit filename="Interface/CommandManager.cpp" />
 		<Unit filename="Interface/CommandManager.hpp" />

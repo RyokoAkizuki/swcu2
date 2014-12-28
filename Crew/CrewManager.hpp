@@ -14,19 +14,32 @@
  * limitations under the License.
  */
 
-#include "Config.hpp"
+#pragma once
+
+#include <unordered_map>
+#include <memory>
+
+#include "../Common/Common.hpp"
+#include "../Utility/Singleton.hpp"
 
 namespace swcu {
 
-std::string Config::dbHost              = "localhost";
-std::string Config::colNameMap          = "swcu2.map";
-std::string Config::colNameMapObject    = "swcu2.map.object";
-std::string Config::colNameMapVehicle   = "swcu2.map.vehicle";
-std::string Config::colNamePlayer       = "swcu2.playerprofile";
-std::string Config::colNameTeleport     = "swcu2.teleport";
-std::string Config::colNameCrew         = "swcu2.crew";
-std::string Config::colNameGangZone     = "swcu2.gangzone";
-int         Config::webServerPort       = 8081;
-size_t      Config::webServerThread     = 4;
+class Crew;
+
+class CrewManager : public Singleton<CrewManager>
+{
+protected:
+    std::unordered_map<std::string, std::shared_ptr<Crew>> mCrews;
+
+protected:
+                    CrewManager();
+    friend class Singleton<CrewManager>;
+
+public:
+    virtual         ~CrewManager() {}
+
+            
+            std::shared_ptr<Crew>   getCrew(const mongo::OID& id);
+};
 
 }

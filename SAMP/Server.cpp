@@ -38,6 +38,7 @@
 #include "../Area/AreaManager.hpp"
 #include "../Web/WebServiceManager.hpp"
 #include "../Migration/Migration.hpp"
+#include "../GangZone/GangZoneManager.hpp"
 
 /** ~~ Event Forwarding for Streamer ~~ **/
 
@@ -101,9 +102,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
-    // swcu::migratePlayerProfiles("localhost");
-    // swcu::migrateMaps("localhost");
-    // swcu::migrateTeleports("tele.cfg");
     ShowNameTags(0);
     for(int i = 0; i < 299; ++i)
     {
@@ -112,6 +110,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
     }
     swcu::registerPlayerCommands();
     swcu::MapManager::get().loadAllMaps();
+    swcu::GangZoneManager::get().loadAll();
     swcu::WebServiceManager::get().bindMethod("^/hello$", "GET",
     [](std::ostream& response, swcu::HTTPRequertPtr request) {
         swcu::writeResponse(response, 200, swcu::CONTENT_TYPE_TEXT_PLAIN,
@@ -192,6 +191,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
 {
+    swcu::GangZoneManager::get().showAll();
     auto p = swcu::PlayerManager::get().getPlayer(playerid);
     if(p == nullptr)
     {

@@ -64,6 +64,8 @@ protected:
     int                 mLanguage;
     int                 mColor;
 
+    mongo::OID          mCrew;
+
     /**
      * Police System
      */
@@ -266,6 +268,15 @@ public:
 
             int         getPrivateVehicleId() const
             { return mPrivateVehicle; }
+
+    /**
+     * ************ Crew System ************
+     */
+            bool        createCrew(const std::string& name);
+            bool        joinCrew(const mongo::OID& crewId);
+            bool        quitCrew();
+            mongo::OID  getCrew() const;
+            bool        isCrewMember() const;
 
 protected:
 
