@@ -61,7 +61,6 @@ protected:
     int                 mFlags;
     int64_t             mJoinTime;
     int64_t             mGameTime;
-    int                 mLanguage;
     int                 mColor;
 
     mongo::OID          mCrew;
@@ -211,11 +210,6 @@ public:
             { return mAdminLevel; }
 
             bool        setAdminLevel(int level);
-
-            int         getLanguage() const
-            { return mLanguage; }
-
-            bool        setLanguage(int lang);
 
             PoliceRank  getPoliceRank() const
             { return mPoliceRank; }

@@ -21,7 +21,6 @@
 
 #include "../Interface/CommandManager.hpp"
 #include "../Interface/DialogManager.hpp"
-#include "../Multilang/Language.hpp"
 #include "../Player/PlayerManager.hpp"
 #include "../Weapon/WeaponShopDialog.hpp"
 
@@ -47,8 +46,7 @@ bool pcmdChangeSkin(int playerid, std::stringstream& cmdline)
     cmdline >> skinid;
     if(skinid < 0 || skinid > 299)
     {
-        SendClientMessage(playerid, 0xFFFFFFFF,
-            t(playerid, SKIN_ID_INVALID));
+        SendClientMessage(playerid, 0xFFFFFFFF, "∆§∑ÙIDŒﬁ–ß");
         return false;
     }
     return SetPlayerSkin(playerid, skinid);

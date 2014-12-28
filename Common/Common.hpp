@@ -17,6 +17,7 @@
 #pragma once
  
 #include <mongo/client/dbclient.h>
+#include <sstream>
 
 #include "Internal/easylogging++.h"
 #include "Internal/EncodingUtility.hpp"
@@ -44,9 +45,15 @@
     } \
     do {} while (false)
 
+#define STR(x) ((dynamic_cast<std::ostringstream&>( \
+    std::ostringstream() << x)).str())
+#define CSTR(x) ((dynamic_cast<std::ostringstream&>( \
+    std::ostringstream() << x)).str().c_str())
+
 namespace swcu {
 
 mongo::DBClientConnection*  getDBConn();
 bool                        dbCheckError();
+
 
 }

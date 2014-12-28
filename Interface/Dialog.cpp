@@ -48,10 +48,10 @@ bool MenuDialog::display()
     std::string message = serial.str();
     if(message.empty())
     {
-        message = t(mPlayerId, DLG_EMPTY_CONTENT);
+        message = "无内容.";
     }
     return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST, mTitle.c_str(),
-        message.c_str(), t(mPlayerId, OK), t(mPlayerId, BACK));
+        message.c_str(), "确定", "返回");
 }
 
 bool MenuDialog::handleCallback(bool response, int listitem,
@@ -99,10 +99,10 @@ bool CheckListDialog::display()
     std::string message = serial.str();
     if(message.empty())
     {
-        message = t(mPlayerId, DLG_EMPTY_CONTENT);
+        message = "无内容.";
     }
     return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST, mTitle.c_str(),
-        message.c_str(), t(mPlayerId, TOGGLE), t(mPlayerId, BACK));
+        message.c_str(), "切换", "返回");
 }
 
 bool CheckListDialog::handleCallback(bool response, int listitem,

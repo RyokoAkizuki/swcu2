@@ -21,7 +21,6 @@
 #include <sampgdk/a_samp.h>
 
 #include "../Common/Common.hpp"
-#include "../Multilang/Language.hpp"
 
 namespace swcu {
 
@@ -101,28 +100,28 @@ public:
 
         if(mMessage.empty())
         {
-            mMessage = t(mPlayerId, DLG_EMPTY_CONTENT);
+            mMessage = "无内容.";
         }
 
         const char *btn1, *btn2;
         switch(Type)
         {
         case DIALOG_TYPE_MESSAGE:
-            btn1 = t(mPlayerId, OK);
+            btn1 = "确定";
             btn2 = "";
             break;
         case DIALOG_TYPE_CONFIRM:
-            btn1 = t(mPlayerId, YES);
-            btn2 = t(mPlayerId, NO);
+            btn1 = "是";
+            btn2 = "否";
             break;
         case DIALOG_TYPE_INPUT:
         case DIALOG_TYPE_INPUT_MASKED:
-            btn1 = t(mPlayerId, OK);
-            btn2 = t(mPlayerId, BACK);
+            btn1 = "确定";
+            btn2 = "返回";
             break;
         default:
-            btn1 = t(mPlayerId, UNDEF);
-            btn2 = t(mPlayerId, UNDEF);
+            btn1 = "<未定义>";
+            btn2 = "<未定义>";
         }
         int style;
         if(AcceptInput == true)
@@ -265,11 +264,10 @@ public:
         std::string message = serial.str();
         if(message.empty())
         {
-            message = t(mPlayerId, DLG_EMPTY_CONTENT);
+            message = "无内容.";
         }
         return ShowPlayerDialog(mPlayerId, 0, DIALOG_STYLE_LIST,
-            mTitle.c_str(), message.c_str(),
-            t(mPlayerId, OK), t(mPlayerId, BACK));
+            mTitle.c_str(), message.c_str(), "确定", "返回");
     }
 
     virtual bool    handleCallback(

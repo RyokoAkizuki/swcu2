@@ -19,7 +19,6 @@
 #include <algorithm>
 
 #include "../Player/PlayerManager.hpp"
-#include "../Multilang/Language.hpp"
 
 #include "Map.hpp"
 
@@ -34,13 +33,14 @@ HouseMapArea::HouseMapArea(Map* map) :
 
 void HouseMapArea::onEnter(int playerid)
 {
-    std::string msg = "You've enter " + mMap->getName();
+    std::string msg = "你进入了" + mMap->getName();
     SendClientMessage(playerid, 0xFFFFFFFF, msg.c_str());
 }
 
 void HouseMapArea::onLeave(int playerid)
 {
-    SendClientMessage(playerid, 0xFFFFFFFF, "You've exited the house.");
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        ("你离开了房产" + mMap->getName()).c_str());
 }
 
 PrisonMapArea::PrisonMapArea(Map* map) :
@@ -56,7 +56,7 @@ void PrisonMapArea::onEnter(int playerid)
     if(p == nullptr) return;
     if(!p->isPrisonTermExceeded())
     {
-        SendClientMessage(playerid, 0xFFFFFFFF, t(p, INFO_PUT_IN_PRISON));
+        SendClientMessage(playerid, 0xFFFFFFFF, "你被送进了监狱.");
     }
 }
 
@@ -66,8 +66,7 @@ void PrisonMapArea::onLeave(int playerid)
     if(p == nullptr) return;
     if(!p->isPrisonTermExceeded())
     {
-        SendClientMessage(playerid, 0xFFFFFFFF,
-            t(p, WARN_ESCAPE_FROM_PRISON));
+        SendClientMessage(playerid, 0xFFFFFFFF, "不要越狱.");
         p->teleportTo("##prison");
     }
 }

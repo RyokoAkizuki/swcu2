@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "../Multilang/Language.hpp"
 #include "../Interface/DialogManager.hpp"
 #include "MapManager.hpp"
 
@@ -23,23 +22,23 @@
 namespace swcu {
 
 MapManagerDialog::MapManagerDialog(int playerid) :
-    MenuDialog(playerid, t(playerid, DLG_MAP_MGR_TITLE))
+    MenuDialog(playerid, "地图管理")
 {
 }
 
 void MapManagerDialog::build()
 {
     int playerid = mPlayerId;
-    addItem(t(mPlayerId, DLG_MAP_MGR_LOADED), [playerid]() {
+    addItem("查看已载入的地图", [playerid]() {
         DialogManager::get().push<MapViewLoadedDialog>(playerid);
     });
-    addItem(t(mPlayerId, DLG_MAP_MGR_RELOAD_ALL),
+    addItem("重新载入所有地图",
         std::bind(&MapManager::loadAllMaps, std::ref(MapManager::get()))
     );
 }
 
 MapViewLoadedDialog::MapViewLoadedDialog(int playerid) :
-    ItemListDialog<std::string>(playerid, t(playerid, DLG_MAP_LOADED_TITLE))
+    ItemListDialog<std::string>(playerid, "已载入的地图")
 {
 }
 
@@ -59,7 +58,7 @@ bool MapViewLoadedDialog::process(std::string key)
 }
 
 MapEditDialog::MapEditDialog(int playerid, const std::string& name) :
-    MenuDialog(playerid, t(playerid, DLG_MAP_EDIT_TITLE)), mName(name)
+    MenuDialog(playerid, "地图管理"), mName(name)
 {
 }
 
@@ -67,12 +66,12 @@ void MapEditDialog::build()
 {
     if(MapManager::get().isMapLoaded(mName))
     {
-        addItem(t(mPlayerId, DLG_MAP_EDIT_UNLOAD),
+        addItem("卸载",
             std::bind(&MapManager::unloadMap,
                 std::ref(MapManager::get()), mName)
         );
         std::string name = mName;
-        addItem(t(mPlayerId, DLG_MAP_EDIT_CALC_BOUND), [name]() {
+        addItem("更新包围体积", [name]() {
             Map* map = MapManager::get().findMap(name);
             if(map != nullptr)
             {
@@ -82,7 +81,7 @@ void MapEditDialog::build()
     }
     else
     {
-        addItem(t(mPlayerId, DLG_MAP_EDIT_LOAD),
+        addItem("加载",
             std::bind(&MapManager::loadMap,
                 std::ref(MapManager::get()), mName)
         );

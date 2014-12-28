@@ -18,7 +18,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include "../Streamer/Streamer.hpp"
-#include "../Multilang/Language.hpp"
 #include "../Map/Map.hpp"
 #include "PlayerColors.hpp"
 
@@ -28,21 +27,21 @@ namespace swcu {
 
 const char* PoliceRankString[] =
 {
-    "平民[Civilian]",
-    "警员[Police Officer]",
-    "警探[Police Detective]",
-    "警长[Police Sergeant]",
-    "警督[Police Lieutenant]",
-    "警监[Police Captain]",
-    "指挥官[Police Commander]",
-    "副总警监[Police Deputy Chief]",
-    "助理总警监[Assistant Chief of Police]",
-    "总警监[Chief of Police]"
+    "平民",
+    "警员",
+    "警探",
+    "警长",
+    "警督",
+    "警监",
+    "指挥官",
+    "副总警监",
+    "助理总警监",
+    "总警监"
 };
 
 Player::Player(int gameid) :
     mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
-    mJoinTime(0), mGameTime(0), mLanguage(0), mColor(getRandomColor()),
+    mJoinTime(0), mGameTime(0), mColor(getRandomColor()),
     mPoliceRank(CIVILIAN), mWantedLevel(0), mTimeInPrison(0),
     mTimeToFree(0),
     mRegistered(false),
@@ -84,7 +83,6 @@ bool Player::createProfile(const std::string& password)
                 "_id"           << tId                  <<
                 "logname"       << GBKToUTF8(mLogName)  <<
                 "password"      << tPasswordHash        <<
-                "lang"          << mLanguage            <<
                 "color"         << mColor               <<
                 "crew"          << mCrew                <<
                 "gametime"      << 0                    <<
@@ -281,23 +279,6 @@ bool Player::setAdminLevel(int level)
     return false;
 }
 
-bool Player::setLanguage(int lang)
-{
-    if(!isRegistered())
-    {
-        mLanguage = lang;
-        return true;
-    }
-    if(_updateField("$set", "lang", lang))
-    {
-        LOG(INFO) << "Player " << mLogName << "'s language is set to "
-            << lang << ".";
-        mLanguage = lang;
-        return true;
-    }
-    return false;
-}
-
 bool Player::setPoliceRank(PoliceRank rank)
 {
     if(rank > 9 || rank < 0)
@@ -473,7 +454,7 @@ void Player::teleportTo(int targetplayer)
 {
     if(!IsPlayerConnected(targetplayer))
     {
-        SendClientMessage(mInGameId, 0xFFFFFFFF, t(this, PLAYER_NOT_FOUND));
+        SendClientMessage(mInGameId, 0xFFFFFFFF, "未找到该玩家.");
         return;
     }
     float x, y, z, facing;
@@ -495,8 +476,7 @@ bool Player::teleportTo(const std::string& placeName)
         if(doc.isEmpty())
         {
             LOG(WARNING) << "Teleport " << trimmedName << " can't be found.";
-            SendClientMessage(mInGameId, 0xFFFFFFFF,
-                t(this, TELEPORT_NOT_FOUND));
+            SendClientMessage(mInGameId, 0xFFFFFFFF, "传送点不存在.");
             return false;
         }
         else
@@ -521,8 +501,7 @@ bool Player::teleportTo(const std::string& placeName)
             return true;
         }
     });
-    SendClientMessage(mInGameId, 0xFFFFFFFF,
-        t(this, TELEPORT_INVALID));
+    SendClientMessage(mInGameId, 0xFFFFFFFF, "传送点无效.");
     return false;
 }
 
@@ -560,15 +539,14 @@ bool Player::createTeleport(const std::string& placeName)
         );
         if(dbCheckError())
         {
-            SendClientMessage(mInGameId, 0xFFFFFFFF,
-                t(this, TELEPORT_CREATE_SUCCESS));
+            SendClientMessage(mInGameId, 0xFFFFFFFF, "传送点创建成功.");
             LOG(INFO) << "Teleport " << trimmedName << " is created.";
             return true;
         }
     });
     LOG(ERROR) << "Failed to create teleport.";
     SendClientMessage(mInGameId, 0xFFFFFFFF,
-        t(this, TELEPORT_CREATE_FAILED));
+        "传送点创建失败. 这个名字可能已经被使用了.");
     return false;
 }
 
@@ -594,7 +572,7 @@ bool Player::dropPrivateVehicle()
 void Player::teleportPrivateVehicleToPlayer()
 {
     if(mPrivateVehicle == INVALID_VEHICLE_ID) return;
-    
+
     float   x, y, z, a;
     GetPlayerPos(mInGameId, &x, &y, &z);
     GetPlayerFacingAngle(mInGameId, &a);
@@ -621,7 +599,6 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mFlags          = doc["flags"].numberInt();
         mJoinTime       = doc["jointime"].date().toTimeT();
         mGameTime       = doc["gametime"].numberLong();
-        mLanguage       = doc["lang"].numberInt();
         mColor          = doc["color"].numberInt();
         if(mColor == 0) setColor(getRandomColor());
         mCrew           = doc["crew"].OID();

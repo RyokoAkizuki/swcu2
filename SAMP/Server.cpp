@@ -144,6 +144,10 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
             swcu::DialogManager::get().push
                 <swcu::PlayerRegisterDialog>(playerid);
         }
+        SendClientMessageToAll(0xFFFFFFFF, 
+            CSTR("玩家 " << p->getNickname() 
+            << "(" << playerid << ") 进入了服务器."));
+        SendDeathMessage(INVALID_PLAYER_ID, playerid, 200 /* ICON_CONNECT */);
     }
     else
     {
@@ -155,6 +159,14 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
 {
     Streamer_OnPlayerDisconnect(playerid, reason);
+    swcu::Player* p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p != nullptr)
+    {
+        SendClientMessageToAll(0xFFFFFFFF, 
+            CSTR("玩家 " << p->getNickname() 
+            << "(" << playerid << ") 离开了服务器."));
+        SendDeathMessage(INVALID_PLAYER_ID, playerid, 201 /* ICON_DISCONNECT */);
+    }
     if(swcu::PlayerManager::get().removePlayer(playerid))
     {
         LOG(INFO) << "Player disconnected. ID = " << playerid <<

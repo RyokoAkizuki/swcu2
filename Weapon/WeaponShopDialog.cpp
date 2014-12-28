@@ -17,8 +17,6 @@
 #include <vector>
 #include <sampgdk/a_players.h>
 
-#include "../Multilang/Language.hpp"
-
 #include "WeaponShopDialog.hpp"
 
 namespace swcu {
@@ -102,7 +100,7 @@ std::vector<WeaponItem> gWeaponShopItems =
 };
 
 WeaponShopDialog::WeaponShopDialog(int playerid) :
-    ItemListDialog<int>(playerid, t(playerid, DLG_WEAPONSHOP_TITLE))
+    ItemListDialog<int>(playerid, "Œ‰∆˜…ÃµÍ")
 {
 }
 

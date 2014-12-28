@@ -89,10 +89,6 @@
 		<Unit filename="Map/MapManager.hpp" />
 		<Unit filename="Migration/Migration.cpp" />
 		<Unit filename="Migration/Migration.hpp" />
-		<Unit filename="Multilang/EN-US.cpp" />
-		<Unit filename="Multilang/Language.cpp" />
-		<Unit filename="Multilang/Language.hpp" />
-		<Unit filename="Multilang/ZH-CN.cpp" />
 		<Unit filename="Player/Player.cpp" />
 		<Unit filename="Player/Player.hpp" />
 		<Unit filename="Player/PlayerColors.cpp" />
