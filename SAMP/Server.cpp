@@ -146,7 +146,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
         }
         SendClientMessageToAll(0xFFFFFFFF,
             CSTR("玩家 " << p->getNickname()
-            << "(" << playerid << ") 进入了服务器."));
+            << "{FFFFFF}(" << playerid << ") 进入了服务器."));
         SendDeathMessage(INVALID_PLAYER_ID, playerid, 200 /* ICON_CONNECT */);
     }
     else
@@ -164,7 +164,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
     {
         SendClientMessageToAll(0xFFFFFFFF,
             CSTR("玩家 " << p->getNickname()
-            << "(" << playerid << ") 离开了服务器."));
+            << "{FFFFFF}(" << playerid << ") 离开了服务器."));
         SendDeathMessage(INVALID_PLAYER_ID, playerid, 201 /* ICON_DISCONNECT */);
     }
     if(swcu::PlayerManager::get().removePlayer(playerid))

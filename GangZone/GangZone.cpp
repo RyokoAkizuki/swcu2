@@ -135,6 +135,7 @@ bool GangZone::setCrew(const mongo::OID& crewId)
 
 void GangZone::updatePlayersHUD()
 {
+    GangZoneShowForAll(mInGameId, (mCrewPtr->getColor() << 8) + 0x44);
     if(isInWar())
     {
         GangZoneFlashForAll(mInGameId, 0xFF000044 /* RED */);
@@ -142,7 +143,6 @@ void GangZone::updatePlayersHUD()
     else
     {
         GangZoneStopFlashForAll(mInGameId);
-        GangZoneShowForAll(mInGameId, (mCrewPtr->getColor() << 8) + 0x44);
     }
 }
 
