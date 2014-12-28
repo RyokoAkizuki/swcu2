@@ -23,6 +23,37 @@
 
 namespace swcu {
 
+GangZoneBoxArea::GangZoneBoxArea(GangZone* zone) :
+    BoxArea(zone->mMinX, zone->mMinY, zone->mMinZ,
+        zone->mMaxX, zone->mMaxY, zone->mMaxZ),
+    mZone(zone)
+{
+}
+
+void GangZoneBoxArea::onEnter(int playerid)
+{
+    if(mZone->mCrewPtr->isValid())
+    {
+        SendClientMessage(playerid, 0xFFFFFFFF, CSTR(
+            "你进入了" << mZone->getName() << ", 这片地盘归" <<
+            mZone->mCrewPtr->getName() << "所有."
+        ));
+    }
+    else
+    {
+        SendClientMessage(playerid, 0xFFFFFFFF, CSTR(
+            "你进入了" << mZone->getName() << ", 这片地盘还没有人占领."
+        ));
+    }
+}
+
+void GangZoneBoxArea::onLeave(int playerid)
+{
+    SendClientMessage(playerid, 0xFFFFFFFF, CSTR(
+        "你离开了" << mZone->getName() << "."
+    ));
+}
+
 GangZone::GangZone() : mInGameId(-1), mValid(false)
 {
 }
@@ -43,7 +74,7 @@ GangZone::GangZone(
     mCrewPtr = CrewManager::get().getCrew(mCrew);
 }
 
-GangZone::GangZone(const mongo::BSONObj& data)
+GangZone::GangZone(const mongo::BSONObj& data) : GangZone()
 {
     if(_loadDocument(data))
     {
@@ -67,6 +98,7 @@ bool GangZone::setCrew(const mongo::OID& crewId)
     if(_updateField("$set", "crew", crewId))
     {
         mCrew = crewId;
+        mCrewPtr = CrewManager::get().getCrew(mCrew);
         return true;
     }
     return false;
@@ -79,7 +111,7 @@ void GangZone::showForAll()
 
 void GangZone::flashForAll()
 {
-    GangZoneFlashForAll(mInGameId, (mCrewPtr->getColor() << 8) + 0x44);
+    GangZoneFlashForAll(mInGameId, (mCrewPtr->getColor() << 8) + 0xFF);
 }
 
 bool GangZone::_createGangZone()
@@ -103,6 +135,8 @@ bool GangZone::_createGangZone()
         if(dbCheckError())
         {
             mId         = id;
+            mInGameId   = GangZoneCreate(mMinX, mMinY, mMaxX, mMaxY);
+            mArea.reset(new GangZoneBoxArea(this));
             LOG(INFO) << "Gang zone created: " << mName;
             return true;
         }
@@ -123,6 +157,7 @@ bool GangZone::_loadDocument(const mongo::BSONObj& doc)
         mMaxY       = doc["maxy"].numberDouble();
         mMaxZ       = doc["maxz"].numberDouble();
         mInGameId   = GangZoneCreate(mMinX, mMinY, mMaxX, mMaxY);
+        mArea.reset(new GangZoneBoxArea(this));
         return true;
     });
     return false;

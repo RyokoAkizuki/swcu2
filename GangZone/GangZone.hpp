@@ -18,12 +18,30 @@
 
 #include "../Common/Common.hpp"
 
+#include "../Area/Area.hpp"
+
 namespace swcu {
 
 class Crew;
+class GangZone;
+
+class GangZoneBoxArea : public BoxArea
+{
+protected:
+    GangZone*       mZone;
+
+public:
+                    GangZoneBoxArea(GangZone* zone);
+    virtual         ~GangZoneBoxArea() {}
+
+    virtual void    onEnter(int playerid);
+    virtual void    onLeave(int playerid);
+};
 
 class GangZone
 {
+    friend class GangZoneBoxArea;
+
 protected:
     mongo::OID      mId;
     std::string     mName;
@@ -34,7 +52,8 @@ protected:
 
     bool            mValid;
 
-    std::shared_ptr<Crew>   mCrewPtr;
+    std::shared_ptr<Crew>               mCrewPtr;
+    std::unique_ptr<GangZoneBoxArea>    mArea;
 
 protected:
                         GangZone();
