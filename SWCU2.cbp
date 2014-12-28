@@ -66,6 +66,8 @@
 		<Unit filename="Common/Internal/sha1.h" />
 		<Unit filename="Crew/Crew.cpp" />
 		<Unit filename="Crew/Crew.hpp" />
+		<Unit filename="Crew/CrewDialogs.cpp" />
+		<Unit filename="Crew/CrewDialogs.hpp" />
 		<Unit filename="Crew/CrewManager.cpp" />
 		<Unit filename="Crew/CrewManager.hpp" />
 		<Unit filename="GangZone/GangZone.cpp" />

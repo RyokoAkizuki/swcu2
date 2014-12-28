@@ -28,7 +28,7 @@ namespace swcu {
 class GangZoneManager : public Singleton<GangZoneManager>
 {
 protected:
-    std::unordered_map<int32_t, std::unique_ptr<GangZone>> mZones;
+    std::unordered_map<int32_t, std::shared_ptr<GangZone>> mZones;
 
 protected:
                     GangZoneManager();
@@ -37,8 +37,15 @@ protected:
 public:
     virtual         ~GangZoneManager() {}
 
+    /**
+     * This may returns an invalid gang zone when the id is not found.
+     */
+            std::shared_ptr<GangZone>   getGangZone(int32_t id);
+
             void    loadAll();
             void    showAll();
+
+            void    updateWarStatus();
 };
 
 }

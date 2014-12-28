@@ -55,6 +55,14 @@ protected:
     std::shared_ptr<Crew>               mCrewPtr;
     std::unique_ptr<GangZoneBoxArea>    mArea;
 
+    /**
+     * Gang War.
+     */
+    time_t          mGangWarEndTime;
+    uint64_t        mCrewDeath, mEnemyDeath;
+    mongo::OID      mEnemyCrew;
+    bool            mInWar;
+
 protected:
                         GangZone();
 
@@ -72,6 +80,7 @@ public:
      * Load a gang zone.
      */
                         GangZone(const mongo::BSONObj& data);
+                        GangZone(const std::string& name);
 
     virtual             ~GangZone();
 
@@ -85,11 +94,29 @@ public:
             bool        setName(const std::string& name);
             bool        setCrew(const mongo::OID& crewId);
 
-            void        showForAll();
-            void        flashForAll();
+            bool        startGangWar(const mongo::OID& enemyCrewId);
+            
+            bool        isInWar() const
+            { return mInWar; }
+
+            bool        isWarExpired() const
+            { return mGangWarEndTime < time(0); }
+
+            mongo::OID  getEnemyCrew() const
+            { return mEnemyCrew; }
+
+            void        onCrewDeath();
+            void        onEnemyDeath();
+            bool        stopGangWar();
+            void        updateWarStatus();
+
+            void        updatePlayersHUD();
 
 protected:
+            void        _broadcastWarProgress();
+
             bool        _createGangZone();
+            bool        _findAndLoadByName(const std::string& name);
             bool        _loadDocument(const mongo::BSONObj& doc);
 
     template<typename T>

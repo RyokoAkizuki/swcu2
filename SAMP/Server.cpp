@@ -144,8 +144,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
             swcu::DialogManager::get().push
                 <swcu::PlayerRegisterDialog>(playerid);
         }
-        SendClientMessageToAll(0xFFFFFFFF, 
-            CSTR("玩家 " << p->getNickname() 
+        SendClientMessageToAll(0xFFFFFFFF,
+            CSTR("玩家 " << p->getNickname()
             << "(" << playerid << ") 进入了服务器."));
         SendDeathMessage(INVALID_PLAYER_ID, playerid, 200 /* ICON_CONNECT */);
     }
@@ -162,8 +162,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
     swcu::Player* p = swcu::PlayerManager::get().getPlayer(playerid);
     if(p != nullptr)
     {
-        SendClientMessageToAll(0xFFFFFFFF, 
-            CSTR("玩家 " << p->getNickname() 
+        SendClientMessageToAll(0xFFFFFFFF,
+            CSTR("玩家 " << p->getNickname()
             << "(" << playerid << ") 离开了服务器."));
         SendDeathMessage(INVALID_PLAYER_ID, playerid, 201 /* ICON_DISCONNECT */);
     }
@@ -198,6 +198,13 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
     {
         return false;
     }
+
+    static int lastProcess = time(0);
+    if(time(0) - lastProcess >= 1)
+    {
+        lastProcess = time(0);
+        swcu::GangZoneManager::get().updateWarStatus();
+    }
     return true;
 }
 
@@ -210,6 +217,32 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
         return false;
     }
     if(!p->isPrisonTermExceeded()) p->teleportToPrison();
+    return true;
+}
+
+PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDeath(int playerid, int killerid,
+    int reason)
+{
+    auto p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr)
+    {
+        return false;
+    }
+    if(p->_isInGangZone())
+    {
+        auto gz = p->_getCurrentGangZone();
+        if(gz->isInWar())
+        {
+            if(p->getCrew() == gz->getCrew())
+            {
+                gz->onCrewDeath();
+            }
+            else if(p->getCrew() == gz->getEnemyCrew())
+            {
+                gz->onEnemyDeath();
+            }
+        }
+    }
     return true;
 }
 

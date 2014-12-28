@@ -22,6 +22,7 @@
 #include "../Map/MapDialogs.hpp"
 #include "../Weapon/WeaponShopDialog.hpp"
 #include "../GangZone/GangZoneManager.hpp"
+#include "../Crew/CrewDialogs.hpp"
 
 #include "PlayerDialogs.hpp"
 
@@ -734,6 +735,43 @@ void PlayerControlPanelDialog::build()
         addItem("自首", [playerid]() {
             DialogManager::get().push<ArrestSurrenderDialog>(playerid);
         });
+    }
+    // Crew
+    if(p->isCrewMember())
+    {
+        addItem("退出帮派", [playerid]() {
+            auto p = PlayerManager::get().getPlayer(playerid);
+            if(p != nullptr) p->quitCrew();
+        });
+    }
+    else
+    {
+        addItem("创建帮派", [playerid]() {
+            DialogManager::get().push<CreateCrewDialog>(playerid);
+        });
+        addItem("加入帮派", [playerid]() {
+            DialogManager::get().push<CrewFindByNameDialog>(
+            playerid, [playerid](const mongo::OID& crew) {
+                auto p = PlayerManager::get().getPlayer(playerid);
+                if(p == nullptr)
+                {
+                    return false;
+                }
+                return p->joinCrew(crew);
+            });
+        });
+    }
+    // Crew & Gang Zones
+    if(p->_isInGangZone() && p->isCrewMember())
+    {
+        auto gz = p->_getCurrentGangZone();
+        if(!gz->isInWar())
+        {
+            mongo::OID crew = p->getCrew();
+            addItem("抢占 " + gz->getName(), [gz, crew]() {
+                gz->startGangWar(crew);
+            });
+        }
     }
 }
 

@@ -20,6 +20,8 @@
 #include "../Streamer/Streamer.hpp"
 #include "../Map/Map.hpp"
 #include "PlayerColors.hpp"
+#include "../Crew/CrewManager.hpp"
+#include "../Crew/Crew.hpp"
 
 #include "Player.hpp"
 
@@ -51,6 +53,7 @@ Player::Player(int gameid) :
     mLogName = getPlayerNameFixed(mInGameId);
     LOG(INFO) << "Loading player " << mLogName << "'s profile.";
     SetPlayerColor(mInGameId, mColor);
+    mCrewPtr = CrewManager::get().getCrew(mCrew);
     loadProfile();
 }
 
@@ -335,6 +338,7 @@ bool Player::setColor(int color)
             << color << ".";
         mColor = color;
         SetPlayerColor(mInGameId, mColor);
+        updatePlayerLabel();
         return true;
     }
     return false;
@@ -389,7 +393,7 @@ void Player::updatePlayerLabel()
     }
     std::stringstream label;
     // Nickname
-    label << mNickname << "{FFFFFF}\n";
+    label << toEmbedString(mColor) << mNickname << "{FFFFFF}\n";
     // Admin Level
     if(mAdminLevel > 0)
     {
@@ -586,6 +590,32 @@ void Player::teleportPrivateVehicleToPlayer()
     PutPlayerInVehicle(mInGameId, mPrivateVehicle, 0 /* driver */);
 }
 
+bool Player::joinCrew(const mongo::OID& crewId)
+{
+    if(_updateField("$set", "crew", crewId))
+    {
+        mCrew = crewId;
+        mCrewPtr = CrewManager::get().getCrew(crewId);
+        if(crewId.isSet())
+        {
+            LOG(INFO) << "Player " << mLogName << " joined crew " <<
+            mCrewPtr->getName();
+        }
+        else
+        {
+            LOG(INFO) << "Player " << mLogName << " quited his crew.";
+        }
+        updatePlayerLabel();
+        return true;
+    }
+    return false;
+}
+
+bool Player::quitCrew()
+{
+    return joinCrew(mongo::OID());
+}
+
 void Player::_loadProfile(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
@@ -602,6 +632,7 @@ void Player::_loadProfile(const mongo::BSONObj& doc)
         mColor          = doc["color"].numberInt();
         if(mColor == 0) setColor(getRandomColor());
         mCrew           = doc["crew"].OID();
+        mCrewPtr        = CrewManager::get().getCrew(mCrew);
         mPoliceRank     = PoliceRank(doc["policerank"].numberInt());
         if(mPoliceRank > 9) mPoliceRank = CHIEF_OF_POLICE;
         if(mPoliceRank < 0) mPoliceRank = CIVILIAN;

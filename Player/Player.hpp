@@ -18,7 +18,11 @@
 
 #include "../Common/Common.hpp"
 
+#include "../GangZone/GangZone.hpp"
+
 namespace swcu {
+
+class Crew;
 
 enum PlayerFlags
 {
@@ -64,6 +68,7 @@ protected:
     int                 mColor;
 
     mongo::OID          mCrew;
+    std::shared_ptr<Crew>   mCrewPtr;
 
     /**
      * Police System
@@ -87,6 +92,8 @@ protected:
     bool                mLoggedIn;
     int                 mTextLabel;
     int                 mPrivateVehicle;
+
+    std::shared_ptr<GangZone>   mCurrentGangZone;
 
     /**
      * Houses, Weapons, Vehicles, etc.
@@ -233,7 +240,7 @@ public:
 
             int         getInGameId() const
             { return mInGameId; }
-            
+
     /**
      * prisinTerm is counted using seconds.
      */
@@ -264,19 +271,37 @@ public:
             { return mPrivateVehicle; }
 
     /**
+     * CurrentGangZone status. Used by GangZoneBoxArea and
+     */
+            void        _setCurrentGangZone(std::shared_ptr<GangZone> zone)
+            { mCurrentGangZone = zone; }
+
+            void        _clearCurrentGangZone()
+            { mCurrentGangZone.reset(); }
+
+            bool        _isInGangZone() const
+            { return mCurrentGangZone.get() != nullptr; }
+
+            std::shared_ptr<GangZone>   _getCurrentGangZone() const
+            { return mCurrentGangZone; }
+
+    /**
      * ************ Crew System ************
      */
-            bool        createCrew(const std::string& name);
             bool        joinCrew(const mongo::OID& crewId);
             bool        quitCrew();
-            mongo::OID  getCrew() const;
-            bool        isCrewMember() const;
+
+            mongo::OID  getCrew() const
+            { return mCrew; }
+
+            bool        isCrewMember() const
+            { return mCrew.isSet(); }
 
 protected:
 
             void        _loadProfile(const mongo::BSONObj& doc);
             void        _applyWantedLevel();
-            
+
     template<typename T>
             bool        _updateField(const char* operation,
                 const char* fieldname, T value)

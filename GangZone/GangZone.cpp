@@ -18,6 +18,8 @@
 
 #include "../Crew/CrewManager.hpp"
 #include "../Crew/Crew.hpp"
+#include "../Player/PlayerManager.hpp"
+#include "GangZoneManager.hpp"
 
 #include "GangZone.hpp"
 
@@ -45,6 +47,13 @@ void GangZoneBoxArea::onEnter(int playerid)
             "你进入了" << mZone->getName() << ", 这片地盘还没有人占领."
         ));
     }
+    auto p = PlayerManager::get().getPlayer(playerid);
+    if(p != nullptr)
+    {
+        p->_setCurrentGangZone(
+            GangZoneManager::get().getGangZone(mZone->mInGameId)
+        );
+    }
 }
 
 void GangZoneBoxArea::onLeave(int playerid)
@@ -52,9 +61,16 @@ void GangZoneBoxArea::onLeave(int playerid)
     SendClientMessage(playerid, 0xFFFFFFFF, CSTR(
         "你离开了" << mZone->getName() << "."
     ));
+    auto p = PlayerManager::get().getPlayer(playerid);
+    // If CurrentGangZone != mZone, it might be overwritten by other zones.
+    if(p != nullptr && p->_getCurrentGangZone().get() == mZone)
+    {
+        p->_clearCurrentGangZone();
+    }
 }
 
-GangZone::GangZone() : mInGameId(-1), mValid(false)
+GangZone::GangZone() : mInGameId(-1), mValid(false),
+    mGangWarEndTime(0), mCrewDeath(0), mEnemyDeath(0), mInWar(false)
 {
 }
 
@@ -68,6 +84,15 @@ GangZone::GangZone(
     mMinX = minx; mMinY = miny; mMinZ = minz;
     mMaxX = maxx; mMaxY = maxy; mMaxZ = maxz;
     if(_createGangZone())
+    {
+        mValid = true;
+    }
+    mCrewPtr = CrewManager::get().getCrew(mCrew);
+}
+
+GangZone::GangZone(const std::string& name) : GangZone()
+{
+    if(_findAndLoadByName(name))
     {
         mValid = true;
     }
@@ -99,19 +124,102 @@ bool GangZone::setCrew(const mongo::OID& crewId)
     {
         mCrew = crewId;
         mCrewPtr = CrewManager::get().getCrew(mCrew);
+        if(mCrew != mCrewPtr->getId())
+        {
+            LOG(WARNING) << "mCrew != mCrewPtr.getId()";
+        }
         return true;
     }
     return false;
 }
 
-void GangZone::showForAll()
+void GangZone::updatePlayersHUD()
 {
-    GangZoneShowForAll(mInGameId, (mCrewPtr->getColor() << 8) + 0x44);
+    if(isInWar())
+    {
+        GangZoneFlashForAll(mInGameId, 0xFF000044 /* RED */);
+    }
+    else
+    {
+        GangZoneStopFlashForAll(mInGameId);
+        GangZoneShowForAll(mInGameId, (mCrewPtr->getColor() << 8) + 0x44);
+    }
 }
 
-void GangZone::flashForAll()
+bool GangZone::startGangWar(const mongo::OID& enemyCrewId)
 {
-    GangZoneFlashForAll(mInGameId, (mCrewPtr->getColor() << 8) + 0xFF);
+    if(mInWar)
+    {
+        LOG(WARNING) << "Previous gang war still in progress."
+            " Can't start a new one.";
+        return false;
+    }
+    // A gang war lasts 10 mins.
+    mGangWarEndTime = time(0) + 10 * 60;
+    // Reset counters.
+    mCrewDeath = 0; mEnemyDeath = 0;
+    mEnemyCrew = enemyCrewId;
+    mInWar = true;
+    updatePlayersHUD();
+    return true;
+}
+
+void GangZone::onCrewDeath()
+{
+    if(!isInWar()) return;
+    ++mCrewDeath;
+    _broadcastWarProgress();
+}
+
+void GangZone::onEnemyDeath()
+{
+    if(!isInWar()) return;
+    ++mEnemyDeath;
+    _broadcastWarProgress();
+}
+
+void GangZone::_broadcastWarProgress()
+{
+    if(!isInWar()) return;
+    SendClientMessageToAll(0xFFFFFFFF, CSTR(
+        mName << " 上的地盘争夺战战况 - 攻 " << mCrewDeath
+        << " : 守 " <<  mEnemyDeath
+    ));
+}
+
+bool GangZone::stopGangWar()
+{
+    if(!mInWar)
+    {
+        return false;
+    }
+    if(mCrewDeath > mEnemyDeath)
+    {
+        setCrew(mEnemyCrew);
+        SendClientMessageToAll(0xFFFFFFFF, CSTR(
+            mName << " 被 " << mCrewPtr->getName() << " 占领."
+        ));
+    }
+    else
+    {
+        SendClientMessageToAll(0xFFFFFFFF, CSTR(
+            mCrewPtr->getName() << " 守住了 " << mName << "."
+        ));
+    }
+    mGangWarEndTime = 0;
+    mCrewDeath = 0; mEnemyDeath = 0;
+    mEnemyCrew = mongo::OID();
+    mInWar = false;
+    updatePlayersHUD();
+    return true;
+}
+
+void GangZone::updateWarStatus()
+{
+    if(isInWar() && isWarExpired())
+    {
+        stopGangWar();
+    }
 }
 
 bool GangZone::_createGangZone()
@@ -139,6 +247,27 @@ bool GangZone::_createGangZone()
             mArea.reset(new GangZoneBoxArea(this));
             LOG(INFO) << "Gang zone created: " << mName;
             return true;
+        }
+    });
+    return false;
+}
+
+bool GangZone::_findAndLoadByName(const std::string& name)
+{
+    MONGO_WRAPPER({
+        auto doc = getDBConn()->findOne(
+            Config::colNameGangZone,
+            QUERY("name" << GBKToUTF8(name))
+        );
+        if(doc.isEmpty())
+        {
+            LOG(WARNING) << "Specified gang zone (" << name
+                << ") not found. This is going to be an invalid object.";
+            return false;
+        }
+        else
+        {
+            return _loadDocument(doc);
         }
     });
     return false;

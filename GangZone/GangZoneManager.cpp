@@ -35,7 +35,7 @@ void GangZoneManager::loadAll()
         );
         while(cur->more())
         {
-            std::unique_ptr<GangZone> zone(new GangZone(cur->next()));
+            std::shared_ptr<GangZone> zone(new GangZone(cur->next()));
             int ingameid = zone->getInGameId();
             if(zone->isValid())
             {
@@ -49,7 +49,26 @@ void GangZoneManager::showAll()
 {
     for(auto &i : mZones)
     {
-        i.second->showForAll();
+        i.second->updatePlayersHUD();
+    }
+}
+
+std::shared_ptr<GangZone> GangZoneManager::getGangZone(int32_t id)
+{
+    auto iter = mZones.find(id);
+    if(iter == mZones.end())
+    {
+        LOG(WARNING) << "Building an invalid GangZone.";
+        return std::shared_ptr<GangZone>();
+    }
+    return iter->second;
+}
+
+void GangZoneManager::updateWarStatus()
+{
+    for(auto &i : mZones)
+    {
+        i.second->updateWarStatus();
     }
 }
 

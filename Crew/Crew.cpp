@@ -17,6 +17,8 @@
 #include <sampgdk/a_samp.h>
 #include <sampgdk/a_players.h>
 
+#include "../Player/PlayerColors.hpp"
+
 #include "Crew.hpp"
 
 namespace swcu {
@@ -109,6 +111,7 @@ bool Crew::_createCrew()
     MONGO_WRAPPER({
         mongo::OID id           = mongo::OID::gen();
         auto datetime           = mongo::jsTime();
+        int32_t color           = getRandomColor() << 8;
         getDBConn()->insert(
             Config::colNameCrew,
             BSON(
@@ -119,13 +122,14 @@ bool Crew::_createCrew()
                 "description"   << GBKToUTF8(mDescription)  <<
                 "score"         << mScore                   <<
                 "level"         << mLevel                   <<
-                "color"         << mColor
+                "color"         << color
                 )
             );
         if(dbCheckError())
         {
             mId                 = id;
             mCreateTime         = datetime.toTimeT();
+            mColor              = color;
             LOG(INFO) << "Crew created: " << mName;
             return true;
         }
