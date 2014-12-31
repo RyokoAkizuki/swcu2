@@ -30,6 +30,7 @@ struct Config
     static std::string  colNameTeleport;
     static std::string  colNameCrew;
     static std::string  colNameGangZone;
+    static std::string  colNameEventLog;
     static int          webServerPort;
     static size_t       webServerThread;
 };

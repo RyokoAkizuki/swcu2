@@ -26,6 +26,7 @@ std::string Config::colNamePlayer       = "swcu2.playerprofile";
 std::string Config::colNameTeleport     = "swcu2.teleport";
 std::string Config::colNameCrew         = "swcu2.crew";
 std::string Config::colNameGangZone     = "swcu2.gangzone";
+std::string Config::colNameEventLog     = "swcu2.eventlog";
 int         Config::webServerPort       = 8081;
 size_t      Config::webServerThread     = 4;
 
