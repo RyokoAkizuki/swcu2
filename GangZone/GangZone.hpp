@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "../Common/Common.hpp"
+#include "../Common/StorableObject.hpp"
 
 #include "../Area/Area.hpp"
 
@@ -38,19 +38,16 @@ public:
     virtual void    onLeave(int playerid);
 };
 
-class GangZone
+class GangZone : public StorableObject
 {
     friend class GangZoneBoxArea;
 
 protected:
-    mongo::OID      mId;
     std::string     mName;
     mongo::OID      mCrew;
     float           mMinX, mMinY, mMinZ, mMaxX, mMaxY, mMaxZ;
 
     int32_t         mInGameId;
-
-    bool            mValid;
 
     std::shared_ptr<Crew>               mCrewPtr;
     std::unique_ptr<GangZoneBoxArea>    mArea;
@@ -84,8 +81,6 @@ public:
 
     virtual             ~GangZone();
 
-            bool        isValid() const         { return mValid; }
-            mongo::OID  getId() const           { return mId; }
             std::string getName() const         { return mName; }
             mongo::OID  getCrew() const         { return mCrew; }
 
@@ -109,35 +104,11 @@ public:
             void        onEnemyDeath();
             bool        stopGangWar();
             void        updateWarStatus();
-
             void        updatePlayersHUD();
 
 protected:
             void        _broadcastWarProgress();
-
-            bool        _createGangZone();
-            bool        _findAndLoadByName(const std::string& name);
-            bool        _loadDocument(const mongo::BSONObj& doc);
-
-    template<typename T>
-            bool        _updateField(const char* operation,
-                const char* fieldname, T value)
-    {
-        if(!isValid())
-        {
-            LOG(ERROR) << "Invalid gang zone.";
-            return false;
-        }
-        MONGO_WRAPPER({
-            getDBConn()->update(
-                Config::colNameGangZone,
-                BSON("_id" << mId),
-                BSON(operation << BSON(fieldname << value))
-                );
-            return dbCheckError();
-        });
-        return false;
-    }
+    virtual bool        _parseObject(const mongo::BSONObj& data);
 };
 
 }

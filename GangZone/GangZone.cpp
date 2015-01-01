@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,8 @@ void GangZoneBoxArea::onLeave(int playerid)
     }
 }
 
-GangZone::GangZone() : mInGameId(-1), mValid(false),
+GangZone::GangZone() : StorableObject(Config::colNameGangZone),
+    mInGameId(-1),
     mGangWarEndTime(0), mCrewDeath(0), mEnemyDeath(0), mInWar(false)
 {
 }
@@ -83,25 +84,31 @@ GangZone::GangZone(
     mName = name;
     mMinX = minx; mMinY = miny; mMinZ = minz;
     mMaxX = maxx; mMaxY = maxy; mMaxZ = maxz;
-    if(_createGangZone())
+    if(_createObject(BSON(
+        "name"  << GBKToUTF8(mName) <<
+        "crew"  << mCrew            <<
+        "minx"  << mMinX            <<
+        "miny"  << mMinY            <<
+        "minz"  << mMinZ            <<
+        "maxx"  << mMaxX            <<
+        "maxy"  << mMaxY            <<
+        "maxz"  << mMaxZ
+    )))
     {
-        mValid = true;
+        LOG(INFO) << "Gang zone created: " << mName;
     }
     mCrewPtr = CrewManager::get().getCrew(mCrew);
 }
 
 GangZone::GangZone(const std::string& name) : GangZone()
 {
-    if(_findAndLoadByName(name))
-    {
-        mValid = true;
-    }
+    _loadObject("name", GBKToUTF8(name));
     mCrewPtr = CrewManager::get().getCrew(mCrew);
 }
 
 GangZone::GangZone(const mongo::BSONObj& data) : GangZone()
 {
-    if(_loadDocument(data))
+    if(_parseObject(data))
     {
         mValid = true;
     }
@@ -224,61 +231,9 @@ void GangZone::updateWarStatus()
     }
 }
 
-bool GangZone::_createGangZone()
+bool GangZone::_parseObject(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
-        mongo::OID id           = mongo::OID::gen();
-        getDBConn()->insert(
-            Config::colNameGangZone,
-            BSON(
-                "_id"   << id               <<
-                "name"  << GBKToUTF8(mName) <<
-                "crew"  << mCrew            <<
-                "minx"  << mMinX            <<
-                "miny"  << mMinY            <<
-                "minz"  << mMinZ            <<
-                "maxx"  << mMaxX            <<
-                "maxy"  << mMaxY            <<
-                "maxz"  << mMaxZ
-                )
-            );
-        if(dbCheckError())
-        {
-            mId         = id;
-            mInGameId   = GangZoneCreate(mMinX, mMinY, mMaxX, mMaxY);
-            mArea.reset(new GangZoneBoxArea(this));
-            LOG(INFO) << "Gang zone created: " << mName;
-            return true;
-        }
-    });
-    return false;
-}
-
-bool GangZone::_findAndLoadByName(const std::string& name)
-{
-    MONGO_WRAPPER({
-        auto doc = getDBConn()->findOne(
-            Config::colNameGangZone,
-            QUERY("name" << GBKToUTF8(name))
-        );
-        if(doc.isEmpty())
-        {
-            LOG(WARNING) << "Specified gang zone (" << name
-                << ") not found. This is going to be an invalid object.";
-            return false;
-        }
-        else
-        {
-            return _loadDocument(doc);
-        }
-    });
-    return false;
-}
-
-bool GangZone::_loadDocument(const mongo::BSONObj& doc)
-{
-    MONGO_WRAPPER({
-        mId         = doc["_id"].OID();
         mName       = UTF8ToGBK(doc["name"].str());
         mCrew       = doc["crew"].OID();
         mMinX       = doc["minx"].numberDouble();
