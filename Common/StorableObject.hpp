@@ -25,8 +25,6 @@ class StorableObject
 protected:
     std::string     mCollection;
     mongo::OID      mId;
-
-private:
     bool            mValid;
 
 public:

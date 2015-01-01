@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,9 +43,9 @@ MapManager::MapManager()
 bool MapManager::parse(MapType type, const std::string& name, int world,
     const mongo::OID& owner, std::string source)
 {
-    std::unique_ptr<Map> map(new Map(type, world, owner));
+    std::unique_ptr<Map> map(new Map(type, world, owner, name));
 
-    if(!map->create(name))
+    if(!map->isValid())
     {
         return false;
     }
@@ -85,7 +85,7 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
 bool MapManager::loadMap(const std::string& name)
 {
     std::unique_ptr<Map> map(new Map(name));
-    if(map->hasEntryInDatabase())
+    if(map->isValid())
     {
         mLoadedMaps.insert(std::make_pair(name, std::move(map)));
         return true;

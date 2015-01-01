@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ Area::Area(int id) : mInGameId(id)
     }
     else
     {
-        LOG(INFO) << "Area created with id " << id;
         AreaManager::get()._addArea(this);
     }
 }

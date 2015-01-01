@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,16 @@
 
 #include <vector>
 
-#include "../Common/Common.hpp"
+#include "../Common/StorableObject.hpp"
 
 namespace swcu {
 
-class Object
+class Object : public StorableObject
 {
+    friend class Map;
+
 protected:
-    mongo::OID          mID, mMap;
+    mongo::OID          mMap;
     int                 mModel;
     float               mX, mY, mZ, mRX, mRY, mRZ;
     /**
@@ -37,15 +39,17 @@ protected:
     bool                mEditable;
 
     int                 mInGameID;
-
-    friend class Map;
     
+protected:
+    virtual bool        _parseObject(const mongo::BSONObj& data);
+            bool        _createDynamicObject();
+            mongo::BSONObj  _buildDocument();
+
 public:
     /**
      * For loading an existing Object from database.
      */
                         Object(const mongo::BSONObj& data, int vworld);
-
     /**
      * For creating a new Object.
      */
@@ -53,66 +57,30 @@ public:
         float rx, float ry, float rz, bool editable,
         const mongo::OID& map = mongo::OID(),
         int world = 0, int interior = -1);
-
     virtual             ~Object();
-
-            mongo::OID  getMap() const
-            { return mMap; }
-
-            mongo::OID  getID() const
-            { return mID; }
-
-            int         getInGameID() const
-            { return mInGameID; }
-
-    /**
-     * Save a newly created object to database.
-     */
-            bool        save();
-
-    /**
-     * This function is used when create a map which requires plenty of
-     * insert operations in order to improve performance.
-     * This will return an empty BSONObj when the Object holds an assigned
-     * mID.
-     */
-            mongo::BSONObj _buildDocument();
-
-    /**
-     * Store a previously created object's info ( possibly has been changed
-     * recently ) into database.
-     */
-            bool        update();
-
+            mongo::OID  getMap() const      { return mMap; }
+            int         getInGameID() const { return mInGameID; }
             bool        changePose(float x, float y, float z,
         float rx, float ry, float rz);
-
             bool        startEditing(int playerid);
-
-            bool        hasEntryInDatabase() const
-            { return mID.isSet(); }
-
-    /**
-     * Refetch object's position data including coordinates,
-     * virtual world and interior.
-     * Should be called when OnPlayerEditDynamicObject or
-     * OnPlayerEditDynamicObject occured.
-     * @return Nothing.
-     */
-            void        updatePosition();
 };
 
-class LandscapeVehicle
+class LandscapeVehicle : public StorableObject
 {
     friend class Map;
     
 protected:
-    mongo::OID          mID, mMap;
+    mongo::OID          mMap;
     int                 mModel;
     float               mX, mY, mZ, mAngle;
     int                 mWorld, mInterior;
     int                 mRespawnDelay;
     int                 mInGameID;
+
+protected:
+    virtual bool        _parseObject(const mongo::BSONObj& data);
+            bool        _createVehicle();
+            mongo::BSONObj _buildDocument();
 
 public:
     /**
@@ -120,7 +88,6 @@ public:
      */
                         LandscapeVehicle(
         const mongo::BSONObj& data, int vworld);
-
     /**
      * For creating a new Object.
      */
@@ -129,28 +96,11 @@ public:
         float angle, const mongo::OID& map = mongo::OID(),
         int world = 0, int interior = 0,
         int respawndelay = 60);
-
     virtual             ~LandscapeVehicle();
-
-            mongo::OID  getID() const
-            { return mID; }
-
-            int         getInGameID() const
-            { return mInGameID; }
-
-            bool        save();
-            mongo::BSONObj _buildDocument();
-
+            int         getInGameID() const { return mInGameID; }
             mongo::OID  getMap() const
             { return mMap; }
-
             void        respawn();
-
-            void        setPosition(float x, float y, float z,
-        float angle, int interior);
-
-            bool        hasEntryInDatabase()
-            { return mID.isSet(); }
 };
 
 /*

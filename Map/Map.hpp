@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <vector>
 #include <memory>
 
-#include "../Common/Common.hpp"
+#include "../Common/StorableObject.hpp"
 #include "../Area/Area.hpp"
 #include "Items.hpp"
 
@@ -43,7 +43,6 @@ protected:
 public:
                     HouseMapArea(Map* map);
     virtual         ~HouseMapArea() {}
-
     virtual void    onEnter(int playerid);
     virtual void    onLeave(int playerid);
 };
@@ -56,7 +55,6 @@ protected:
 public:
                     PrisonMapArea(Map* map);
     virtual         ~PrisonMapArea() {}
-
     virtual void    onEnter(int playerid);
     virtual void    onLeave(int playerid);
 };
@@ -71,7 +69,7 @@ enum MapType
     PRISON      = 5
 };
 
-class Map
+class Map : public StorableObject
 {
     friend class HouseMapArea;
     friend class PrisonMapArea;
@@ -80,18 +78,14 @@ protected:
     /**
      * If the id is not set, the map is not saved yet.
      */
-    mongo::OID          mId;
     MapType             mType;
     std::string         mName;
     mongo::OID          mOwner;
-    time_t              mAddTime;
     bool                mActivated;
     int                 mVirtualWorld;
     float               mBoundX, mBoundY, mBoundZ, mBoundRadius;
     float               mBoundMinX, mBoundMinY, mBoundMaxX, mBoundMaxY,
                         mBoundMinZ, mBoundMaxZ;
-
-    bool                mSaved;
 
     std::unique_ptr<Area>                           mBoundingArea;
 
@@ -106,58 +100,34 @@ public:
      * Initialize a new map.
      */
                         Map(MapType type, int world,
-        const mongo::OID& owner);
-
+        const mongo::OID& owner, const std::string& name);
     /**
      * Find and load a map by its name.
      */
                         Map(const std::string& name);
-
     /**
      * Load map from provided data document.
      */
                         Map(const mongo::BSONObj& data);
-
     virtual             ~Map() {}
-
-            mongo::OID  getId() const
-            { return mId; }
-
-            std::string getName() const
-            { return mName; }
-
-            bool        isActivated() const
-            { return mActivated; }
-
-            size_t      getObjectCount() const
-            { return mObjects.size(); }
-
-            size_t      getVehicleCount() const
-            { return mVehicles.size(); }
-
-            bool        hasEntryInDatabase()
-            { return mSaved; }
-
+            std::string getName() const         { return mName; }
+            bool        isActivated() const     { return mActivated; }
+            size_t      getObjectCount() const  { return mObjects.size(); }
+            size_t      getVehicleCount() const { return mVehicles.size(); }
             bool        addObject(int model, float x, float y, float z,
         float rx, float ry, float rz, bool editable, int interior);
             bool        addVehicle(int model, float x, float y, float z,
         float angle, int interior, int respawndelay);
             bool        setWorld(int world);
             bool        setOwner(const mongo::OID& owner);
-            bool        reload();
-            bool        create(const std::string& name);
-
             mongo::OID  getOwner() const
             { return mOwner; }
-
             std::string getJSON() const;
-
             bool        deleteFromDatabase();
-
             bool        updateBounding();
 
 protected:
-            bool        _loadMap(const mongo::BSONObj& data);
+    virtual bool        _parseObject(const mongo::BSONObj& data);
             bool        _calculateBoundingSphere();
             bool        _calculateBoundingBox();
 };

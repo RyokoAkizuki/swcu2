@@ -17,7 +17,7 @@
 #include <sampgdk/a_samp.h>
 #include <sampgdk/a_players.h>
 
-#include "../Player/PlayerColors.hpp"
+#include "../Common/RGBAColor.hpp"
 
 #include "Crew.hpp"
 
@@ -111,7 +111,7 @@ bool Crew::_createCrew()
     MONGO_WRAPPER({
         mongo::OID id           = mongo::OID::gen();
         auto datetime           = mongo::jsTime();
-        int32_t color           = getRandomColor() << 8;
+        int32_t color           = RGBAColor().getRGB();
         getDBConn()->insert(
             Config::colNameCrew,
             BSON(

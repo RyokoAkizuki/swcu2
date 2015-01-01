@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,41 +71,52 @@ void PrisonMapArea::onLeave(int playerid)
     }
 }
 
-Map::Map() : mType(LANDSCAPE), mAddTime(0),
-    mActivated(true), mVirtualWorld(0),
-    mSaved(false)
+Map::Map() : StorableObject(Config::colNameMap),
+    mType(LANDSCAPE), mActivated(true), mVirtualWorld(0)
 {
 }
 
-Map::Map(MapType type, int world, const mongo::OID& owner) : Map::Map()
+Map::Map(MapType type, int world, const mongo::OID& owner,
+    const std::string& name) : Map::Map()
 {
     mType = type; mOwner = owner; mVirtualWorld = world;
+    mName = name;
+    if(_createObject(BSON(
+        "type"          << mType            <<
+        "name"          << GBKToUTF8(mName) <<
+        "owner"         << mOwner           <<
+        "activated"     << mActivated       <<
+        "world"         << mVirtualWorld
+    )))
+    {
+        LOG(INFO) << "Map " << mName << " saved.";
+    }
 }
 
 Map::Map(const std::string& name) : Map::Map()
 {
     mName = name;
-    reload();
+    _loadObject("name", GBKToUTF8(name));
 }
 
-Map::Map(const mongo::BSONObj& data) : mSaved(false)
+Map::Map(const mongo::BSONObj& data) : Map::Map()
 {
-    _loadMap(data);
+    MONGO_WRAPPER({
+        mId = data["_id"].OID();
+        if(_parseObject(data))
+        {
+            mValid = true;
+        }
+    });
 }
 
 bool Map::addObject(int model, float x, float y, float z,
     float rx, float ry, float rz, bool editable, int interior)
 {
-    if(!hasEntryInDatabase())
-    {
-        LOG(ERROR) << "Can't add object to a map that doesn't have "
-            "an entry in the database.";
-        return false;
-    }
     std::unique_ptr<Object>
         obj(new Object(model, x, y, z, rx, ry, rz, editable, mId,
             mVirtualWorld, interior));
-    if(obj->save())
+    if(obj->isValid())
     {
         mObjects.push_back(std::move(obj));
         return true;
@@ -116,16 +127,10 @@ bool Map::addObject(int model, float x, float y, float z,
 bool Map::addVehicle(int model, float x, float y, float z,
     float angle, int interior, int respawndelay)
 {
-    if(!hasEntryInDatabase())
-    {
-        LOG(ERROR) << "Can't add vehicle to a map that doesn't have "
-            "an entry in the database.";
-        return false;
-    }
     std::unique_ptr<LandscapeVehicle>
         veh(new LandscapeVehicle(model, x, y, z, angle, mId,
             mVirtualWorld, interior, respawndelay));
-    if(veh->save())
+    if(veh->isValid())
     {
         mVehicles.push_back(std::move(veh));
         return true;
@@ -135,110 +140,23 @@ bool Map::addVehicle(int model, float x, float y, float z,
 
 bool Map::setWorld(int world)
 {
-    if(!hasEntryInDatabase())
+    if(_updateField("$set", "world", world))
     {
-        LOG(ERROR) << "Can't modify a map that doesn't have "
-            "an entry in the database.";
-        return false;
+        mVirtualWorld = world;
+        LOG(INFO) << "Map " << mName << "'s world is set to " << world;
+        return true;
     }
-    MONGO_WRAPPER({
-        getDBConn()->update(
-            Config::colNameMap,
-            QUERY("_id" << mId),
-            BSON("$set" << BSON(
-                "world" << world
-            ))
-        );
-        if(dbCheckError())
-        {
-            mVirtualWorld = world;
-            LOG(INFO) << "Map " << mName << "'s world is set to " << world;
-            return true;
-        }
-    });
     return false;
 }
 
 bool Map::setOwner(const mongo::OID& owner)
 {
-    if(!hasEntryInDatabase())
+    if(_updateField("$set", "owner", owner))
     {
-        LOG(ERROR) << "Can't modify a map that doesn't have "
-            "an entry in the database.";
-        return false;
+        mOwner = owner;
+        LOG(INFO) << "Map " << mName << "'s owner is set to " << owner;
+        return true;
     }
-    MONGO_WRAPPER({
-        getDBConn()->update(
-            Config::colNameMap,
-            QUERY("_id" << mId),
-            BSON("$set" << BSON(
-                "owner" << owner
-            ))
-        );
-        if(dbCheckError())
-        {
-            mOwner = owner;
-            LOG(INFO) << "Map " << mName << "'s owner is set to " << owner;
-            return true;
-        }
-    });
-    return false;
-}
-
-bool Map::reload()
-{
-    mObjects.clear();
-    mVehicles.clear();
-    MONGO_WRAPPER({
-        auto doc = getDBConn()->findOne(
-            Config::colNameMap,
-            QUERY("name" << GBKToUTF8(mName))
-        );
-        if(doc.isEmpty())
-        {
-            LOG(WARNING) << "Map " << mName << " can't be found.";
-            return false;
-        }
-        else
-        {
-            return _loadMap(doc);
-        }
-    });
-    return false;
-}
-
-bool Map::create(const std::string& name)
-{
-    if(hasEntryInDatabase())
-    {
-        LOG(ERROR) << "This Map has already been saved.";
-        return false;
-    }
-    MONGO_WRAPPER({
-        mongo::OID id           = mongo::OID::gen();
-        auto datetime           = mongo::jsTime();
-        getDBConn()->insert(
-            Config::colNameMap,
-            BSON(
-                "_id"           << id               <<
-                "type"          << mType            <<
-                "name"          << GBKToUTF8(name)  <<
-                "owner"         << mOwner           <<
-                "addtime"       << datetime         <<
-                "activated"     << mActivated       <<
-                "world"         << mVirtualWorld
-                )
-            );
-        if(dbCheckError())
-        {
-            mId                     = id;
-            mAddTime                = datetime.toTimeT();
-            mName                   = name;
-            mSaved                  = true;
-            LOG(INFO) << "Map " << mName << " saved.";
-            return true;
-        }
-    });
     return false;
 }
 
@@ -378,22 +296,14 @@ bool Map::updateBounding()
     return false;
 }
 
-bool Map::_loadMap(const mongo::BSONObj& data)
+bool Map::_parseObject(const mongo::BSONObj& data)
 {
-    if(hasEntryInDatabase())
-    {
-        LOG(ERROR) << "This Map object is assigned with another map.";
-        return false;
-    }
     MONGO_WRAPPER({
-        mId             = data["_id"].OID();
         mType           = MapType(data["type"].numberInt());
         mName           = UTF8ToGBK(data["name"].str());
         mOwner          = data["owner"].OID();
-        mAddTime        = data["addtime"].date().toTimeT();
         mActivated      = data["activated"].boolean();
         mVirtualWorld   = data["world"].numberInt();
-        mSaved          = true;
 
         auto objcur = getDBConn()->query(
             Config::colNameMapObject,
@@ -428,7 +338,7 @@ bool Map::_loadMap(const mongo::BSONObj& data)
 
 std::string Map::getJSON() const
 {
-    if(!mSaved) return "";
+    if(!mValid) return "";
     std::stringstream json;
     json <<
     "{\n"
@@ -436,7 +346,6 @@ std::string Map::getJSON() const
     "  \"name\": \""    << GBKToUTF8(mName) << "\",\n"
     "  \"type\": "      << mType << ",\n"
     "  \"owner\": \""   << mOwner.str() << "\",\n"
-    "  \"addtime\": "   << mAddTime << ",\n"
     "  \"activated\": " << (mActivated ? "true,\n" : "false,\n") <<
     "  \"world\": "     << mVirtualWorld << "\n"
     "}";
@@ -445,7 +354,7 @@ std::string Map::getJSON() const
 
 bool Map::deleteFromDatabase()
 {
-    if(!mSaved)
+    if(!mValid)
     {
         LOG(ERROR) << "Cannot delete a map not saved.";
         return false;
@@ -467,7 +376,7 @@ bool Map::deleteFromDatabase()
         );
         dbCheckError();
         LOG(INFO) << "Map " << mName << " is removed.";
-        mSaved = false;
+        mValid = false;
         return true;
     });
     return false;
