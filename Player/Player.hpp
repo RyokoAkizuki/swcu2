@@ -258,6 +258,13 @@ public:
             { return mCurrentGangZone; }
 
     /**
+     * Callbacks.
+     */
+            bool        onUpdate();
+            bool        onSpawn();
+            bool        onDeath();
+
+    /**
      * ************ Crew System ************
      */
             bool        joinCrew(const mongo::OID& crewId);

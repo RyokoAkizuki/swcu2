@@ -118,6 +118,9 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
     });
     swcu::MapManager::get().addWebServices();
     swcu::WebServiceManager::get().startServer();
+    SetTimer(5000, true, [](int, void*) {
+        swcu::GangZoneManager::get().updateWarStatus();
+    }, 0);
     LOG(INFO) << "Game mode initialized.";
     return true;
 }
@@ -183,67 +186,24 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
 {
     auto p = swcu::PlayerManager::get().getPlayer(playerid);
-    if(p == nullptr)
-    {
-        return false;
-    }
-    if(p->hasFlags(swcu::STATUS_JAILED))
-    {
-        if(p->isPrisonTermExceeded())
-        {
-            p->freeFromPrison();
-        }
-    }
-    if(p->hasFlags(swcu::STATUS_FREEZED))
-    {
-        return false;
-    }
-
-    static int lastProcess = time(0);
-    if(time(0) - lastProcess >= 1)
-    {
-        lastProcess = time(0);
-        swcu::GangZoneManager::get().updateWarStatus();
-    }
-    return true;
+    if(p == nullptr) return false;
+    return p->onSpawn();
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
 {
     swcu::GangZoneManager::get().showAll();
     auto p = swcu::PlayerManager::get().getPlayer(playerid);
-    if(p == nullptr)
-    {
-        return false;
-    }
-    if(!p->isPrisonTermExceeded()) p->teleportToPrison();
-    return true;
+    if(p == nullptr) return false;
+    return p->onSpawn();
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDeath(int playerid, int killerid,
     int reason)
 {
     auto p = swcu::PlayerManager::get().getPlayer(playerid);
-    if(p == nullptr)
-    {
-        return false;
-    }
-    if(p->_isInGangZone())
-    {
-        auto gz = p->_getCurrentGangZone();
-        if(gz->isInWar())
-        {
-            if(p->getCrew() == gz->getCrew())
-            {
-                gz->onCrewDeath();
-            }
-            else if(p->getCrew() == gz->getEnemyCrew())
-            {
-                gz->onEnemyDeath();
-            }
-        }
-    }
-    return true;
+    if(p == nullptr) return false;
+    return p->onDeath();
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid, const char * text)

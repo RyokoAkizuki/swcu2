@@ -628,4 +628,49 @@ bool Player::_validatePassword(const std::string& password)
     return password.size() >= 6;
 }
 
+bool Player::onUpdate()
+{
+    if(hasFlags(swcu::STATUS_JAILED))
+    {
+        if(isPrisonTermExceeded())
+        {
+            freeFromPrison();
+        }
+    }
+    if(hasFlags(swcu::STATUS_FREEZED))
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Player::onSpawn()
+{
+    if(!isPrisonTermExceeded())
+    {
+        teleportToPrison();
+    }
+    return true;
+}
+
+bool Player::onDeath()
+{
+    if(_isInGangZone())
+    {
+        if(mCurrentGangZone->isInWar())
+        {
+            if(mCrew == mCurrentGangZone->getCrew())
+            {
+                mCurrentGangZone->onCrewDeath();
+            }
+            else if(mCrew == mCurrentGangZone->getEnemyCrew())
+            {
+                mCurrentGangZone->onEnemyDeath();
+            }
+        }
+    }
+    return true;
+}
+
+
 }
