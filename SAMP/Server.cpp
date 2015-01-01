@@ -145,8 +145,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
                 <swcu::PlayerRegisterDialog>(playerid);
         }
         SendClientMessageToAll(0xFFFFFFFF,
-            CSTR("玩家 " << p->getNickname()
-            << "{FFFFFF}(" << playerid << ") 进入了服务器."));
+            CSTR("玩家 " << p->getColoredNickname()
+            << "(" << playerid << ") 进入了服务器."));
         SendDeathMessage(INVALID_PLAYER_ID, playerid, 200 /* ICON_CONNECT */);
     }
     else
@@ -163,8 +163,8 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerDisconnect(int playerid, int reason)
     if(p != nullptr)
     {
         SendClientMessageToAll(0xFFFFFFFF,
-            CSTR("玩家 " << p->getNickname()
-            << "{FFFFFF}(" << playerid << ") 离开了服务器."));
+            CSTR("玩家 " << p->getColoredNickname()
+            << "(" << playerid << ") 离开了服务器."));
         SendDeathMessage(INVALID_PLAYER_ID, playerid, 201 /* ICON_DISCONNECT */);
     }
     if(swcu::PlayerManager::get().removePlayer(playerid))
@@ -258,8 +258,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid, const char * text)
         return false;
     }
     std::stringstream chat;
-    chat << p->getColor().getEmbedCode() << p->getNickname()
-        << "{FFFFFF}(" << playerid << "): " << text;
+    chat << p->getColoredNickname() << "(" << playerid << "): " << text;
     SendClientMessageToAll(0xFFFFFFFF, chat.str().c_str());
     return false;
 }

@@ -163,6 +163,8 @@ public:
 
             std::string getNickname() const
             { return mNickname; }
+            std::string getColoredNickname() const
+            { return mColor.getEmbedCode() + mNickname + "{FFFFFF}"; }
             bool        setNickname(const std::string& name);
 
             int         getMoney() const

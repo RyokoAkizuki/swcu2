@@ -364,7 +364,7 @@ void Player::updatePlayerLabel()
     }
     std::stringstream label;
     // Nickname
-    label << mColor.getEmbedCode() << mNickname << "{FFFFFF}\n";
+    label << getColoredNickname() << "\n";
     // Admin Level
     if(mAdminLevel > 0)
     {

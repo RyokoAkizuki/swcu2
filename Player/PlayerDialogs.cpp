@@ -174,7 +174,7 @@ void PlayerEditProfileDialog::build()
             DialogManager::get().push<PlayerChangePasswordDialog>(playerid);
         });
     addItem(
-        "我的昵称: " + p->getNickname() + "{FFFFFF}",
+        "我的昵称: " + p->getColoredNickname(),
         [playerid]() {
             DialogManager::get().push<PlayerChangeNicknameDialog>(playerid);
         });
@@ -214,7 +214,7 @@ void PlayerViewProfileDialog::build()
                 << tar->getLogName() << "\n"
                 << "昵称: "
                 // In case of colored text, reset color at the end.
-                << tar->getNickname() << "{FFFFFF}\n"
+                << tar->getColoredNickname() << "\n"
                 << "注册时间: "
                 << tar->getTimestamp() << "\n"
                 << "游戏时间: "
