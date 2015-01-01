@@ -102,6 +102,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerWeaponShot(int playerid,
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
 {
+    srand(time(NULL));
     ShowNameTags(0);
     for(int i = 0; i < 299; ++i)
     {
