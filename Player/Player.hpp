@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 #pragma once
 
-#include "../Common/Common.hpp"
+#include "../Common/StorableObject.hpp"
+#include "../Common/RGBAColor.hpp"
 
 #include "../GangZone/GangZone.hpp"
 
@@ -49,23 +50,20 @@ enum PoliceRank
     CIVILIAN            = 0
 };
 
-class Player
+class Player : public StorableObject
 {
 protected:
     /**
      * Profile.
      */
-    mongo::OID          mId;
-    std::string         mIdStr;
     std::string         mLogName;
     std::string         mNickname;
     std::string         mPasswordHash;
     int                 mMoney;
     int                 mAdminLevel;
     int                 mFlags;
-    int64_t             mJoinTime;
     int64_t             mGameTime;
-    int                 mColor;
+    RGBAColor           mColor;
 
     mongo::OID          mCrew;
     std::shared_ptr<Crew>   mCrewPtr;
@@ -81,14 +79,11 @@ protected:
     int64_t             mTimeInPrison;
     // Time to be freed from prison.
     int64_t             mTimeToFree;
-
-    bool                mRegistered;
-
     /**
      * Gaming.
      */
     int                 mInGameId;
-    int64_t             mTimeEnteredServer;
+    int64_t             mLastSaved;
     bool                mLoggedIn;
     int                 mTextLabel;
     int                 mPrivateVehicle;
@@ -100,33 +95,14 @@ protected:
      */
 
 public:
-                        Player(int gameid);
+                        Player(int ingameid);
     virtual             ~Player();
 
     /**
      * ************ Profile ************
      */
-
-            mongo::OID  getId() const
-            { return mId;}
-
-            std::string getIdStr() const
-            { return mIdStr; }
-
-            int64_t     getJoinTime() const
-            { return mJoinTime; }
-
             int64_t     getGameTime() const
             { return mGameTime; }
-
-    /**
-     * As literal meaning.
-     * @return True if player is registered.
-     *         False if player don't have a profile
-     *         or database failed while initial loading phase.
-     */
-            bool        isRegistered() const
-            { return mRegistered; }
 
     /**
      * Create a profile if player is not registered.
@@ -143,12 +119,6 @@ public:
      *         False if database fails.
      */
             bool        saveProfile();
-    /**
-     * Load player profile from database.
-     * @return True if succeeded.
-     *         False if player didn't registered or database fails.
-     */
-            bool        loadProfile();
 
             bool        isLoggedIn() const
             { return mLoggedIn; }
@@ -160,7 +130,7 @@ public:
      * @return        Nothing.
      */
             void        setLoggedIn(bool logged)
-            { mLoggedIn = logged && mRegistered; }
+            { mLoggedIn = logged; }
 
     /**
      * Append flags to player.
@@ -229,10 +199,10 @@ public:
 
             bool        setWantedLevel(int level);
 
-            int         getColor() const
+            RGBAColor   getColor() const
             { return mColor; }
 
-            bool        setColor(int color);
+            bool        setColor(RGBAColor color);
 
     /**
      * ************ Game Features ************
@@ -298,31 +268,8 @@ public:
             { return mCrew.isSet(); }
 
 protected:
-
-            void        _loadProfile(const mongo::BSONObj& doc);
+    virtual bool        _parseObject(const mongo::BSONObj& data);
             void        _applyWantedLevel();
-
-    template<typename T>
-            bool        _updateField(const char* operation,
-                const char* fieldname, T value)
-    {
-        if(!mRegistered)
-        {
-            LOG(ERROR) << "Player is unregistered."
-                " Can't perform _updateField.";
-            return false;
-        }
-        MONGO_WRAPPER({
-            getDBConn()->update(
-                Config::colNamePlayer,
-                BSON("_id" << mId),
-                BSON(operation << BSON(fieldname << value))
-                );
-            return dbCheckError();
-        });
-        return false;
-    }
-
             bool        _validatePassword(const std::string& password);
 };
 

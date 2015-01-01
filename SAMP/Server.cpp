@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@
 #include "../Streamer/Streamer.hpp"
 #include "../Player/PlayerManager.hpp"
 #include "../Player/PlayerDialogs.hpp"
-#include "../Player/PlayerColors.hpp"
 #include "../Player/PlayerCommands.hpp"
 #include "../Interface/DialogManager.hpp"
 #include "../Interface/CommandManager.hpp"
@@ -130,7 +129,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
     if(p != nullptr)
     {
         LOG(INFO) << "Player connected. ID = " << playerid;
-        if(p->isRegistered())
+        if(p->isValid())
         {
             if(p->hasFlags(swcu::STATUS_BANNED))
             {
@@ -259,7 +258,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerText(int playerid, const char * text)
         return false;
     }
     std::stringstream chat;
-    chat << swcu::toEmbedString(p->getColor()) << p->getNickname()
+    chat << p->getColor().getEmbedCode() << p->getNickname()
         << "{FFFFFF}(" << playerid << "): " << text;
     SendClientMessageToAll(0xFFFFFFFF, chat.str().c_str());
     return false;

@@ -64,6 +64,9 @@
 		<Unit filename="Common/Internal/easylogging++.h" />
 		<Unit filename="Common/Internal/sha1.cpp" />
 		<Unit filename="Common/Internal/sha1.h" />
+		<Unit filename="Common/RGBAColor.hpp" />
+		<Unit filename="Common/StorableObject.cpp" />
+		<Unit filename="Common/StorableObject.hpp" />
 		<Unit filename="Crew/Crew.cpp" />
 		<Unit filename="Crew/Crew.hpp" />
 		<Unit filename="Crew/CrewDialogs.cpp" />
@@ -93,8 +96,6 @@
 		<Unit filename="Migration/Migration.hpp" />
 		<Unit filename="Player/Player.cpp" />
 		<Unit filename="Player/Player.hpp" />
-		<Unit filename="Player/PlayerColors.cpp" />
-		<Unit filename="Player/PlayerColors.hpp" />
 		<Unit filename="Player/PlayerCommands.cpp" />
 		<Unit filename="Player/PlayerCommands.hpp" />
 		<Unit filename="Player/PlayerDialogs.cpp" />

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 
 #include "../Streamer/Streamer.hpp"
 #include "../Map/Map.hpp"
-#include "PlayerColors.hpp"
 #include "../Crew/CrewManager.hpp"
 #include "../Crew/Crew.hpp"
 
@@ -42,19 +41,20 @@ const char* PoliceRankString[] =
 };
 
 Player::Player(int gameid) :
+    StorableObject(Config::colNamePlayer),
     mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
-    mJoinTime(0), mGameTime(0), mColor(getRandomColor()),
+    mGameTime(0),
     mPoliceRank(CIVILIAN), mWantedLevel(0), mTimeInPrison(0),
     mTimeToFree(0),
-    mRegistered(false),
-    mInGameId(gameid), mTimeEnteredServer(time(0)), mLoggedIn(false),
+    mInGameId(gameid), mLastSaved(time(0)), mLoggedIn(false),
     mTextLabel(0), mPrivateVehicle(INVALID_VEHICLE_ID)
 {
     mLogName = getPlayerNameFixed(mInGameId);
-    LOG(INFO) << "Loading player " << mLogName << "'s profile.";
-    SetPlayerColor(mInGameId, mColor);
+    mNickname = mLogName;
+    SetPlayerColor(mInGameId, mColor.getRGBA());
     mCrewPtr = CrewManager::get().getCrew(mCrew);
-    loadProfile();
+    LOG(INFO) << "Loading player " << mLogName << "'s profile.";
+    _loadObject("logname", GBKToUTF8(mLogName));
 }
 
 Player::~Player()
@@ -65,110 +65,52 @@ Player::~Player()
 
 bool Player::createProfile(const std::string& password)
 {
-    if(mRegistered)
-    {
-        LOG(ERROR) << "Can't create profile for " << mLogName <<
-        " because there has one.";
-        return false;
-    }
     if(!_validatePassword(password))
     {
-        LOG(ERROR) << "Entered password doesn't meet requirements.";
         return false;
     }
-    mongo::OID tId              = mongo::OID::gen();
     std::string tPasswordHash   = sha1(password);
-    auto datetime               = mongo::jsTime();
-    MONGO_WRAPPER({
-        getDBConn()->insert(
-            Config::colNamePlayer,
-            BSON(
-                "_id"           << tId                  <<
-                "logname"       << GBKToUTF8(mLogName)  <<
-                "password"      << tPasswordHash        <<
-                "color"         << mColor               <<
-                "crew"          << mCrew                <<
-                "gametime"      << 0                    <<
-                "adminlevel"    << mAdminLevel          <<
-                "flags"         << mFlags               <<
-                "nickname"      << GBKToUTF8(mNickname) <<
-                "money"         << mMoney               <<
-                "jointime"      << datetime             <<
-                "policerank"    << mPoliceRank          <<
-                "wantedlevel"   << mWantedLevel         <<
-                "timeinprison"  << mTimeInPrison        <<
-                "timetofree"    << mTimeToFree
-                )
-            );
-        if(dbCheckError())
-        {
-            mRegistered         = true;
-            mId                 = tId;
-            mIdStr              = mId.str();
-            mPasswordHash       = tPasswordHash;
-            mJoinTime           = datetime.toTimeT();
-            if(mNickname.size() == 0) setNickname(mLogName);
-            LOG(INFO) << "Player " << mLogName << "'s profile is created.";
-            return true;
-        }
-    });
+    if(_createObject(BSON(
+        "logname"       << GBKToUTF8(mLogName)  <<
+        "password"      << tPasswordHash        <<
+        "color"         << mColor.getRGB()      <<
+        "crew"          << mCrew                <<
+        "gametime"      << 0                    <<
+        "adminlevel"    << mAdminLevel          <<
+        "flags"         << mFlags               <<
+        "nickname"      << GBKToUTF8(mNickname) <<
+        "money"         << mMoney               <<
+        "policerank"    << mPoliceRank          <<
+        "wantedlevel"   << mWantedLevel         <<
+        "timeinprison"  << mTimeInPrison        <<
+        "timetofree"    << mTimeToFree
+    )))
+    {
+        mPasswordHash   = tPasswordHash;
+        EventLog("player", "createProfile", BSON(
+            "profile"   << mId                  <<
+            "logname"   << mLogName             <<
+            "ip"        << getPlayerIP(mInGameId)<<
+            "gpci"      << getGPCI(mInGameId)
+        ));
+        LOG(INFO) << "Player " << mLogName << "'s profile is created.";
+        return true;
+    }
     return false;
 }
 
 bool Player::saveProfile()
 {
-    if(!mRegistered)
-    {
-        LOG(ERROR) << "Can't save a profile of an unregistered player.";
-        return false;
-    }
-    /**
-     * Here only increases player's gaming time counter because other
-     * fields should be updated inmmediately after their modifiy operations.
-     */
     time_t now = time(0);
-    MONGO_WRAPPER({
-        getDBConn()->update(
-            Config::colNamePlayer,
-            QUERY("_id" << mId),
-            BSON("$inc" << BSON("gametime" << now - mTimeEnteredServer))
-        );
-        if(dbCheckError())
-        {
-            mTimeEnteredServer = now;
-            LOG(INFO) << "Player " << mLogName << "'s profile is saved.";
-            return true;
-        }
-    });
-    return false;
-}
-
-bool Player::loadProfile()
-{
-    MONGO_WRAPPER({
-        auto doc = getDBConn()->findOne(
-            Config::colNamePlayer,
-            /**
-             * WARNING: DO NOT use mId field here since it won't be inited
-             * in constructor.
-             */
-            QUERY("logname" << GBKToUTF8(mLogName))
-        );
-        if(doc.isEmpty())
-        {
-            mRegistered = false;
-            LOG(WARNING) << "Player " << mLogName <<
-                "'s profile can't be found.";
-            return false;
-        }
-        else
-        {
-            mRegistered = true;
-            _loadProfile(doc);
-            LOG(INFO) << "Player " << mLogName << "'s profile is loaded.";
-            return true;
-        }
-    });
+    if(_updateObject(BSON(
+        "$inc" << BSON(
+            "gametime" << now - mLastSaved
+        )
+    )))
+    {
+        mLastSaved = now;
+        return true;
+    }
     return false;
 }
 
@@ -241,6 +183,10 @@ bool Player::increaseMoney(int amount)
     if(_updateField("$inc", "money", amount))
     {
         LOG(INFO) << "Gived " << mLogName << " $" << amount << ".";
+        EventLog("player", "increaseMoney", BSON(
+            "profile"   << mId      <<
+            "amount"    << amount
+        ));
         mMoney += amount;
         return true;
     }
@@ -263,6 +209,9 @@ bool Player::changePassword(const std::string& password)
     if(_updateField("$set", "password", tPasswordHash))
     {
         LOG(INFO) << "Player " << mLogName << "'s password is changed.";
+        EventLog("player", "changePassword", BSON(
+            "profile"   << mId
+        ));
         mPasswordHash = tPasswordHash;
         return true;
     }
@@ -275,6 +224,14 @@ bool Player::setAdminLevel(int level)
     {
         LOG(INFO) << "Player " << mLogName << "'s admin level is set to "
             << level << ".";
+        EventLog("player", "setAdminLevel", BSON(
+            "profile"   << mId          <<
+            "levelprev" << mAdminLevel  <<
+            "level"     << level
+        ));
+        SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
+            "你的管理员等级被设置为 " << level
+        ));
         mAdminLevel = level;
         updatePlayerLabel();
         return true;
@@ -293,6 +250,14 @@ bool Player::setPoliceRank(PoliceRank rank)
     {
         LOG(INFO) << "Player " << mLogName << "'s police rank is set to "
             << rank << ".";
+        EventLog("player", "setPoliceRank", BSON(
+            "profile"   << mId          <<
+            "rankprev"  << mPoliceRank  <<
+            "rank"      << rank
+        ));
+        SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
+            "你的警衔被设置为 " << rank
+        ));
         mPoliceRank = rank;
         updatePlayerLabel();
         return true;
@@ -323,6 +288,9 @@ bool Player::setWantedLevel(int level)
         LOG(INFO) << "Player " << mLogName << "'s wandted level is set to "
             << level << ".";
         mWantedLevel = level;
+        SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
+            "你的通缉等级被设置为 " << level
+        ));
         updatePlayerLabel();
         _applyWantedLevel();
         return true;
@@ -330,14 +298,14 @@ bool Player::setWantedLevel(int level)
     return false;
 }
 
-bool Player::setColor(int color)
+bool Player::setColor(RGBAColor color)
 {
-    if(_updateField("$set", "color", color))
+    if(_updateField("$set", "color", color.getRGB()))
     {
         LOG(INFO) << "Player " << mLogName << "'s color is set to "
-            << color << ".";
+            << color.getRGB() << ".";
         mColor = color;
-        SetPlayerColor(mInGameId, mColor);
+        SetPlayerColor(mInGameId, mColor.getRGBA());
         updatePlayerLabel();
         return true;
     }
@@ -357,6 +325,9 @@ bool Player::putIntoPrison(time_t prisonTerm)
     {
         LOG(INFO) << "Player " << mLogName << " now have a prison term of "
             << prisonTerm << " seconds.";
+        SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
+            "你被关入监狱" << prisonTerm / 60 << "分钟."
+        ));
         mTimeToFree = tofree;
         mTimeInPrison += tofree;
         setWantedLevel(0);
@@ -393,7 +364,7 @@ void Player::updatePlayerLabel()
     }
     std::stringstream label;
     // Nickname
-    label << toEmbedString(mColor) << mNickname << "{FFFFFF}\n";
+    label << mColor.getEmbedCode() << mNickname << "{FFFFFF}\n";
     // Admin Level
     if(mAdminLevel > 0)
     {
@@ -511,12 +482,6 @@ bool Player::teleportTo(const std::string& placeName)
 
 bool Player::createTeleport(const std::string& placeName)
 {
-    if(!mRegistered)
-    {
-        LOG(ERROR) << "Can't create teleport because player " << mLogName <<
-        " hasn't registered.";
-        return false;
-    }
     std::string trimmedName = placeName;
     boost::algorithm::trim(trimmedName);
     float x, y, z, facing;
@@ -616,41 +581,41 @@ bool Player::quitCrew()
     return joinCrew(mongo::OID());
 }
 
-void Player::_loadProfile(const mongo::BSONObj& doc)
+bool Player::_parseObject(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
-        mId             = doc["_id"].OID();
-        mIdStr          = mId.str();
         mNickname       = UTF8ToGBK(doc["nickname"].str());
         if(mNickname.size() == 0) setNickname(mLogName);
         mPasswordHash   = doc["password"].str();
         mAdminLevel     = doc["adminlevel"].numberInt();
         mMoney          = doc["money"].numberInt();
         mFlags          = doc["flags"].numberInt();
-        mJoinTime       = doc["jointime"].date().toTimeT();
         mGameTime       = doc["gametime"].numberLong();
-        mColor          = doc["color"].numberInt();
-        if(mColor == 0) setColor(getRandomColor());
+        mColor.assignRGB(doc["color"].numberInt());
+        if(mColor.getRGB() == 0) setColor(RGBAColor());
         mCrew           = doc["crew"].OID();
         mCrewPtr        = CrewManager::get().getCrew(mCrew);
         mPoliceRank     = PoliceRank(doc["policerank"].numberInt());
         if(mPoliceRank > 9) mPoliceRank = CHIEF_OF_POLICE;
         if(mPoliceRank < 0) mPoliceRank = CIVILIAN;
         mWantedLevel    = doc["wantedlevel"].numberInt();
-        if(mWantedLevel > 9) mWantedLevel = 9;
+        if(mWantedLevel > 6) mWantedLevel = 6;
         if(mWantedLevel < 0) mWantedLevel = 0;
         mTimeInPrison   = doc["timeinprison"].numberLong();
         mTimeToFree     = doc["timetofree"].numberLong();
+        _applyWantedLevel();
+        updatePlayerLabel();
+        if(!isPrisonTermExceeded()) teleportToPrison();
+        return true;
     });
-    _applyWantedLevel();
-    updatePlayerLabel();
-    if(!isPrisonTermExceeded()) teleportToPrison();
+    return false;
 }
 
 void Player::_applyWantedLevel()
 {
     SetPlayerWantedLevel(mInGameId, mWantedLevel);
-    SetPlayerColor(mInGameId, (mWantedLevel > 0) ? 0xFF0000FF : mColor);
+    SetPlayerColor(mInGameId,
+        (mWantedLevel > 0) ? 0xFF0000FF : mColor.getRGBA());
 }
 
 bool Player::teleportToPrison()

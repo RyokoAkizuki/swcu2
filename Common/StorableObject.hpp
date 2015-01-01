@@ -53,6 +53,8 @@ public:
             mongo::OID  getId() const           { return mId; }
             time_t      getTimestamp()          { return mId.asTimeT(); }
 
+            bool        reload()                { return _loadObject(); }
+
 protected:
     /**
      * Store the document to database.
@@ -100,11 +102,13 @@ protected:
             if(doc.isEmpty())
             {
                 LOG(ERROR) << "Document not found.";
+                mValid  = false;
                 return false;
             }
             else
             {
-                mValid = _parseObject(doc);
+                mId     = doc["_id"].OID();
+                mValid  = _parseObject(doc);
                 return mValid;
             }
         });
@@ -142,6 +146,8 @@ public:
     EventLog(const std::string& subsystem, const std::string& event,
         const mongo::BSONObj& data);
     virtual ~EventLog() {}
+    virtual bool        _parseObject(const mongo::BSONObj& /* data */)
+    { return true; }
 };
 
 }

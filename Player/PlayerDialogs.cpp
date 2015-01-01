@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ bool PlayerRegisterDialog::handleCallback(
         LOG(ERROR) << "Player not found.";
         return true;
     }
-    if(p->isRegistered())
+    if(p->isValid())
     {
         SendClientMessage(mPlayerId, 0xFFFFFFFF, "你已经注册过账号了.");
         return true;
@@ -209,14 +209,14 @@ void PlayerViewProfileDialog::build()
         {
             std::stringstream msg;
             msg << "ID: "
-                << tar->getIdStr() << "\n"
+                << tar->getId().str() << "\n"
                 << "登录名: "
                 << tar->getLogName() << "\n"
                 << "昵称: "
                 // In case of colored text, reset color at the end.
                 << tar->getNickname() << "{FFFFFF}\n"
                 << "注册时间: "
-                << tar->getJoinTime() << "\n"
+                << tar->getTimestamp() << "\n"
                 << "游戏时间: "
                 << tar->getGameTime() << "\n"
                 << "管理员等级: "
