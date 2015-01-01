@@ -48,7 +48,7 @@ public:
     std::string getEmbedCode() const
     {
         std::stringstream embed;
-        embed << "{" << std::hex << mR << mG << mB << "}";
+        embed << "{" << std::hex << (int)mR << (int)mG << (int)mB << "}";
         return embed.str();
     }
 
