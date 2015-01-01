@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,34 @@
 
 namespace swcu {
 
-Crew::Crew() : mCreateTime(0), mScore(0), mLevel(0),
-    mColor(0xFFFFFF), mTeamId(NO_TEAM), mValid(false)
+Crew::Crew() : StorableObject(Config::colNameCrew),
+    mScore(0), mLevel(0), mTeamId(NO_TEAM)
 {
 }
 
 Crew::Crew(const std::string& name) : Crew()
 {
     mName = name;
-    if(_findAndLoadDocumentByName() || _createCrew())
+    if(!_loadObject("name", GBKToUTF8(name)))
     {
-        mValid = true;
+        if(_createObject(BSON(
+            "name"          << GBKToUTF8(mName)         <<
+            "leader"        << mLeader                  <<
+            "description"   << GBKToUTF8(mDescription)  <<
+            "score"         << mScore                   <<
+            "level"         << mLevel                   <<
+            "color"         << mColor.getRGB()
+        )))
+        {
+            LOG(INFO) << "Crew created: " << mName;
+        }
     }
 }
 
 Crew::Crew(const mongo::OID& id) : Crew()
 {
     mId = id;
-    if(_findAndLoadDocumentById())
-    {
-        mValid = true;
-    }
+    _loadObject();
 }
 
 bool Crew::setName(const std::string& name)
@@ -96,9 +103,9 @@ bool Crew::increaseLevel(int32_t deltaLevel)
     return false;
 }
 
-bool Crew::setColor(int32_t color)
+bool Crew::setColor(RGBAColor color)
 {
-    if(_updateField("$set", "color", color))
+    if(_updateField("$set", "color", color.getRGB()))
     {
         mColor = color;
         return true;
@@ -106,86 +113,11 @@ bool Crew::setColor(int32_t color)
     return false;
 }
 
-bool Crew::_createCrew()
+bool Crew::_parseObject(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
-        mongo::OID id           = mongo::OID::gen();
-        auto datetime           = mongo::jsTime();
-        int32_t color           = RGBAColor().getRGB();
-        getDBConn()->insert(
-            Config::colNameCrew,
-            BSON(
-                "_id"           << id                       <<
-                "name"          << GBKToUTF8(mName)         <<
-                "leader"        << mLeader                  <<
-                "createtime"    << datetime                 <<
-                "description"   << GBKToUTF8(mDescription)  <<
-                "score"         << mScore                   <<
-                "level"         << mLevel                   <<
-                "color"         << color
-                )
-            );
-        if(dbCheckError())
-        {
-            mId                 = id;
-            mCreateTime         = datetime.toTimeT();
-            mColor              = color;
-            LOG(INFO) << "Crew created: " << mName;
-            return true;
-        }
-    });
-    return false;
-}
-
-bool Crew::_findAndLoadDocumentByName()
-{
-    MONGO_WRAPPER({
-        auto doc = getDBConn()->findOne(
-            Config::colNameCrew,
-            QUERY("name" << GBKToUTF8(mName))
-        );
-        if(doc.isEmpty())
-        {
-            LOG(WARNING) << "Specified crew (" << mName
-                << ") not found. This is going to be an invalid object.";
-            return false;
-        }
-        else
-        {
-            return _loadDocument(doc);
-        }
-    });
-    return false;
-}
-
-bool Crew::_findAndLoadDocumentById()
-{
-    MONGO_WRAPPER({
-        auto doc = getDBConn()->findOne(
-            Config::colNameCrew,
-            QUERY("_id" << mId)
-        );
-        if(doc.isEmpty())
-        {
-            LOG(WARNING) << "Specified crew (" << mId.str()
-                << ") not found. This is going to be an invalid object.";
-            return false;
-        }
-        else
-        {
-            return _loadDocument(doc);
-        }
-    });
-    return false;
-}
-
-bool Crew::_loadDocument(const mongo::BSONObj& doc)
-{
-    MONGO_WRAPPER({
-        mId             = doc["_id"].OID();
         mName           = UTF8ToGBK(doc["name"].str());
         mLeader         = doc["leader"].OID();
-        mCreateTime     = doc["createtime"].date().toTimeT();
         mDescription    = UTF8ToGBK(doc["description"].str());
         mScore          = doc["score"].numberLong();
         mLevel          = doc["level"].numberInt();
