@@ -36,8 +36,6 @@
 #include "../Map/MapDialogs.hpp"
 #include "../Area/AreaManager.hpp"
 #include "../Web/WebServiceManager.hpp"
-#include "../Migration/Migration.hpp"
-#include "../GangZone/GangZoneManager.hpp"
 
 /** ~~ Event Forwarding for Streamer ~~ **/
 
@@ -110,7 +108,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
     }
     swcu::registerPlayerCommands();
     swcu::MapManager::get().loadAllMaps();
-    swcu::GangZoneManager::get().loadAll();
     swcu::WebServiceManager::get().bindMethod("^/hello$", "GET",
     [](std::ostream& response, swcu::HTTPRequertPtr request) {
         swcu::writeResponse(response, 200, swcu::CONTENT_TYPE_TEXT_PLAIN,
@@ -118,9 +115,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnGameModeInit()
     });
     swcu::MapManager::get().addWebServices();
     swcu::WebServiceManager::get().startServer();
-    SetTimer(5000, true, [](int, void*) {
-        swcu::GangZoneManager::get().updateWarStatus();
-    }, 0);
     LOG(INFO) << "Game mode initialized.";
     return true;
 }
@@ -192,7 +186,6 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
 {
-    swcu::GangZoneManager::get().showAll();
     auto p = swcu::PlayerManager::get().getPlayer(playerid);
     if(p == nullptr) return false;
     return p->onSpawn();

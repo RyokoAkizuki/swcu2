@@ -21,7 +21,6 @@
 #include "../Interface/DialogManager.hpp"
 #include "../Map/MapDialogs.hpp"
 #include "../Weapon/WeaponShopDialog.hpp"
-#include "../GangZone/GangZoneManager.hpp"
 #include "../Crew/CrewDialogs.hpp"
 
 #include "PlayerDialogs.hpp"
@@ -724,10 +723,6 @@ void PlayerControlPanelDialog::build()
         addItem("地图管理", [playerid]() {
             DialogManager::get().push<MapManagerDialog>(playerid);
         });
-        addItem("重新载入帮派地盘", []() {
-            GangZoneManager::get().loadAll();
-            GangZoneManager::get().showAll();
-        });
     }
     // Police System
     if(p->getWantedLevel() > 0)
@@ -760,18 +755,6 @@ void PlayerControlPanelDialog::build()
                 return p->joinCrew(crew);
             });
         });
-    }
-    // Crew & Gang Zones
-    if(p->_isInGangZone() && p->isCrewMember())
-    {
-        auto gz = p->_getCurrentGangZone();
-        if(!gz->isInWar())
-        {
-            mongo::OID crew = p->getCrew();
-            addItem("抢占 " + gz->getName(), [gz, crew]() {
-                gz->startGangWar(crew);
-            });
-        }
     }
 }
 

@@ -114,29 +114,38 @@ bool pcmdTeleportToPos(int playerid, std::stringstream& cmdline)
     return true;
 }
 
+bool pcmdHelp(int playerid, std::stringstream& /* cmdline */)
+{
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        "");
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        "");
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        "");
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        "");
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        "");
+    return true;
+}
+
 void registerPlayerCommands()
 {
     CommandManager::get().registerCommand("repair",     &pcmdFixCar);
     CommandManager::get().registerCommand("fix",        &pcmdFixCar);
     CommandManager::get().registerCommand("xiuche",     &pcmdFixCar);
-
     CommandManager::get().registerCommand("jetpack",    &pcmdSpawnJetPack);
     CommandManager::get().registerCommand("fxq",        &pcmdSpawnJetPack);
-
     CommandManager::get().registerCommand("hf",         &pcmdChangeSkin);
     CommandManager::get().registerCommand("skin",       &pcmdChangeSkin);
-
     CommandManager::get().registerCommand("c",          &pcmdVehicle);
-
     CommandManager::get().registerCommand("k",          &pcmdSuicide);
     CommandManager::get().registerCommand("kill",       &pcmdSuicide);
-
     CommandManager::get().registerCommand("w",          &pcmdChangeWorld);
-
     CommandManager::get().registerCommand("wuqi",       &pcmdWeaponShop);
     CommandManager::get().registerCommand("weapon",     &pcmdWeaponShop);
-
     CommandManager::get().registerCommand("t",          &pcmdTeleportToPos);
+    CommandManager::get().registerCommand("help",       &pcmdHelp);
 }
 
 }

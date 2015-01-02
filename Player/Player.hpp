@@ -19,8 +19,6 @@
 #include "../Common/StorableObject.hpp"
 #include "../Common/RGBAColor.hpp"
 
-#include "../GangZone/GangZone.hpp"
-
 namespace swcu {
 
 class Crew;
@@ -87,8 +85,6 @@ protected:
     bool                mLoggedIn;
     int                 mTextLabel;
     int                 mPrivateVehicle;
-
-    std::shared_ptr<GangZone>   mCurrentGangZone;
 
     /**
      * Houses, Weapons, Vehicles, etc.
@@ -241,22 +237,7 @@ public:
 
             int         getPrivateVehicleId() const
             { return mPrivateVehicle; }
-
-    /**
-     * CurrentGangZone status. Used by GangZoneBoxArea and
-     */
-            void        _setCurrentGangZone(std::shared_ptr<GangZone> zone)
-            { mCurrentGangZone = zone; }
-
-            void        _clearCurrentGangZone()
-            { mCurrentGangZone.reset(); }
-
-            bool        _isInGangZone() const
-            { return mCurrentGangZone.get() != nullptr; }
-
-            std::shared_ptr<GangZone>   _getCurrentGangZone() const
-            { return mCurrentGangZone; }
-
+            
     /**
      * Callbacks.
      */
