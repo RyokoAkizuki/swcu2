@@ -48,7 +48,7 @@ public:
 class CrewEditMemberDialog : public MenuDialog
 {
 protected:
-    mongo::OID      mCrew, mMember;     
+    mongo::OID      mCrew, mMember;
 
 public:
                     CrewEditMemberDialog(int playerid,
@@ -56,6 +56,19 @@ public:
     virtual         ~CrewEditMemberDialog() {}
 
     virtual void    build();
+};
+
+class CrewMemberSetHierarchy : public RadioListDialog<int>
+{
+protected:
+    mongo::OID      mCrew, mMember;
+public:
+                    CrewMemberSetHierarchy(int playerid,
+        const mongo::OID& crew, const mongo::OID& member);
+    virtual         ~CrewMemberSetHierarchy() {}
+
+    virtual void    build();
+    virtual bool    process(int hier);
 };
 
 class CrewChangeNameDialog : public InputDialog

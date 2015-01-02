@@ -104,6 +104,7 @@ bool Player::createProfile(const std::string& password)
             "ip"        << getPlayerIP(mInGameId)<<
             "gpci"      << getGPCI(mInGameId)
         ));
+        updatePlayerLabel();
         LOG(INFO) << "Player " << mLogName << "'s profile is created.";
         return true;
     }
@@ -394,7 +395,9 @@ void Player::updatePlayerLabel()
     // Crew
     if(isCrewMember())
     {
-        label << CrewManager::get().getCrew(mCrew)->getColoredName() << "\n";
+        auto crew = CrewManager::get().getCrew(mCrew);
+        label << crew->getColoredName() <<
+        " " << getCrewHierarchyStr(crew->getMemberHierarchy(mId)) << "\n";
     }
     // Login Name and ID
     label << "(" << mLogName << ")(" << mInGameId << ")\n";

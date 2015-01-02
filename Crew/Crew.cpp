@@ -242,6 +242,7 @@ bool Crew::isMember(const mongo::OID& profileId)
 
 CrewHierarchy Crew::getMemberHierarchy(const mongo::OID& profileId)
 {
+    if(profileId == mLeader) return LEADER;
     std::string idstr = profileId.str();
     MONGO_WRAPPER({
         auto doc = getDBConn()->findOne(mCollection, QUERY(

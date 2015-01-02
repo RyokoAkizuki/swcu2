@@ -132,6 +132,8 @@ void CrewEditMemberDialog::build()
     Player p(mMember);
     auto hier       = crew->getMemberHierarchy(mMember);
     mongo::OID poid = mMember;
+    int playerid    = mPlayerId;
+    mongo::OID cid  = crew->getId();
 
     addItem("用户名: " + p.getLogName(), [](){});
 
@@ -142,7 +144,10 @@ void CrewEditMemberDialog::build()
     else if(hier > PENDING)
     {
         addItem(std::string("阶级: ") + getCrewHierarchyStr(
-            crew->getMemberHierarchy(mMember)), []() {});
+            crew->getMemberHierarchy(mMember)), [playerid, cid, poid]() {
+            DialogManager::get().push<CrewMemberSetHierarchy>(
+                playerid, cid, poid);
+        });
         addItem("开除", std::bind(&Crew::removeMember, crew, poid));
     }
 }
@@ -151,6 +156,40 @@ CrewChangeNameDialog::CrewChangeNameDialog(int playerid,
     const mongo::OID& crew) : InputDialog(playerid, "更改帮派名称"),
     mCrew(crew)
 {
+}
+
+CrewMemberSetHierarchy::CrewMemberSetHierarchy(int playerid,
+    const mongo::OID& crew, const mongo::OID& mem) :
+    RadioListDialog<int>(playerid, "设置成员阶级"), mCrew(crew), mMember(mem)
+{
+}
+
+void CrewMemberSetHierarchy::build()
+{
+    CrewHierarchy hier = CrewManager::get().getCrew(mCrew)
+        ->getMemberHierarchy(mMember);
+    addItem(COMMISSIONERS,
+        "堂主    \t帮会中最值得信赖的成员。",
+        hier == COMMISSIONERS
+    );
+    addItem(LIEUTENANTS,
+        "干部    \t赋予成员特殊权限，以便管理帮会。",
+        hier == LIEUTENANTS
+    );
+    addItem(REPRESENTATIVES,
+        "街头代表\t证明自己对帮会忠贞的成员。",
+        hier == REPRESENTATIVES
+    );
+    addItem(MUSCLE,
+        "打手    \t所有帮会成员。",
+        hier == MUSCLE
+    );
+}
+
+bool CrewMemberSetHierarchy::process(int hier)
+{
+    return CrewManager::get().getCrew(mCrew)->setMemberHierarchy(
+        mMember, CrewHierarchy(hier));
 }
 
 void CrewChangeNameDialog::build()
