@@ -48,15 +48,10 @@ public:
 
     std::string getEmbedCode() const
     {
-        std::stringstream embed;
-        embed << "{" << std::hex;
-        if(mR < 0x10) embed << "0";
-        embed << (int)mR;
-        if(mG < 0x10) embed << "0";
-        embed << (int)mG;
-        if(mB < 0x10) embed << "0";
-        embed << (int)mB << "}";
-        return embed.str();
+        char code[24];
+        sprintf(code + 1, "%6x", getRGB());
+        code[0] = '{'; code[7] = '}';
+        return std::string(code, 8);
     }
 
     int32_t     getRGBA() const

@@ -616,11 +616,11 @@ bool PlayerSendMessageDialog::handleCallback(
         return true;
     }
     std::stringstream info;
-    info << "消息发送给 " << target->getNickname()
+    info << "消息发送给 " << target->getColoredNickname()
         << "{FFFFFF}(" << mTargetPlayer << "): " << inputtext;
     SendClientMessage(mPlayerId, 0xFFFFFFFF, info.str().c_str());
     std::stringstream msg;
-    msg << "消息来自 " << p->getNickname()
+    msg << "消息来自 " << p->getColoredNickname()
         << "{FFFFFF}(" << mPlayerId << "): " << inputtext;
     SendClientMessage(mTargetPlayer, 0xFFFFFFFF, msg.str().c_str());
     LOG(INFO) << "Private message sent from " << p->getLogName()

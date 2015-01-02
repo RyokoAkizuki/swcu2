@@ -117,15 +117,17 @@ bool pcmdTeleportToPos(int playerid, std::stringstream& cmdline)
 bool pcmdHelp(int playerid, std::stringstream& /* cmdline */)
 {
     SendClientMessage(playerid, 0xFFFFFFFF,
-        "");
+        "欢迎来到SWCU自由地带");
     SendClientMessage(playerid, 0xFFFFFFFF,
-        "");
+        "按Tab键双击玩家名字与对方互动, 双击自己的名字或按Y键打开控制面板.");
     SendClientMessage(playerid, 0xFFFFFFFF,
-        "");
+        "控制面板中可以更改自己的登录名(进游戏的名字),");
     SendClientMessage(playerid, 0xFFFFFFFF,
-        "");
+        "密码和昵称(对外显示的名字, 支持中文和颜色代码), 也可以购买武器, 创建和加入帮派.");
     SendClientMessage(playerid, 0xFFFFFFFF,
-        "");
+        "刷车指令 /c 车辆ID 更改颜色 /c 颜色1 颜色2");
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        "服务器仍在开发中, 欢迎加入QQ群111738228");
     return true;
 }
 

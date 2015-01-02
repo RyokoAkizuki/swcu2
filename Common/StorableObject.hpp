@@ -109,8 +109,8 @@ protected:
             else
             {
                 mId     = doc["_id"].OID();
-                mValid  = _parseObject(doc);
-                return mValid;
+                mValid  = true;
+                return _parseObject(doc);
             }
         });
         // Exception arised.

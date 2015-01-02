@@ -145,6 +145,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerConnect(int playerid)
             CSTR("玩家 " << p->getColoredNickname()
             << "(" << playerid << ") 进入了服务器."));
         SendDeathMessage(INVALID_PLAYER_ID, playerid, 200 /* ICON_CONNECT */);
+        OnPlayerCommandText(playerid, "/help");
     }
     else
     {
