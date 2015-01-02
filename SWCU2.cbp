@@ -73,6 +73,8 @@
 		<Unit filename="Crew/CrewDialogs.hpp" />
 		<Unit filename="Crew/CrewManager.cpp" />
 		<Unit filename="Crew/CrewManager.hpp" />
+		<Unit filename="Event/Event.cpp" />
+		<Unit filename="Event/Event.hpp" />
 		<Unit filename="House/House.hpp" />
 		<Unit filename="Interface/CommandManager.cpp" />
 		<Unit filename="Interface/CommandManager.hpp" />

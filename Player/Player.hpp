@@ -18,6 +18,7 @@
 
 #include "../Common/StorableObject.hpp"
 #include "../Common/RGBAColor.hpp"
+#include "../Event/Event.hpp"
 
 namespace swcu {
 
@@ -48,7 +49,7 @@ enum PoliceRank
     CIVILIAN            = 0
 };
 
-class Player : public StorableObject
+class Player : public StorableObject, public EventListener
 {
 protected:
     /**
@@ -62,9 +63,7 @@ protected:
     int                 mFlags;
     int64_t             mGameTime;
     RGBAColor           mColor;
-
     mongo::OID          mCrew;
-    std::shared_ptr<Crew>   mCrewPtr;
 
     /**
      * Police System
@@ -92,6 +91,8 @@ protected:
 
 public:
                         Player(int ingameid);
+    // For internal use. Doesn't perform game functions.
+                        Player(const mongo::OID& id);
     virtual             ~Player();
 
     /**
@@ -237,7 +238,7 @@ public:
 
             int         getPrivateVehicleId() const
             { return mPrivateVehicle; }
-            
+
     /**
      * Callbacks.
      */
@@ -248,16 +249,18 @@ public:
     /**
      * ************ Crew System ************
      */
-            bool        joinCrew(const mongo::OID& crewId);
-            bool        quitCrew();
-
+    
             mongo::OID  getCrew() const
             { return mCrew; }
 
             bool        isCrewMember() const
             { return mCrew.isSet(); }
 
+    virtual void        handleEvent(const Event& evt);
+
 protected:
+            bool        _setCrew(const mongo::OID& crew);
+
     virtual bool        _parseObject(const mongo::BSONObj& data);
             void        _applyWantedLevel();
             bool        _validatePassword(const std::string& password);

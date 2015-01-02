@@ -18,21 +18,35 @@
 
 #include "../Common/StorableObject.hpp"
 #include "../Common/RGBAColor.hpp"
+#include "../Player/Player.hpp"
 
 namespace swcu {
 
+enum CrewHierarchy
+{
+    LEADER          = 1,
+    COMMISSIONERS   = 2,
+    LIEUTENANTS     = 3,
+    REPRESENTATIVES = 4,
+    MUSCLE          = 5,
+    PENDING         = 0,
+    NOT_A_MEMBER    = -1
+};
+
+const char* getCrewHierarchyStr(CrewHierarchy hier);
+
 class Crew : public StorableObject
 {
+    friend class CrewViewMembersDialog;
+    friend class CrewEditMemberDialog;
+
 protected:
     std::string     mName;
     mongo::OID      mLeader;
     std::string     mDescription;
-    int64_t         mScore;
+    int64_t         mReputation;
     int32_t         mLevel;
     RGBAColor       mColor;
-
-    // Identity for SA-MP
-    int32_t         mTeamId;
 
 protected:
                         Crew();
@@ -49,24 +63,34 @@ public:
     virtual             ~Crew() {}
 
             std::string getName() const         { return mName; }
+            std::string getColoredName() const
+            { return mColor.getEmbedCode() + mName + "{FFFFFF}"; }
             mongo::OID  getLeader() const       { return mLeader; }
             std::string getDescription() const  { return mDescription; }
-            int64_t     getScore() const        { return mScore; }
+            int64_t     getReputation() const   { return mReputation; }
             int32_t     getLevel() const        { return mLevel; }
             RGBAColor   getColor() const        { return mColor; }
-
-            int32_t     getSAMPTeamId() const   { return mTeamId; }
+            bool        isMember(const mongo::OID& profileId);
+            CrewHierarchy getMemberHierarchy(const mongo::OID& profileId);
 
             bool        setName(const std::string& name);
             bool        setLeader(const mongo::OID& profileId);
             bool        setDescription(const std::string& des);
-            bool        increaseScore(int64_t deltaScore);
+            bool        increaseReputation(int64_t deltaRep);
             bool        increaseLevel(int32_t deltaLevel);
             bool        setColor(RGBAColor color);
 
+            bool        applyToJoin(const mongo::OID& profileid);
+            bool        approveToJoin(const mongo::OID& profileid);
+            bool        denyToJoin(const mongo::OID& profileid);
+            bool        addMember(const mongo::OID& profileid,
+                CrewHierarchy hierarchy);
+            bool        removeMember(const mongo::OID& profileid);
+            bool        setMemberHierarchy(const mongo::OID& profileid,
+                CrewHierarchy hierarchy);
+
 protected:
     virtual bool        _parseObject(const mongo::BSONObj& doc);
-            bool        _createCrew();
 };
 
 }

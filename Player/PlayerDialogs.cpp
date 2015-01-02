@@ -22,6 +22,7 @@
 #include "../Map/MapDialogs.hpp"
 #include "../Weapon/WeaponShopDialog.hpp"
 #include "../Crew/CrewDialogs.hpp"
+#include "../Crew/Crew.hpp"
 
 #include "PlayerDialogs.hpp"
 
@@ -716,6 +717,10 @@ void PlayerControlPanelDialog::build()
     addItem("我的资料", [playerid]() {
         DialogManager::get().push<PlayerEditProfileDialog>(playerid);
     });
+    // * Crew
+    addItem("帮派", [playerid]() {
+        DialogManager::get().push<CrewControlPanelDialog>(playerid);
+    });
     // Admin Level 3
     // * Map Manager
     if(p->getAdminLevel() >= 3)
@@ -729,31 +734,6 @@ void PlayerControlPanelDialog::build()
     {
         addItem("自首", [playerid]() {
             DialogManager::get().push<ArrestSurrenderDialog>(playerid);
-        });
-    }
-    // Crew
-    if(p->isCrewMember())
-    {
-        addItem("退出帮派", [playerid]() {
-            auto p = PlayerManager::get().getPlayer(playerid);
-            if(p != nullptr) p->quitCrew();
-        });
-    }
-    else
-    {
-        addItem("创建帮派", [playerid]() {
-            DialogManager::get().push<CreateCrewDialog>(playerid);
-        });
-        addItem("加入帮派", [playerid]() {
-            DialogManager::get().push<CrewFindByNameDialog>(
-            playerid, [playerid](const mongo::OID& crew) {
-                auto p = PlayerManager::get().getPlayer(playerid);
-                if(p == nullptr)
-                {
-                    return false;
-                }
-                return p->joinCrew(crew);
-            });
         });
     }
 }

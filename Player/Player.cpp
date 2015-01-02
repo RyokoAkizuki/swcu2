@@ -52,9 +52,20 @@ Player::Player(int gameid) :
     mLogName = getPlayerNameFixed(mInGameId);
     mNickname = mLogName;
     SetPlayerColor(mInGameId, mColor.getRGBA());
-    mCrewPtr = CrewManager::get().getCrew(mCrew);
     LOG(INFO) << "Loading player " << mLogName << "'s profile.";
     _loadObject("logname", GBKToUTF8(mLogName));
+}
+
+Player::Player(const mongo::OID& id) :
+    StorableObject(Config::colNamePlayer, id),
+    mMoney(0), mAdminLevel(0), mFlags(PlayerFlags::NO_FLAGS),
+    mGameTime(0),
+    mPoliceRank(CIVILIAN), mWantedLevel(0), mTimeInPrison(0),
+    mTimeToFree(0),
+    mInGameId(-1), mLastSaved(time(0)), mLoggedIn(false),
+    mTextLabel(0), mPrivateVehicle(INVALID_VEHICLE_ID)
+{
+    _loadObject();
 }
 
 Player::~Player()
@@ -380,6 +391,11 @@ void Player::updatePlayerLabel()
     {
         label << "{FFFF00}通缉等级 " << mWantedLevel << "{FFFFFF}\n";
     }
+    // Crew
+    if(isCrewMember())
+    {
+        label << CrewManager::get().getCrew(mCrew)->getColoredName() << "\n";
+    }
     // Login Name and ID
     label << "(" << mLogName << ")(" << mInGameId << ")\n";
     mTextLabel = CreateDynamic3DTextLabel(label.str(), 0xFFFFFFFF,
@@ -555,16 +571,14 @@ void Player::teleportPrivateVehicleToPlayer()
     PutPlayerInVehicle(mInGameId, mPrivateVehicle, 0 /* driver */);
 }
 
-bool Player::joinCrew(const mongo::OID& crewId)
+bool Player::_setCrew(const mongo::OID& crewId)
 {
     if(_updateField("$set", "crew", crewId))
     {
         mCrew = crewId;
-        mCrewPtr = CrewManager::get().getCrew(crewId);
         if(crewId.isSet())
         {
-            LOG(INFO) << "Player " << mLogName << " joined crew " <<
-            mCrewPtr->getName();
+            LOG(INFO) << "Player " << mLogName << " joined a crew.";
         }
         else
         {
@@ -576,14 +590,10 @@ bool Player::joinCrew(const mongo::OID& crewId)
     return false;
 }
 
-bool Player::quitCrew()
-{
-    return joinCrew(mongo::OID());
-}
-
 bool Player::_parseObject(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
+        mLogName        = UTF8ToGBK(doc["logname"].str());
         mNickname       = UTF8ToGBK(doc["nickname"].str());
         if(mNickname.size() == 0) setNickname(mLogName);
         mPasswordHash   = doc["password"].str();
@@ -594,7 +604,6 @@ bool Player::_parseObject(const mongo::BSONObj& doc)
         mColor.assignRGB(doc["color"].numberInt());
         if(mColor.getRGB() == 0) setColor(RGBAColor());
         mCrew           = doc["crew"].OID();
-        mCrewPtr        = CrewManager::get().getCrew(mCrew);
         mPoliceRank     = PoliceRank(doc["policerank"].numberInt());
         if(mPoliceRank > 9) mPoliceRank = CHIEF_OF_POLICE;
         if(mPoliceRank < 0) mPoliceRank = CIVILIAN;
@@ -655,22 +664,74 @@ bool Player::onSpawn()
 
 bool Player::onDeath()
 {
-    if(_isInGangZone())
-    {
-        if(mCurrentGangZone->isInWar())
-        {
-            if(mCrew == mCurrentGangZone->getCrew())
-            {
-                mCurrentGangZone->onCrewDeath();
-            }
-            else if(mCrew == mCurrentGangZone->getEnemyCrew())
-            {
-                mCurrentGangZone->onEnemyDeath();
-            }
-        }
-    }
     return true;
 }
 
+void Player::handleEvent(const Event& evt)
+{
+    switch(std::get<0>(evt))
+    {
+        case onCrewLeaderChanged:
+        {
+            auto crew = boost::any_cast<Crew*>(std::get<1>(evt));
+            if(crew->getLeader() == mId)
+            {
+                _setCrew(boost::any_cast<Crew*>(std::get<1>(evt))->getId());
+            }
+            break;
+        }
+        case onCrewPlayerApplyToJoin:
+        {
+            auto crew = boost::any_cast<Crew*>(std::get<1>(evt));
+            if(crew->getLeader() == mId)
+            {
+                SendClientMessage(mInGameId, 0xFFFFFFFF,
+                    "有玩家申请加入你的帮派, 请及时处理");
+            }
+            break;
+        }
+        case onCrewPlayerApprovedToJoin:
+        case onCrewMemberAdded:
+        {
+            auto profile = boost::any_cast<mongo::OID>(std::get<2>(evt));
+            if(profile == mId)
+            {
+                _setCrew(boost::any_cast<Crew*>(std::get<1>(evt))->getId());
+            }
+            break;
+        }
+        case onCrewPlayerDeniedToJoin:
+        case onCrewMemberRemoved:
+        {
+            auto profile = boost::any_cast<mongo::OID>(std::get<2>(evt));
+            if(profile == mId)
+            {
+                _setCrew(mongo::OID());
+            }
+            break;
+        }
+        case onCrewColorChanged:
+        case onCrewNameChanged:
+        {
+            auto crew = boost::any_cast<Crew*>(std::get<1>(evt));
+            if(crew->getId() == mCrew)
+            {
+                updatePlayerLabel();
+            }
+            break;
+        }
+        case onCrewMemberHierarchyChanged:
+        {
+            auto profile = boost::any_cast<mongo::OID>(std::get<2>(evt));
+            if(profile == mId)
+            {
+                updatePlayerLabel();
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
 
 }

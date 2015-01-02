@@ -30,8 +30,9 @@ public:
     // Generate a random one.
     RGBAColor()
     {
-        float c = rand() / RAND_MAX;
-        int32_t rgb = c * 0xFFFFFF;
+        float c = (float)rand() / (float)RAND_MAX;
+        int32_t rgb = static_cast<int32_t>(
+            c * static_cast<float>(0xFFFFFF));
         assignRGB(rgb);
     }
 
@@ -48,7 +49,13 @@ public:
     std::string getEmbedCode() const
     {
         std::stringstream embed;
-        embed << "{" << std::hex << (int)mR << (int)mG << (int)mB << "}";
+        embed << "{" << std::hex;
+        if(mR < 0x10) embed << "0";
+        embed << (int)mR;
+        if(mG < 0x10) embed << "0";
+        embed << (int)mG;
+        if(mB < 0x10) embed << "0";
+        embed << (int)mB << "}";
         return embed.str();
     }
 

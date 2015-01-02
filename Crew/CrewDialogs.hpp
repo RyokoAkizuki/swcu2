@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Yukino Hayakawa<tennencoll@gmail.com>
+ * Copyright 2014-2015 Yukino Hayakawa<tennencoll@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,57 @@
 #include "../Interface/Dialog.hpp"
 
 namespace swcu {
+
+class CrewControlPanelDialog : public MenuDialog
+{
+public:
+                    CrewControlPanelDialog(int playerid);
+    virtual         ~CrewControlPanelDialog() {}
+
+    virtual void    build();
+};
+
+class CrewViewMembersDialog : public ItemListDialog<std::string>
+{
+protected:
+    mongo::OID      mCrew;     
+
+public:
+                    CrewViewMembersDialog(
+        int playerid, const mongo::OID& crew);
+    virtual         ~CrewViewMembersDialog() {}
+
+    virtual void    build();
+    virtual bool    process(std::string key);
+};
+
+class CrewEditMemberDialog : public MenuDialog
+{
+protected:
+    mongo::OID      mCrew, mMember;     
+
+public:
+                    CrewEditMemberDialog(int playerid,
+        const mongo::OID& crew, const mongo::OID& member);
+    virtual         ~CrewEditMemberDialog() {}
+
+    virtual void    build();
+};
+
+class CrewChangeNameDialog : public InputDialog
+{
+protected:
+    mongo::OID      mCrew; 
+
+public:
+                    CrewChangeNameDialog(int playerid,
+        const mongo::OID& crew);
+    virtual         ~CrewChangeNameDialog() {}
+
+    virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
 
 class CreateCrewDialog : public InputDialog
 {
