@@ -49,7 +49,7 @@ public:
     std::string getEmbedCode() const
     {
         char code[24];
-        sprintf(code + 1, "%6x", getRGB());
+        sprintf(code + 1, "%06x", getRGB());
         code[0] = '{'; code[7] = '}';
         return std::string(code, 8);
     }
