@@ -394,7 +394,7 @@ void PlayerControlDialog::build()
 {
     auto target = PlayerManager::get().getPlayer(mTargetPlayer);
     auto p = PlayerManager::get().getPlayer(mPlayerId);
-    if(target == nullptr || p == nullptr)
+    if(target == nullptr || p == nullptr || !p->isLoggedIn())
     {
         return;
     }
@@ -699,7 +699,7 @@ PlayerControlPanelDialog::PlayerControlPanelDialog(int playerid) :
 void PlayerControlPanelDialog::build()
 {
     auto p = PlayerManager::get().getPlayer(mPlayerId);
-    if(p == nullptr)
+    if(p == nullptr || !p->isLoggedIn())
     {
         return;
     }

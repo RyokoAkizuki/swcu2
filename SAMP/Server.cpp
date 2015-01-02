@@ -245,6 +245,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnDialogResponse(int playerid, int dialogid,
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerClickPlayer(int playerid,
     int clickedplayerid, int /* source */)
 {
+    auto p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr || !p->isLoggedIn())
+    {
+        return false;
+    }
     if(playerid == clickedplayerid)
     {
         swcu::DialogManager::get().push
@@ -263,6 +268,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerKeyStateChange(int playerid,
 {
     if((newkeys & KEY_YES) && !(oldkeys & KEY_YES))
     {
+        auto p = swcu::PlayerManager::get().getPlayer(playerid);
+        if(p == nullptr || !p->isLoggedIn())
+        {
+            return false;
+        }
         swcu::DialogManager::get().push
             <swcu::PlayerControlPanelDialog>(playerid);
     }
