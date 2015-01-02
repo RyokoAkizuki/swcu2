@@ -54,13 +54,21 @@ bool StorableObject::_createObject(const mongo::BSONObj& data)
 
 bool StorableObject::_updateObject(const mongo::BSONObj& data)
 {
+    return _conditionedUpdate(mongo::BSONObj(), data);
+}
+
+bool StorableObject::_conditionedUpdate(const mongo::BSONObj& query,
+    const mongo::BSONObj& data)
+{
     if(!isValid())
     {
         LOG(ERROR) << "You won't find this document.";
         return false;
     }
+    mongo::BSONObjBuilder b;
+    b.append("_id", mId).appendElements(query);
     MONGO_WRAPPER({
-        getDBConn()->update(mCollection, QUERY("_id" << mId), data);
+        getDBConn()->update(mCollection, mongo::Query(b.obj()), data);
         return dbCheckError();
     });
     return false;

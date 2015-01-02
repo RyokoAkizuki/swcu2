@@ -73,6 +73,9 @@ protected:
      */
             bool        _updateObject(const mongo::BSONObj& data);
 
+            bool        _conditionedUpdate(const mongo::BSONObj& query,
+                const mongo::BSONObj& data);
+
     /**
      * Fetch document from database using information (mCollection and
      * mId) provided in constructor and parse it.
