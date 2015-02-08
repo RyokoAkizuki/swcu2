@@ -33,14 +33,14 @@ HouseMapArea::HouseMapArea(Map* map) :
 
 void HouseMapArea::onEnter(int playerid)
 {
-    std::string msg = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" + mMap->getName();
+    std::string msg = "Äã½øÈëÁË" + mMap->getName();
     SendClientMessage(playerid, 0xFFFFFFFF, msg.c_str());
 }
 
 void HouseMapArea::onLeave(int playerid)
 {
     SendClientMessage(playerid, 0xFFFFFFFF,
-        ("ï¿½ï¿½ï¿½ë¿ªï¿½Ë·ï¿½ï¿½ï¿½" + mMap->getName()).c_str());
+        ("ÄãÀë¿ªÁË·¿²ú" + mMap->getName()).c_str());
 }
 
 PrisonMapArea::PrisonMapArea(Map* map) :
@@ -56,7 +56,7 @@ void PrisonMapArea::onEnter(int playerid)
     if(p == nullptr) return;
     if(!p->isPrisonTermExceeded())
     {
-        SendClientMessage(playerid, 0xFFFFFFFF, "ï¿½ã±»ï¿½Í½ï¿½ï¿½Ë¼ï¿½ï¿½ï¿½.");
+        SendClientMessage(playerid, 0xFFFFFFFF, "Äã±»ËÍ½øÁË¼àÓü.");
     }
 }
 
@@ -66,7 +66,7 @@ void PrisonMapArea::onLeave(int playerid)
     if(p == nullptr) return;
     if(!p->isPrisonTermExceeded())
     {
-        SendClientMessage(playerid, 0xFFFFFFFF, "ï¿½ï¿½ÒªÔ½ï¿½ï¿½.");
+        SendClientMessage(playerid, 0xFFFFFFFF, "²»ÒªÔ½Óü.");
         p->teleportTo("##prison");
     }
 }
@@ -109,6 +109,27 @@ Map::Map(const mongo::BSONObj& data) : Map::Map()
             mValid = true;
         }
     });
+}
+
+std::string Map::getTypeStr() const
+{
+    switch(mType)
+    {
+        case LANDSCAPE:
+        return "µØÐÎ";
+        case DEATHMATCH:
+        return "ËÀ¶·";
+        case STUNT:
+        return "ÌØ¼¼";
+        case PROPERTY:
+        return "·¿²ú";
+        case BUSINESS:
+        return "ÉúÒâ";
+        case PRISON:
+        return "¼àÓü";
+        default:
+        return "Î´Öª";
+    }
 }
 
 bool Map::addObject(int model, float x, float y, float z,

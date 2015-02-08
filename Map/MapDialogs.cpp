@@ -47,7 +47,10 @@ void MapViewLoadedDialog::build()
     MapManager& mgr = MapManager::get();
     for(auto& iter : mgr.mLoadedMaps)
     {
-        addItem(iter.first, iter.first);
+        addItem(
+            iter.first, 
+            STR(iter.second->getTypeStr() << " " << iter.first)
+        );
     }
 }
 

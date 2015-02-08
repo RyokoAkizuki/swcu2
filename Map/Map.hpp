@@ -114,6 +114,7 @@ public:
                         Map(const mongo::BSONObj& data);
     virtual             ~Map() {}
             std::string getName() const         { return mName; }
+            std::string getTypeStr() const;
             bool        isActivated() const     { return mActivated; }
             size_t      getObjectCount() const  { return mObjects.size(); }
             size_t      getVehicleCount() const { return mVehicles.size(); }
