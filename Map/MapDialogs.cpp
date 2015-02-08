@@ -35,7 +35,14 @@ void MapManagerDialog::build()
             playerid,
             "已载入的地图",
             [playerid](const std::shared_ptr<Map>& map) {
-                DialogManager::get().push<MapEditDialog>(playerid, map);
+                if(map->getType() == PROPERTY)
+                    DialogManager::get().push<PropertyEditDialog>(
+                        playerid, map
+                    );
+                else
+                    DialogManager::get().push<MapEditDialog>(
+                        playerid, map
+                    );
             }
         );
     });
@@ -151,7 +158,16 @@ void PropertyEditDialog::build()
            DialogManager::get().push<PropertySetNameDialog>(
                 playerid, map);
         });
-        addItem(STR("价格: " << mMap->getPrice()), [](){});
+        addItem(STR("价格: " << mMap->getPrice()), [=](){
+            auto p = PlayerManager::get().getPlayer(playerid);
+            if(p == nullptr || !p->isLoggedIn())
+            {
+                return;
+            }
+            if(p->getAdminLevel() >= 3)
+                DialogManager::get().push<PropertySetPriceDialog>(
+                    playerid, map);
+        });
         addItem("将传送点设置在脚下", [=]() {
             auto p = PlayerManager::get().getPlayer(playerid);
             if(p == nullptr || !p->isLoggedIn())
@@ -194,7 +210,16 @@ void PropertyEditDialog::build()
     else
     {
         addItem("名称: " + mMap->getName(), [](){});
-        addItem(STR("价格: " << mMap->getPrice()), [](){});
+        addItem(STR("价格: " << mMap->getPrice()), [=](){
+            auto p = PlayerManager::get().getPlayer(playerid);
+            if(p == nullptr || !p->isLoggedIn())
+            {
+                return;
+            }
+            if(p->getAdminLevel() >= 3)
+                DialogManager::get().push<PropertySetPriceDialog>(
+                    playerid, map);
+        });
         if(mMap->getOwner() != mongo::OID()) return;
         addItem("购买", [=]() {
             auto p = PlayerManager::get().getPlayer(playerid);
@@ -310,6 +335,56 @@ bool PropertySetPasswordDialog::handleCallback(
     else
     {
         SendClientMessage(mPlayerId, 0xFFFFFFFF, "房产密码更改成功.");
+        return true;
+    }
+}
+
+PropertySetPriceDialog::PropertySetPriceDialog(int playerid,
+    const std::shared_ptr<Map>& map) :
+    InputDialog(playerid, "更改房产价格"),
+    mState(INIT), mMap(map)
+{
+}
+
+void PropertySetPriceDialog::build()
+{
+    switch(mState)
+    {
+        case INIT:
+        setMessage("请输入价格.");
+        break;
+        case FAIL:
+        setMessage("价格不符合要求, 或者服务器发生了内部错误.\n"
+            "请重试. 如果反复出现错误请麻烦联系管理员.");
+        break;
+    }
+}
+
+bool PropertySetPriceDialog::handleCallback(
+    bool response, int /* listitem */, const std::string &inputtext)
+{
+    if(!response)
+    {
+        return true;
+    }
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr || !p->isLoggedIn())
+    {
+        return true;
+    }
+    if(p->getAdminLevel() < 3)
+    {
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, "你没有权限更改房屋价格.");
+        return true;
+    }
+    if(!mMap->setPrice(atoi(inputtext.c_str())))
+    {
+        mState = FAIL;
+        return false;
+    }
+    else
+    {
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, "房产价格更改成功.");
         return true;
     }
 }

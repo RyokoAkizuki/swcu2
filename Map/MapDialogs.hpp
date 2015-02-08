@@ -128,4 +128,23 @@ public:
         bool response, int listitem, const std::string &inputtext);
 };
 
+class PropertySetPriceDialog : public InputDialog
+{
+protected:
+    enum State
+    {
+        INIT, FAIL
+    } mState;
+    std::shared_ptr<Map>    mMap;
+
+public:
+                    PropertySetPriceDialog(int playerid,
+        const std::shared_ptr<Map>& map);
+    virtual         ~PropertySetPriceDialog() {}
+
+    virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
 }
