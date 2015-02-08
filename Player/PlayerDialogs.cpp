@@ -73,6 +73,9 @@ bool PlayerRegisterDialog::handleCallback(
     {
         p->setLoggedIn(true);
         SendClientMessage(mPlayerId, 0xFFFFFFFF, "你的账号注册成功.");
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, "请设置你的昵称");
+        // force player to set nickname when register
+        DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId);
         return true;
     }
     else
