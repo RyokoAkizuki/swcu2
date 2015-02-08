@@ -16,9 +16,14 @@
 
 #pragma once
 
+#include <functional>
+#include <memory>
+
 #include "../Interface/Dialog.hpp"
 
 namespace swcu {
+
+class Map;
 
 class MapManagerDialog : public MenuDialog
 {
@@ -29,23 +34,35 @@ public:
     virtual void    build();
 };
 
-class MapViewLoadedDialog : public ItemListDialog<std::string>
+class MapViewDialog : public ItemListDialog<std::shared_ptr<Map>>
 {
 public:
-                    MapViewLoadedDialog(int playerid);
-    virtual         ~MapViewLoadedDialog() {}
+    typedef std::function<bool(const std::shared_ptr<Map>&)> Filter;
+    typedef std::function<void(const std::shared_ptr<Map>&)> Callback;
+
+protected:
+    Callback        mCallback;
+    Filter          mFilter;
+
+public:
+                    MapViewDialog(int playerid,
+        const std::string& title,
+        Callback callback = [](const std::shared_ptr<Map>&) {},
+        Filter filter = [](const std::shared_ptr<Map>&) { return true; });
+    virtual         ~MapViewDialog() {}
 
     virtual void    build();
-    virtual bool    process(std::string key);
+    virtual bool    process(std::shared_ptr<Map> key);
 };
 
 class MapEditDialog : public MenuDialog
 {
 protected:
-    std::string     mName;
+    std::shared_ptr<Map>    mMap;
 
 public:
-                    MapEditDialog(int playerid, const std::string& name);
+                    MapEditDialog(int playerid,
+        const std::shared_ptr<Map>& map);
     virtual         ~MapEditDialog() {}
 
     virtual void    build();

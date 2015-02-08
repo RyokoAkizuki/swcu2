@@ -306,7 +306,7 @@ bool Map::_calculateBoundingBox()
     return true;
 }
 
-bool Map::updateBounding()
+void Map::updateBounding()
 {
     _calculateBoundingSphere();
     _calculateBoundingBox();
@@ -314,15 +314,14 @@ bool Map::updateBounding()
     {
         case PROPERTY:
         mBoundingArea.reset(new HouseMapArea(this));
-        return true;
+        break;
         case PRISON:
         mBoundingArea.reset(new PrisonMapArea(this));
-        return true;
+        break;
         default:
         LOG(WARNING) << "No proper bounding for map type " << mType;
         break;
     }
-    return false;
 }
 
 bool Map::_parseObject(const mongo::BSONObj& data)

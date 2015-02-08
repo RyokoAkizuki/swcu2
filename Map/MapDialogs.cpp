@@ -30,65 +30,67 @@ void MapManagerDialog::build()
 {
     int playerid = mPlayerId;
     addItem("查看已载入的地图", [playerid]() {
-        DialogManager::get().push<MapViewLoadedDialog>(playerid);
+        DialogManager::get().push<MapViewDialog>(
+            playerid,
+            "已载入的地图",
+            [playerid](const std::shared_ptr<Map>& map) {
+                DialogManager::get().push<MapEditDialog>(playerid, map);
+            }
+        );
+    });
+    addItem("查看房屋", [playerid]() {
+        DialogManager::get().push<MapViewDialog>(
+            playerid,
+            "查看房屋",
+            [playerid](const std::shared_ptr<Map>& map) {
+
+            },
+            [](const std::shared_ptr<Map>& m) {
+                return m->getType() == PROPERTY;
+            }
+        );
     });
     addItem("重新载入所有地图",
         std::bind(&MapManager::loadAllMaps, std::ref(MapManager::get()))
     );
 }
 
-MapViewLoadedDialog::MapViewLoadedDialog(int playerid) :
-    ItemListDialog<std::string>(playerid, "已载入的地图")
+MapViewDialog::MapViewDialog(int playerid, const std::string& title,
+        Callback callback, Filter filter) :
+    ItemListDialog<std::shared_ptr<Map>>(playerid, title)
+    , mCallback(callback), mFilter(filter)
 {
 }
 
-void MapViewLoadedDialog::build()
+void MapViewDialog::build()
 {
     MapManager& mgr = MapManager::get();
     for(auto& iter : mgr.mLoadedMaps)
     {
-        addItem(
-            iter.first, 
-            STR(iter.second->getTypeStr() << " " << iter.first)
-        );
+        if(mFilter(iter.second))
+        {
+            addItem(
+                iter.second,
+                STR(iter.second->getTypeStr() << " " << iter.first)
+            );
+        }
     }
 }
 
-bool MapViewLoadedDialog::process(std::string key)
+bool MapViewDialog::process(std::shared_ptr<Map> key)
 {
-    DialogManager::get().push<MapEditDialog>(mPlayerId, key);
+    mCallback(key);
     return true;
 }
 
-MapEditDialog::MapEditDialog(int playerid, const std::string& name) :
-    MenuDialog(playerid, "地图管理"), mName(name)
+MapEditDialog::MapEditDialog(int playerid, const std::shared_ptr<Map>& map) :
+    MenuDialog(playerid, "地图管理"), mMap(map)
 {
 }
 
 void MapEditDialog::build()
 {
-    if(MapManager::get().isMapLoaded(mName))
-    {
-        addItem("卸载",
-            std::bind(&MapManager::unloadMap,
-                std::ref(MapManager::get()), mName)
-        );
-        std::string name = mName;
-        addItem("更新包围体积", [name]() {
-            Map* map = MapManager::get().findMap(name);
-            if(map != nullptr)
-            {
-                map->updateBounding();
-            }
-        });
-    }
-    else
-    {
-        addItem("加载",
-            std::bind(&MapManager::loadMap,
-                std::ref(MapManager::get()), mName)
-        );
-    }
+    // addItem("更新包围体积", std::bind(mMap, &Map::updateBounding));
 }
 
 }

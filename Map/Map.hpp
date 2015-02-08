@@ -115,6 +115,7 @@ public:
     virtual             ~Map() {}
             std::string getName() const         { return mName; }
             std::string getTypeStr() const;
+            MapType     getType() const         { return mType; }
             bool        isActivated() const     { return mActivated; }
             size_t      getObjectCount() const  { return mObjects.size(); }
             size_t      getVehicleCount() const { return mVehicles.size(); }
@@ -128,7 +129,7 @@ public:
             { return mOwner; }
             std::string getJSON() const;
             bool        deleteFromDatabase();
-            bool        updateBounding();
+            void        updateBounding();
 
 protected:
     virtual bool        _parseObject(const mongo::BSONObj& data);

@@ -82,7 +82,7 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
 
 bool MapManager::loadMap(const std::string& name)
 {
-    std::unique_ptr<Map> map(new Map(name));
+    std::shared_ptr<Map> map(new Map(name));
     if(map->isValid())
     {
         mLoadedMaps.insert(std::make_pair(name, std::move(map)));
@@ -136,16 +136,16 @@ size_t MapManager::loadAllMaps()
     return 0;
 }
 
-Map* MapManager::findMap(const std::string& name)
+std::shared_ptr<Map> MapManager::findMap(const std::string& name)
 {
     auto iter = mLoadedMaps.find(name);
     if(iter == mLoadedMaps.end())
     {
-        return nullptr;
+        return std::shared_ptr<Map>();
     }
     else
     {
-        return iter->second.get();
+        return iter->second;
     }
 }
 

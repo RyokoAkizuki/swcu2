@@ -27,13 +27,13 @@ namespace swcu {
 class MapManager : public Singleton<MapManager>
 {
 protected:
-    std::map<std::string, std::unique_ptr<Map>> mLoadedMaps;
+    std::map<std::string, std::shared_ptr<Map>> mLoadedMaps;
 
 protected:
                     MapManager();
                     
     friend class Singleton<MapManager>;
-    friend class MapViewLoadedDialog;
+    friend class MapViewDialog;
 
 public:
     virtual         ~MapManager() {}
@@ -50,7 +50,7 @@ public:
             bool    loadMap(const std::string& name);
             bool    unloadMap(const std::string& name);
             bool    isMapLoaded(const std::string& name);
-            Map*    findMap(const std::string& name);
+            std::shared_ptr<Map> findMap(const std::string& name);
             
     /**
      * Load all activated maps from database.
