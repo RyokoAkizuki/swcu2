@@ -192,6 +192,7 @@ bool Player::setNickname(const std::string& name)
 
 bool Player::increaseMoney(int amount)
 {
+    if(mMoney + amount < 0) return false;
     if(_updateField("$inc", "money", amount))
     {
         LOG(INFO) << "Gived " << mLogName << " $" << amount << ".";

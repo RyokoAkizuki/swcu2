@@ -94,7 +94,6 @@ protected:
     size_t              mPrice;
     std::string         mPassword;
     std::string         mEntranceTeleportName;
-    bool                mOnSale;
 
     std::unique_ptr<Area>                           mBoundingArea;
 
@@ -119,6 +118,7 @@ public:
      */
                         Map(const mongo::BSONObj& data);
     virtual             ~Map() {}
+            bool        setName(const std::string& name);
             std::string getName() const         { return mName; }
             std::string getTypeStr() const;
             MapType     getType() const         { return mType; }
@@ -132,10 +132,9 @@ public:
             bool        setWorld(int world);
 
             bool        setOwner(const mongo::OID& owner);
-            mongo::OID  getOwner() const
-            { return mOwner; }
-            bool        setPrice();
-            size_t      getPrice();
+            mongo::OID  getOwner() const        { return mOwner; }
+            bool        setPrice(size_t price);
+            size_t      getPrice() const        { return mPrice; }
             bool        setPassword(const std::string& password);
             std::string getPassword() const     { return mPassword; }
             bool        sell();

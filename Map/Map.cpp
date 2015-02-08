@@ -73,7 +73,7 @@ void PrisonMapArea::onLeave(int playerid)
 
 Map::Map() : StorableObject(Config::colNameMap),
     mType(LANDSCAPE), mActivated(true), mVirtualWorld(0)
-    , mVariance(0.0)
+    , mVariance(0.0), mPrice(0)
 {
 }
 
@@ -180,6 +180,88 @@ bool Map::setOwner(const mongo::OID& owner)
         return true;
     }
     return false;
+}
+
+bool Map::setPrice(size_t price)
+{
+    if(_updateField("$set", "price", price))
+    {
+        mPrice = price;
+        LOG(INFO) << "Map " << mName << "'s price is set to " << price;
+        return true;
+    }
+    return false;
+}
+
+bool Map::setName(const std::string& name)
+{
+    if(_updateField("$set", "name", GBKToUTF8(name)))
+    {
+        mName = name;
+        LOG(INFO) << "Map " << mName << "'s name is set to " << name;
+        return true;
+    }
+    return false;
+}
+
+bool Map::setPassword(const std::string& password)
+{
+    if(_updateField("$set", "password", GBKToUTF8(password)))
+    {
+        mPassword = password;
+        LOG(INFO) << "Map " << mName << "'s password is set to " << password;
+        return true;
+    }
+    return false;
+}
+
+bool Map::sell()
+{
+    if(mType != PROPERTY || mOwner == mongo::OID()) return false;
+    auto oldOwner = mOwner;
+    if(setOwner(mongo::OID()))
+    {
+        Player(oldOwner).increaseMoney(mPrice);
+        LOG(INFO) << "Map " << mName << " is on sale now.";
+        EventLog("Property", "propertySold", BSON(
+            "previousOwner" << oldOwner
+        ));
+        return true;
+    }
+    return false;
+}
+
+bool Map::buy(const mongo::OID& profileId)
+{
+    if(mType != PROPERTY || mOwner != mongo::OID()) return false;
+    if(Player(mOwner).increaseMoney(-mPrice) && setOwner(profileId))
+    {
+        EventLog("Property", "propertyBought", BSON(
+            "newOwner" << profileId
+        ));
+        LOG(INFO) << "Map " << mName << " is bought.";
+        return true;
+    }
+    return false;
+}
+
+bool Map::setEntrance(const std::string& name)
+{
+    if(_updateField("$set", "entrance", GBKToUTF8(name)))
+    {
+        mEntranceTeleportName = name;
+        return true;
+    }
+    return false;
+}
+
+void Map::teleportToEntrance(int playerid) const
+{
+    auto p = PlayerManager::get().getPlayer(playerid);
+    if(p != nullptr)
+    {
+        p->teleportTo(mEntranceTeleportName);
+    }
 }
 
 bool Map::_calculateBoundingSphere()
@@ -332,6 +414,23 @@ bool Map::_parseObject(const mongo::BSONObj& data)
         mOwner          = data["owner"].OID();
         mActivated      = data["activated"].boolean();
         mVirtualWorld   = data["world"].numberInt();
+
+        try
+        {
+            if(mType == PROPERTY)
+            {
+                mPrice      = data["price"].numberInt();
+                mPassword   = UTF8ToGBK(data["password"].str());
+                mEntranceTeleportName   = UTF8ToGBK(data["entrance"].str());
+            }
+        }
+        catch(...)
+        {
+            setPrice(1000);
+            setPassword("");
+            setEntrance("");
+            sell();
+        }
 
         auto objcur = getDBConn()->query(
             Config::colNameMapObject,
