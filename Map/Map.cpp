@@ -215,13 +215,13 @@ bool Map::setPassword(const std::string& password)
     return false;
 }
 
-bool Map::sell()
+bool Map::sell(Player* player)
 {
     if(mType != PROPERTY || mOwner == mongo::OID()) return false;
     auto oldOwner = mOwner;
     if(setOwner(mongo::OID()))
     {
-        Player(oldOwner).increaseMoney(mPrice);
+        player->increaseMoney(mPrice);
         LOG(INFO) << "Map " << mName << " is on sale now.";
         EventLog("Property", "propertySold", BSON(
             "previousOwner" << oldOwner
@@ -231,13 +231,13 @@ bool Map::sell()
     return false;
 }
 
-bool Map::buy(const mongo::OID& profileId)
+bool Map::buy(Player* player)
 {
     if(mType != PROPERTY || mOwner != mongo::OID()) return false;
-    if(Player(mOwner).increaseMoney(-mPrice) && setOwner(profileId))
+    if(player->increaseMoney(-mPrice) && setOwner(player->getId()))
     {
         EventLog("Property", "propertyBought", BSON(
-            "newOwner" << profileId
+            "newOwner" << player->getId()
         ));
         LOG(INFO) << "Map " << mName << " is bought.";
         return true;
@@ -429,7 +429,6 @@ bool Map::_parseObject(const mongo::BSONObj& data)
             setPrice(1000);
             setPassword("");
             setEntrance("");
-            sell();
         }
 
         auto objcur = getDBConn()->query(

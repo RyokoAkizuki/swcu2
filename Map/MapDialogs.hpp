@@ -90,4 +90,42 @@ public:
     virtual void    build();
 };
 
+class PropertySetNameDialog : public InputDialog
+{
+protected:
+    enum State
+    {
+        INIT, FAIL
+    } mState;
+    std::shared_ptr<Map>    mMap;
+
+public:
+                    PropertySetNameDialog(int playerid,
+        const std::shared_ptr<Map>& map);
+    virtual         ~PropertySetNameDialog() {}
+
+    virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
+class PropertySetPasswordDialog : public InputDialog
+{
+protected:
+    enum State
+    {
+        INIT, FAIL
+    } mState;
+    std::shared_ptr<Map>    mMap;
+
+public:
+                    PropertySetPasswordDialog(int playerid,
+        const std::shared_ptr<Map>& map);
+    virtual         ~PropertySetPasswordDialog() {}
+
+    virtual void    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
 }

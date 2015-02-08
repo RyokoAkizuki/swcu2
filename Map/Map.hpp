@@ -137,8 +137,8 @@ public:
             size_t      getPrice() const        { return mPrice; }
             bool        setPassword(const std::string& password);
             std::string getPassword() const     { return mPassword; }
-            bool        sell();
-            bool        buy(const mongo::OID& profileId);
+            bool        sell(class Player* player);
+            bool        buy(class Player* player);
             bool        setEntrance(const std::string& name);
             void        teleportToEntrance(int playerid) const;
 
