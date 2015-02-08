@@ -33,14 +33,14 @@ HouseMapArea::HouseMapArea(Map* map) :
 
 void HouseMapArea::onEnter(int playerid)
 {
-    std::string msg = "Äã½øÈëÁË" + mMap->getName();
+    std::string msg = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" + mMap->getName();
     SendClientMessage(playerid, 0xFFFFFFFF, msg.c_str());
 }
 
 void HouseMapArea::onLeave(int playerid)
 {
     SendClientMessage(playerid, 0xFFFFFFFF,
-        ("ÄãÀë¿ªÁË·¿²ú" + mMap->getName()).c_str());
+        ("ï¿½ï¿½ï¿½ë¿ªï¿½Ë·ï¿½ï¿½ï¿½" + mMap->getName()).c_str());
 }
 
 PrisonMapArea::PrisonMapArea(Map* map) :
@@ -56,7 +56,7 @@ void PrisonMapArea::onEnter(int playerid)
     if(p == nullptr) return;
     if(!p->isPrisonTermExceeded())
     {
-        SendClientMessage(playerid, 0xFFFFFFFF, "Äã±»ËÍ½øÁË¼àÓü.");
+        SendClientMessage(playerid, 0xFFFFFFFF, "ï¿½ã±»ï¿½Í½ï¿½ï¿½Ë¼ï¿½ï¿½ï¿½.");
     }
 }
 
@@ -66,7 +66,7 @@ void PrisonMapArea::onLeave(int playerid)
     if(p == nullptr) return;
     if(!p->isPrisonTermExceeded())
     {
-        SendClientMessage(playerid, 0xFFFFFFFF, "²»ÒªÔ½Óü.");
+        SendClientMessage(playerid, 0xFFFFFFFF, "ï¿½ï¿½ÒªÔ½ï¿½ï¿½.");
         p->teleportTo("##prison");
     }
 }
@@ -215,6 +215,17 @@ bool Map::_calculateBoundingSphere()
     {
         diff    = pos - center;
         len     = diff.length();
+
+        // TO-DO: Spatial Cluster Analysis
+        if(len > 10000.0)
+        {
+            LOG(INFO) << kanko::FRONT_RED
+                << "Map " << mName << " has an object which "
+                "is far from the center " << pos
+                << kanko::FRONT_DEFAULT;
+            continue;
+        }
+
         if(len > radius)
         {
             radius  = (radius + len) * 0.5f;
@@ -235,7 +246,8 @@ bool Map::_calculateBoundingSphere()
     // calculate variance
     for(auto& pos : vertices)
     {
-        mVariance += (pos - center).lengthSquared();
+        float v = (pos - center).lengthSquared();
+        mVariance += v;
     }
 
     mVariance /= vertices.size();
