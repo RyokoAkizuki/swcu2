@@ -33,14 +33,14 @@ HouseMapArea::HouseMapArea(Map* map) :
 
 void HouseMapArea::onEnter(int playerid)
 {
-    std::string msg = "你进入了" + mMap->getName();
-    SendClientMessage(playerid, 0xFFFFFFFF, msg.c_str());
+    // std::string msg = "你进入了" + mMap->getName();
+    // SendClientMessage(playerid, 0xFFFFFFFF, msg.c_str());
 }
 
 void HouseMapArea::onLeave(int playerid)
 {
-    SendClientMessage(playerid, 0xFFFFFFFF,
-        ("你离开了房产" + mMap->getName()).c_str());
+    // SendClientMessage(playerid, 0xFFFFFFFF,
+    //     ("你离开了房产" + mMap->getName()).c_str());
 }
 
 PrisonMapArea::PrisonMapArea(Map* map) :
