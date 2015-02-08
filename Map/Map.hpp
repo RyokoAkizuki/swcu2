@@ -82,13 +82,19 @@ protected:
      */
     MapType             mType;
     std::string         mName;
-    mongo::OID          mOwner;
     bool                mActivated;
     int                 mVirtualWorld;
     kanko::Vector3      mBoundSphereCenter;
     float               mBoundSphereRadius;
     kanko::BBox         mBBox;
     float               mVariance;
+
+    // property functions
+    mongo::OID          mOwner;
+    size_t              mPrice;
+    std::string         mPassword;
+    std::string         mEntranceTeleportName;
+    bool                mOnSale;
 
     std::unique_ptr<Area>                           mBoundingArea;
 
@@ -124,10 +130,19 @@ public:
             bool        addVehicle(int model, float x, float y, float z,
         float angle, int interior, int respawndelay);
             bool        setWorld(int world);
+
             bool        setOwner(const mongo::OID& owner);
             mongo::OID  getOwner() const
             { return mOwner; }
-            std::string getJSON() const;
+            bool        setPrice();
+            size_t      getPrice();
+            bool        setPassword(const std::string& password);
+            std::string getPassword() const     { return mPassword; }
+            bool        sell();
+            bool        buy(const mongo::OID& profileId);
+            bool        setEntrance(const std::string& name);
+            void        teleportToEntrance(int playerid) const;
+
             bool        deleteFromDatabase();
             void        updateBounding();
 

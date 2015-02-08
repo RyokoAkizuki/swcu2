@@ -15,6 +15,7 @@
  */
 
 #include "../Interface/DialogManager.hpp"
+#include "../Player/PlayerManager.hpp"
 #include "MapManager.hpp"
 
 #include "MapDialogs.hpp"
@@ -35,18 +36,6 @@ void MapManagerDialog::build()
             "已载入的地图",
             [playerid](const std::shared_ptr<Map>& map) {
                 DialogManager::get().push<MapEditDialog>(playerid, map);
-            }
-        );
-    });
-    addItem("查看房屋", [playerid]() {
-        DialogManager::get().push<MapViewDialog>(
-            playerid,
-            "查看房屋",
-            [playerid](const std::shared_ptr<Map>& map) {
-
-            },
-            [](const std::shared_ptr<Map>& m) {
-                return m->getType() == PROPERTY;
             }
         );
     });
@@ -91,6 +80,65 @@ MapEditDialog::MapEditDialog(int playerid, const std::shared_ptr<Map>& map) :
 void MapEditDialog::build()
 {
     // addItem("更新包围体积", std::bind(mMap, &Map::updateBounding));
+}
+
+PropertyDialog::PropertyDialog(int playerid) :
+    MenuDialog(playerid, "房产")
+{
+}
+
+void PropertyDialog::build()
+{
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr || !p->isLoggedIn())
+    {
+        return;
+    }
+    int playerid = mPlayerId;
+    mongo::OID pid = p->getId();
+    addItem("查看我的房屋", [playerid, pid]() {
+        DialogManager::get().push<MapViewDialog>(
+            playerid,
+            "查看我的房屋",
+            [playerid](const std::shared_ptr<Map>& map) {
+                DialogManager::get().push<PropertyEditDialog>(
+                    playerid, map
+                );
+            },
+            [pid](const std::shared_ptr<Map>& m) {
+                return m->getType() == PROPERTY &&
+                    m->getOwner() == pid;
+            }
+        );
+    });
+    addItem("购买房屋", [playerid]() {
+        DialogManager::get().push<MapViewDialog>(
+            playerid,
+            "购买房屋",
+            [playerid](const std::shared_ptr<Map>& map) {
+                DialogManager::get().push<PropertyEditDialog>(
+                    playerid, map
+                );
+            },
+            [](const std::shared_ptr<Map>& m) {
+                return m->getType() == PROPERTY &&
+                    m->getOwner() == mongo::OID();
+            }
+        );
+    });
+}
+
+PropertyEditDialog::PropertyEditDialog(int playerid,
+    const std::shared_ptr<Map>& map) :
+    MenuDialog(playerid, "房产 " + map->getName()), mMap(map)
+{
+}
+
+void PropertyEditDialog::build()
+{
+    if(mMap->getType() != PROPERTY) return;
+    addItem("房主: " + mMap->getOwner().str(), [](){});
+    
 }
 
 }

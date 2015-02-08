@@ -724,6 +724,10 @@ void PlayerControlPanelDialog::build()
     addItem("°ïÅÉ", [playerid]() {
         DialogManager::get().push<CrewControlPanelDialog>(playerid);
     });
+    // * Property
+    addItem("·¿²ú", [playerid]() {
+        DialogManager::get().push<PropertyDialog>(playerid);
+    });
     // Admin Level 3
     // * Map Manager
     if(p->getAdminLevel() >= 3)

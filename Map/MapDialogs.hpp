@@ -68,4 +68,26 @@ public:
     virtual void    build();
 };
 
+class PropertyDialog : public MenuDialog
+{
+public:
+                    PropertyDialog(int playerid);
+    virtual         ~PropertyDialog() {}
+
+    virtual void    build();
+};
+
+class PropertyEditDialog : public MenuDialog
+{
+protected:
+    std::shared_ptr<Map>    mMap;
+
+public:
+                    PropertyEditDialog(int playerid,
+        const std::shared_ptr<Map>& map);
+    virtual         ~PropertyEditDialog() {}
+
+    virtual void    build();
+};
+
 }
