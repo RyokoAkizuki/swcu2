@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+#include <kanko/Common/Console.hpp>
 #include <sampgdk/a_samp.h>
-#include <eigen3/Eigen/Core>
 #include <algorithm>
 
 #include "../Player/PlayerManager.hpp"
@@ -25,8 +25,8 @@
 namespace swcu {
 
 HouseMapArea::HouseMapArea(Map* map) :
-    SphereArea(map->mBoundX, map->mBoundY, map->mBoundZ,
-        map->mBoundRadius, map->mVirtualWorld, -1, -1),
+    SphereArea(map->mBoundSphereCenter,
+        map->mBoundSphereRadius, map->mVirtualWorld, -1, -1),
     mMap(map)
 {
 }
@@ -44,8 +44,8 @@ void HouseMapArea::onLeave(int playerid)
 }
 
 PrisonMapArea::PrisonMapArea(Map* map) :
-    SphereArea(map->mBoundX, map->mBoundY, map->mBoundZ,
-        map->mBoundRadius, map->mVirtualWorld, -1, -1),
+    SphereArea(map->mBoundSphereCenter,
+        map->mBoundSphereRadius, map->mVirtualWorld, -1, -1),
     mMap(map)
 {
 }
@@ -73,6 +73,7 @@ void PrisonMapArea::onLeave(int playerid)
 
 Map::Map() : StorableObject(Config::colNameMap),
     mType(LANDSCAPE), mActivated(true), mVirtualWorld(0)
+    , mVariance(0.0)
 {
 }
 
@@ -176,19 +177,19 @@ bool Map::_calculateBoundingSphere()
 
     /*** BEGIN ***/
 
-    std::vector<Eigen::Vector3f>    vertices;
+    std::vector<kanko::Vector3>     vertices;
 
     for(auto& i : mObjects)
     {
-        vertices.push_back(Eigen::Vector3f(i->mX, i->mY, i->mZ));
+        vertices.push_back(kanko::Vector3(i->mX, i->mY, i->mZ));
     }
     for(auto& i : mVehicles)
     {
-        vertices.push_back(Eigen::Vector3f(i->mX, i->mY, i->mZ));
+        vertices.push_back(kanko::Vector3(i->mX, i->mY, i->mZ));
     }
 
-    Eigen::Vector3f                 center = vertices[0];
-    Eigen::Vector3f                 diff;
+    kanko::Vector3                  center = vertices[0];
+    kanko::Vector3                  diff;
     float                           radius = 0.0001f;
     float                           len, alpha, alphaSq, alphaSqReci;
 
@@ -197,8 +198,7 @@ bool Map::_calculateBoundingSphere()
         for(auto& pos : vertices)
         {
             diff    = pos - center;
-            len     = powf(diff(0) * diff(0) + diff(1) * diff(1) +
-                        diff(2) * diff(2), 0.5); // length
+            len     = diff.length();
             if(len > radius)
             {
                 alpha       = len / radius;
@@ -214,8 +214,7 @@ bool Map::_calculateBoundingSphere()
     for(auto& pos : vertices)
     {
         diff    = pos - center;
-        len     = powf(diff(0) * diff(0) + diff(1) * diff(1) +
-                    diff(2) * diff(2), 0.5); // length
+        len     = diff.length();
         if(len > radius)
         {
             radius  = (radius + len) * 0.5f;
@@ -225,19 +224,28 @@ bool Map::_calculateBoundingSphere()
 
     /*** END ***/
 
-    mBoundX         = center(0);
-    mBoundY         = center(1);
-    mBoundZ         = center(2);
+    mBoundSphereCenter  = center;
+
     /**
      * Since I am considering objects as mass points, I should make their
      * bounding sphere a bit larger.
      */
-    mBoundRadius    = radius + 5.0;
+    mBoundSphereRadius  = radius + 5.0;
 
-    if(mBoundRadius > 500.0)
+    // calculate variance
+    for(auto& pos : vertices)
     {
-        LOG(WARNING) << "Enormous bounding sphere radius " << mName;
+        mVariance += (pos - center).lengthSquared();
     }
+
+    mVariance /= vertices.size();
+
+    if(mVariance > 10000.0)
+        LOG(INFO) << kanko::FRONT_RED
+            << "Map " << mName << " has a variance of " << mVariance
+            << kanko::FRONT_DEFAULT;
+    else
+        LOG(INFO) << "Map " << mName << " has a variance of " << mVariance;
 
     return true;
 }
@@ -251,29 +259,17 @@ bool Map::_calculateBoundingBox()
         return false;
     }
 
-    mBoundMinX = mBoundMinY = mBoundMaxX = mBoundMaxY = 0.0;
-    mBoundMinZ = mBoundMaxZ = 0.0;
     for(auto& i : mObjects)
     {
-        mBoundMinX = std::min(mBoundMinX, i->mX);
-        mBoundMaxX = std::max(mBoundMaxX, i->mX);
-        mBoundMinY = std::min(mBoundMinY, i->mY);
-        mBoundMaxY = std::max(mBoundMaxY, i->mY);
-        mBoundMinZ = std::min(mBoundMinZ, i->mZ);
-        mBoundMaxZ = std::max(mBoundMaxZ, i->mZ);
+        kanko::join(mBBox, kanko::Vector3(i->mX, i->mY, i->mZ));
     }
+
     for(auto& i : mVehicles)
     {
-        mBoundMinX = std::min(mBoundMinX, i->mX);
-        mBoundMaxX = std::max(mBoundMaxX, i->mX);
-        mBoundMinY = std::min(mBoundMinY, i->mY);
-        mBoundMaxY = std::max(mBoundMaxY, i->mY);
-        mBoundMinZ = std::min(mBoundMinZ, i->mZ);
-        mBoundMaxZ = std::max(mBoundMaxZ, i->mZ);
+        kanko::join(mBBox, kanko::Vector3(i->mX, i->mY, i->mZ));
     }
-    mBoundMinX -= 5.0; mBoundMinY -= 5.0;
-    mBoundMaxX += 5.0; mBoundMaxY += 5.0;
-    mBoundMinZ -= 5.0; mBoundMaxZ += 5.0;
+
+    mBBox.e += kanko::Vector3(5.0);
     return true;
 }
 

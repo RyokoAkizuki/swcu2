@@ -52,16 +52,24 @@ void Area::onLeave(int /* playerid */)
     LOG(WARNING) << "Unimplemented function Area::onLeave called.";
 }
 
-SphereArea::SphereArea(float x, float y, float z, float radius,
+SphereArea::SphereArea(const kanko::Vector3& center, float radius,
     int world, int interior, int playerid) :
-    Area(CreateDynamicSphere(x, y, z, radius, world, interior, playerid))
+    Area(CreateDynamicSphere(
+        center.x, center.y, center.z,
+        radius, world, interior, playerid))
 {}
 
-BoxArea::BoxArea(float minx, float miny, float minz,
-    float maxx, float maxy, float maxz,
+BoxArea::BoxArea(const kanko::BBox& box,
     int world, int interior, int playerid) :
-    Area(CreateDynamicCuboid(minx, miny, minz, maxx, maxy, maxz,
-        world, interior, playerid))
+    Area(CreateDynamicCuboid(
+        box.c.x - box.e.x,
+        box.c.y - box.e.y,
+        box.c.z - box.e.z,
+        box.c.x + box.e.x,
+        box.c.y + box.e.y,
+        box.c.z + box.e.z,
+        world, interior, playerid
+    ))
 {}
 
 }

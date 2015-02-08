@@ -164,7 +164,7 @@ void PlayerEditProfileDialog::build()
     mItemList.clear();
     int playerid = mPlayerId;
     addItem(
-        "我的登录名: " + p->getLogName(),
+        "我的游戏帐号: " + p->getLogName(),
         [playerid]() {
             DialogManager::get().push<PlayerChangeLogNameDialog>(playerid);
         });
@@ -210,7 +210,7 @@ void PlayerViewProfileDialog::build()
             std::stringstream msg;
             msg << "ID: "
                 << tar->getId().str() << "\n"
-                << "登录名: "
+                << "游戏帐号: "
                 << tar->getLogName() << "\n"
                 << "昵称: "
                 // In case of colored text, reset color at the end.
@@ -284,7 +284,7 @@ bool PlayerChangePasswordDialog::handleCallback(
 }
 
 PlayerChangeLogNameDialog::PlayerChangeLogNameDialog(int playerid) :
-    InputDialog(playerid, "更改登录名"),
+    InputDialog(playerid, "更改游戏帐号"),
     mState(INIT)
 {
 }
@@ -294,7 +294,7 @@ void PlayerChangeLogNameDialog::build()
     switch(mState)
     {
         case INIT:
-        setMessage("请输入一个新的名字.");
+        setMessage("请输入一个新的帐号.");
         break;
         case FAIL:
         setMessage("名称不符合要求, 或者服务器发生了内部错误.\n"
@@ -329,7 +329,7 @@ bool PlayerChangeLogNameDialog::handleCallback(
     }
     else
     {
-        SendClientMessage(mPlayerId, 0xFFFFFFFF, "登录名更改成功.");
+        SendClientMessage(mPlayerId, 0xFFFFFFFF, "游戏帐号更改成功.");
         return true;
     }
 }

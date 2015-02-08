@@ -18,6 +18,8 @@
 
 #include <vector>
 #include <memory>
+#include <kanko/Common/Vector3.hpp>
+#include <kanko/Objects/BBox.hpp>
 
 #include "../Common/StorableObject.hpp"
 #include "../Area/Area.hpp"
@@ -83,9 +85,10 @@ protected:
     mongo::OID          mOwner;
     bool                mActivated;
     int                 mVirtualWorld;
-    float               mBoundX, mBoundY, mBoundZ, mBoundRadius;
-    float               mBoundMinX, mBoundMinY, mBoundMaxX, mBoundMaxY,
-                        mBoundMinZ, mBoundMaxZ;
+    kanko::Vector3      mBoundSphereCenter;
+    float               mBoundSphereRadius;
+    kanko::BBox         mBBox;
+    float               mVariance;
 
     std::unique_ptr<Area>                           mBoundingArea;
 

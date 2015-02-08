@@ -16,6 +16,9 @@
 
 #pragma once
 
+#include <kanko/Common/Vector3.hpp>
+#include <kanko/Objects/BBox.hpp>
+
 namespace swcu {
 
 class Area
@@ -37,7 +40,7 @@ public:
 class SphereArea : public Area
 {
 public:
-                    SphereArea(float x, float y, float z, float radius,
+                    SphereArea(const kanko::Vector3& center, float radius,
         int virtualworld = -1, int interior = -1, int playerid = -1);
     virtual         ~SphereArea() {}
 };
@@ -45,8 +48,7 @@ public:
 class BoxArea : public Area
 {
 public:
-                    BoxArea(float minx, float miny, float minz,
-        float maxx, float maxy, float maxz, 
+                    BoxArea(const kanko::BBox& box, 
         int virtualworld = -1, int interior = -1, int playerid = -1);
     virtual         ~BoxArea() {}
 };
