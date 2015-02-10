@@ -33,7 +33,7 @@ PlayerRegisterDialog::PlayerRegisterDialog(int playerid) :
 {
 }
 
-void PlayerRegisterDialog::build()
+bool PlayerRegisterDialog::build()
 {
     switch(mState)
     {
@@ -47,8 +47,12 @@ void PlayerRegisterDialog::build()
         setMessage("你的密码不符合要求, 或者服务器发生了内部错误.\n"
             "请重新尝试, 如果反复出现错误请麻烦联系管理员.");
         break;
+        case FINISH:
+        return false;
     }
+    return true;
 }
+
 bool PlayerRegisterDialog::handleCallback(
     bool response, int /* listitem */, const std::string &inputtext)
 {
@@ -76,6 +80,7 @@ bool PlayerRegisterDialog::handleCallback(
         SendClientMessage(mPlayerId, 0xFFFFFFFF, "请设置你的昵称");
         // force player to set nickname when register
         DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId);
+        mState = FINISH;
         return true;
     }
     else
@@ -90,7 +95,7 @@ PlayerLoginDialog::PlayerLoginDialog(int playerid) :
 {
 }
 
-void PlayerLoginDialog::build()
+bool PlayerLoginDialog::build()
 {
     switch(mState)
     {
@@ -103,7 +108,10 @@ void PlayerLoginDialog::build()
         case BAD_LOGIN:
         setMessage("密码错误, 请重试.");
         break;
+        case FINISH:
+        return false;
     }
+    return true;
 }
 
 bool PlayerLoginDialog::handleCallback(
@@ -131,6 +139,7 @@ bool PlayerLoginDialog::handleCallback(
     {
         p->setLoggedIn(true);
         SendClientMessage(mPlayerId, 0xFFFFFFFF, "登录成功.");
+        mState = FINISH;
         return true;
     }
     else
@@ -157,12 +166,12 @@ PlayerEditProfileDialog::PlayerEditProfileDialog(int playerid) :
     }
 }
 
-void PlayerEditProfileDialog::build()
+bool PlayerEditProfileDialog::build()
 {
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(p == nullptr)
     {
-        return;
+        return false;
     }
     mItemList.clear();
     int playerid = mPlayerId;
@@ -187,6 +196,7 @@ void PlayerEditProfileDialog::build()
         addItem(al.str(), []() {});
     }
     addItem("我的警衔: " + p->getPoliceRankStr(), [](){});
+    return true;
 }
 
 PlayerViewProfileDialog::PlayerViewProfileDialog(
@@ -195,7 +205,7 @@ PlayerViewProfileDialog::PlayerViewProfileDialog(
 {
 }
 
-void PlayerViewProfileDialog::build()
+bool PlayerViewProfileDialog::build()
 {
     auto tar = PlayerManager::get().getPlayer(mTargetPlayer);
     auto p = PlayerManager::get().getPlayer(mPlayerId);
@@ -233,6 +243,7 @@ void PlayerViewProfileDialog::build()
             mMessage = "对方没有登录.";
         }
     }
+    return true;
 }
 
 PlayerChangePasswordDialog::PlayerChangePasswordDialog(int playerid) :
@@ -241,7 +252,7 @@ PlayerChangePasswordDialog::PlayerChangePasswordDialog(int playerid) :
 {
 }
 
-void PlayerChangePasswordDialog::build()
+bool PlayerChangePasswordDialog::build()
 {
     switch(mState)
     {
@@ -253,6 +264,7 @@ void PlayerChangePasswordDialog::build()
             "请重新尝试, 如果反复出现错误请麻烦联系管理员.");
         break;
     }
+    return true;
 }
 
 bool PlayerChangePasswordDialog::handleCallback(
@@ -292,7 +304,7 @@ PlayerChangeLogNameDialog::PlayerChangeLogNameDialog(int playerid) :
 {
 }
 
-void PlayerChangeLogNameDialog::build()
+bool PlayerChangeLogNameDialog::build()
 {
     switch(mState)
     {
@@ -304,6 +316,7 @@ void PlayerChangeLogNameDialog::build()
             "请重试. 如果反复出现错误请麻烦联系管理员.");
         break;
     }
+    return true;
 }
 
 bool PlayerChangeLogNameDialog::handleCallback(
@@ -343,7 +356,7 @@ PlayerChangeNicknameDialog::PlayerChangeNicknameDialog(int playerid) :
 {
 }
 
-void PlayerChangeNicknameDialog::build()
+bool PlayerChangeNicknameDialog::build()
 {
     switch(mState)
     {
@@ -355,6 +368,7 @@ void PlayerChangeNicknameDialog::build()
             "请重试. 如果反复出现错误请麻烦联系管理员.");
         break;
     }
+    return true;
 }
 
 bool PlayerChangeNicknameDialog::handleCallback(
@@ -393,13 +407,13 @@ PlayerControlDialog::PlayerControlDialog(int playerid, int targetplayer)
 {
 }
 
-void PlayerControlDialog::build()
+bool PlayerControlDialog::build()
 {
     auto target = PlayerManager::get().getPlayer(mTargetPlayer);
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(target == nullptr || p == nullptr || !p->isLoggedIn())
     {
-        return;
+        return false;
     }
     setTitle(target->getLogName());
 
@@ -588,6 +602,7 @@ void PlayerControlDialog::build()
             );
         });
     }
+    return true;
 }
 
 PlayerSendMessageDialog::PlayerSendMessageDialog(int playerid, int target) :
@@ -595,9 +610,10 @@ PlayerSendMessageDialog::PlayerSendMessageDialog(int playerid, int target) :
 {
 }
 
-void PlayerSendMessageDialog::build()
+bool PlayerSendMessageDialog::build()
 {
     setMessage("请输入你要发送的消息");
+    return true;
 }
 
 bool PlayerSendMessageDialog::handleCallback(
@@ -637,18 +653,19 @@ PlayerSetAdminLevelDialog::PlayerSetAdminLevelDialog(int playerid,
 {
 }
 
-void PlayerSetAdminLevelDialog::build()
+bool PlayerSetAdminLevelDialog::build()
 {
     auto target = PlayerManager::get().getPlayer(mTargetPlayer);
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(target == nullptr || p == nullptr)
     {
-        return;
+        return false;
     }
     addItem(0, "无管理权限", target->getAdminLevel() == 0);
     addItem(1, "1级 调解员", target->getAdminLevel() == 1);
     addItem(2, "2级 管理员", target->getAdminLevel() == 2);
     addItem(3, "3级 领袖", target->getAdminLevel() == 3);
+    return true;
 }
 
 bool PlayerSetAdminLevelDialog::process(int adminlevel)
@@ -667,12 +684,12 @@ PlayerSetPoliceRankDialog::PlayerSetPoliceRankDialog(int playerid,
 {
 }
 
-void PlayerSetPoliceRankDialog::build()
+bool PlayerSetPoliceRankDialog::build()
 {
     auto target = PlayerManager::get().getPlayer(mTargetPlayer);
     if(target == nullptr)
     {
-        return;
+        return false;
     }
     addItem(CIVILIAN, PoliceRankString[CIVILIAN],
         target->getPoliceRank() == CIVILIAN);
@@ -682,6 +699,7 @@ void PlayerSetPoliceRankDialog::build()
         target->getPoliceRank() == POLICE_DEPUTY_CHIEF);
     addItem(CHIEF_OF_POLICE, PoliceRankString[CHIEF_OF_POLICE],
         target->getPoliceRank() == CHIEF_OF_POLICE);
+    return true;
 }
 
 bool PlayerSetPoliceRankDialog::process(PoliceRank rank)
@@ -699,12 +717,12 @@ PlayerControlPanelDialog::PlayerControlPanelDialog(int playerid) :
 {
 }
 
-void PlayerControlPanelDialog::build()
+bool PlayerControlPanelDialog::build()
 {
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(p == nullptr || !p->isLoggedIn())
     {
-        return;
+        return false;
     }
     int playerid = mPlayerId;
     // General Functions
@@ -743,6 +761,7 @@ void PlayerControlPanelDialog::build()
             DialogManager::get().push<ArrestSurrenderDialog>(playerid);
         });
     }
+    return true;
 }
 
 PlayerSetWantedLevelDialog::PlayerSetWantedLevelDialog(int playerid,
@@ -753,13 +772,13 @@ PlayerSetWantedLevelDialog::PlayerSetWantedLevelDialog(int playerid,
 {
 }
 
-void PlayerSetWantedLevelDialog::build()
+bool PlayerSetWantedLevelDialog::build()
 {
     auto target = PlayerManager::get().getPlayer(mTargetPlayer);
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(target == nullptr || p == nullptr)
     {
-        return;
+        return false;
     }
     if(0 >= mMin && 0 <= mMax)
         addItem(0, "不通缉", target->getWantedLevel() == 0);
@@ -775,6 +794,7 @@ void PlayerSetWantedLevelDialog::build()
         addItem(5, "五星通缉", target->getWantedLevel() == 5);
     if(6 >= mMin && 6 <= mMax)
         addItem(6, "六星通缉", target->getWantedLevel() == 6);
+    return true;
 }
 
 bool PlayerSetWantedLevelDialog::process(int level)
@@ -805,9 +825,10 @@ ArrestSurrenderDialog::ArrestSurrenderDialog(int playerid) :
 {
 }
 
-void ArrestSurrenderDialog::build()
+bool ArrestSurrenderDialog::build()
 {
     setMessage("你被通缉了, 你可以自首(只关押两分钟)或逃跑. 你要自首吗?");
+    return true;
 }
 
 bool ArrestSurrenderDialog::handleCallback(
@@ -828,11 +849,11 @@ ArrestDialog::ArrestDialog(int playerid, int target) :
 {
 }
 
-void ArrestDialog::build()
+bool ArrestDialog::build()
 {
     int targetid = mTarget;
     auto p = PlayerManager::get().getPlayer(mPlayerId);
-    if(p == nullptr) return;
+    if(p == nullptr) return false;
     addItem("关押5分钟", [targetid]() {
         auto target = PlayerManager::get().getPlayer(targetid);
         if(target != nullptr && target->getWantedLevel() > 0)
@@ -848,6 +869,7 @@ void ArrestDialog::build()
         if(target != nullptr && target->getWantedLevel() > 0)
             target->putIntoPrison(60 * 15);
     });
+    return true;
 }
 
 bool ArrestDialog::handleCallback(
@@ -862,9 +884,10 @@ CreateTeleportDialog::CreateTeleportDialog(int playerid) :
 {
 }
 
-void CreateTeleportDialog::build()
+bool CreateTeleportDialog::build()
 {
     setMessage("请给传送点命名");
+    return true;
 }
 
 bool CreateTeleportDialog::handleCallback(

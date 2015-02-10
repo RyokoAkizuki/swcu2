@@ -38,7 +38,7 @@ void MenuDialog::addItem(const std::string &title, const Functor& callback)
 bool MenuDialog::display()
 {
     clear();
-    build();
+    if(!build()) return false;
 
     std::stringstream serial;
     for(auto &i : mItemList)
@@ -89,7 +89,7 @@ void CheckListDialog::addItem(const std::string &title,
 bool CheckListDialog::display()
 {
     clear();
-    build();
+    if(!build()) return false;
     
     std::stringstream serial;
     for(auto &i : mItemList)

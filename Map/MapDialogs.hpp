@@ -31,7 +31,7 @@ public:
                     MapManagerDialog(int playerid);
     virtual         ~MapManagerDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class MapViewDialog : public ItemListDialog<std::shared_ptr<Map>>
@@ -51,7 +51,7 @@ public:
         Filter filter = [](const std::shared_ptr<Map>&) { return true; });
     virtual         ~MapViewDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(std::shared_ptr<Map> key);
 };
 
@@ -65,7 +65,7 @@ public:
         const std::shared_ptr<Map>& map);
     virtual         ~MapEditDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class PropertyDialog : public MenuDialog
@@ -74,7 +74,7 @@ public:
                     PropertyDialog(int playerid);
     virtual         ~PropertyDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class PropertyEditDialog : public MenuDialog
@@ -87,7 +87,7 @@ public:
         const std::shared_ptr<Map>& map);
     virtual         ~PropertyEditDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class PropertySetNameDialog : public InputDialog
@@ -104,7 +104,7 @@ public:
         const std::shared_ptr<Map>& map);
     virtual         ~PropertySetNameDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -123,7 +123,7 @@ public:
         const std::shared_ptr<Map>& map);
     virtual         ~PropertySetPasswordDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -142,7 +142,7 @@ public:
         const std::shared_ptr<Map>& map);
     virtual         ~PropertySetPriceDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };

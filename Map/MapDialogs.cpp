@@ -27,7 +27,7 @@ MapManagerDialog::MapManagerDialog(int playerid) :
 {
 }
 
-void MapManagerDialog::build()
+bool MapManagerDialog::build()
 {
     int playerid = mPlayerId;
     addItem("查看已载入的地图", [playerid]() {
@@ -49,6 +49,7 @@ void MapManagerDialog::build()
     addItem("重新载入所有地图",
         std::bind(&MapManager::loadAllMaps, std::ref(MapManager::get()))
     );
+    return true;
 }
 
 MapViewDialog::MapViewDialog(int playerid, const std::string& title,
@@ -58,7 +59,7 @@ MapViewDialog::MapViewDialog(int playerid, const std::string& title,
 {
 }
 
-void MapViewDialog::build()
+bool MapViewDialog::build()
 {
     MapManager& mgr = MapManager::get();
     for(auto& iter : mgr.mLoadedMaps)
@@ -71,6 +72,7 @@ void MapViewDialog::build()
             );
         }
     }
+    return true;
 }
 
 bool MapViewDialog::process(std::shared_ptr<Map> key)
@@ -85,9 +87,10 @@ MapEditDialog::MapEditDialog(int playerid,
 {
 }
 
-void MapEditDialog::build()
+bool MapEditDialog::build()
 {
     // addItem("更新包围体积", std::bind(mMap, &Map::updateBounding));
+    return true;
 }
 
 PropertyDialog::PropertyDialog(int playerid) :
@@ -95,12 +98,12 @@ PropertyDialog::PropertyDialog(int playerid) :
 {
 }
 
-void PropertyDialog::build()
+bool PropertyDialog::build()
 {
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(p == nullptr || !p->isLoggedIn())
     {
-        return;
+        return false;
     }
     int playerid = mPlayerId;
     mongo::OID pid = p->getId();
@@ -134,6 +137,7 @@ void PropertyDialog::build()
             }
         );
     });
+    return true;
 }
 
 PropertyEditDialog::PropertyEditDialog(int playerid,
@@ -142,15 +146,15 @@ PropertyEditDialog::PropertyEditDialog(int playerid,
 {
 }
 
-void PropertyEditDialog::build()
+bool PropertyEditDialog::build()
 {
-    if(mMap->getType() != PROPERTY) return;
+    if(mMap->getType() != PROPERTY) return false;
     std::shared_ptr<Map> map = mMap;
     int playerid = mPlayerId;
     auto player = PlayerManager::get().getPlayer(playerid);
     if(player == nullptr || !player->isLoggedIn())
     {
-        return;
+        return false;
     }
     if(mMap->getOwner() == player->getId())
     {
@@ -220,7 +224,7 @@ void PropertyEditDialog::build()
                 DialogManager::get().push<PropertySetPriceDialog>(
                     playerid, map);
         });
-        if(mMap->getOwner() != mongo::OID()) return;
+        if(mMap->getOwner() != mongo::OID()) return false;
         addItem("购买", [=]() {
             auto p = PlayerManager::get().getPlayer(playerid);
             if(p == nullptr || !p->isLoggedIn())
@@ -237,6 +241,7 @@ void PropertyEditDialog::build()
             }
         });
     }
+    return true;
 }
 
 PropertySetNameDialog::PropertySetNameDialog(int playerid,
@@ -246,7 +251,7 @@ PropertySetNameDialog::PropertySetNameDialog(int playerid,
 {
 }
 
-void PropertySetNameDialog::build()
+bool PropertySetNameDialog::build()
 {
     switch(mState)
     {
@@ -258,6 +263,7 @@ void PropertySetNameDialog::build()
             "请重试. 如果反复出现错误请麻烦联系管理员.");
         break;
     }
+    return true;
 }
 
 bool PropertySetNameDialog::handleCallback(
@@ -296,7 +302,7 @@ PropertySetPasswordDialog::PropertySetPasswordDialog(int playerid,
 {
 }
 
-void PropertySetPasswordDialog::build()
+bool PropertySetPasswordDialog::build()
 {
     switch(mState)
     {
@@ -308,6 +314,7 @@ void PropertySetPasswordDialog::build()
             "请重试. 如果反复出现错误请麻烦联系管理员.");
         break;
     }
+    return true;
 }
 
 bool PropertySetPasswordDialog::handleCallback(
@@ -346,7 +353,7 @@ PropertySetPriceDialog::PropertySetPriceDialog(int playerid,
 {
 }
 
-void PropertySetPriceDialog::build()
+bool PropertySetPriceDialog::build()
 {
     switch(mState)
     {
@@ -358,6 +365,7 @@ void PropertySetPriceDialog::build()
             "请重试. 如果反复出现错误请麻烦联系管理员.");
         break;
     }
+    return true;
 }
 
 bool PropertySetPriceDialog::handleCallback(

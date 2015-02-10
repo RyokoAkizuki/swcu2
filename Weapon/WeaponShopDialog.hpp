@@ -26,7 +26,7 @@ public:
                     WeaponShopDialog(int playerid);
     virtual         ~WeaponShopDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(int key);
 };
 

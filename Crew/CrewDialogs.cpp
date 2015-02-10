@@ -30,12 +30,12 @@ CrewControlPanelDialog::CrewControlPanelDialog(int playerid) :
 {
 }
 
-void CrewControlPanelDialog::build()
+bool CrewControlPanelDialog::build()
 {
     auto p          = PlayerManager::get().getPlayer(mPlayerId);
     if(p == nullptr)
     {
-        return;
+        return false;
     }
     int playerid    = mPlayerId;
     mongo::OID oid  = p->getId();
@@ -76,6 +76,7 @@ void CrewControlPanelDialog::build()
             });
         });
     }
+    return true;
 }
 
 CrewViewMembersDialog::CrewViewMembersDialog(
@@ -84,7 +85,7 @@ CrewViewMembersDialog::CrewViewMembersDialog(
 {
 }
 
-void CrewViewMembersDialog::build()
+bool CrewViewMembersDialog::build()
 {
     MONGO_WRAPPER({
         auto doc        = getDBConn()->findOne(
@@ -110,6 +111,7 @@ void CrewViewMembersDialog::build()
             addItem(memberIdStr, msg.str());
         }
     });
+    return true;
 }
 
 bool CrewViewMembersDialog::process(std::string key)
@@ -125,10 +127,10 @@ CrewEditMemberDialog::CrewEditMemberDialog(int playerid,
 {
 }
 
-void CrewEditMemberDialog::build()
+bool CrewEditMemberDialog::build()
 {
     auto crew       = CrewManager::get().getCrew(mCrew);
-    if(crew->getLeader() == mMember) return;
+    if(crew->getLeader() == mMember) return false;
     Player p(mMember);
     auto hier       = crew->getMemberHierarchy(mMember);
     mongo::OID poid = mMember;
@@ -150,6 +152,7 @@ void CrewEditMemberDialog::build()
         });
         addItem("开除", std::bind(&Crew::removeMember, crew, poid));
     }
+    return true;
 }
 
 CrewChangeNameDialog::CrewChangeNameDialog(int playerid,
@@ -164,7 +167,7 @@ CrewMemberSetHierarchy::CrewMemberSetHierarchy(int playerid,
 {
 }
 
-void CrewMemberSetHierarchy::build()
+bool CrewMemberSetHierarchy::build()
 {
     CrewHierarchy hier = CrewManager::get().getCrew(mCrew)
         ->getMemberHierarchy(mMember);
@@ -184,6 +187,7 @@ void CrewMemberSetHierarchy::build()
         "打手    \t所有帮会成员。",
         hier == MUSCLE
     );
+    return true;
 }
 
 bool CrewMemberSetHierarchy::process(int hier)
@@ -192,9 +196,10 @@ bool CrewMemberSetHierarchy::process(int hier)
         mMember, CrewHierarchy(hier));
 }
 
-void CrewChangeNameDialog::build()
+bool CrewChangeNameDialog::build()
 {
     setMessage("输入新的名称");
+    return true;
 }
 
 bool CrewChangeNameDialog::handleCallback(
@@ -228,9 +233,10 @@ CreateCrewDialog::CreateCrewDialog(int playerid) :
 {
 }
 
-void CreateCrewDialog::build()
+bool CreateCrewDialog::build()
 {
     setMessage("请给你的帮派命名");
+    return true;
 }
 
 bool CreateCrewDialog::handleCallback(
@@ -262,9 +268,10 @@ CrewFindByNameDialog::CrewFindByNameDialog(int playerid, CallbackType cb) :
 {
 }
 
-void CrewFindByNameDialog::build()
+bool CrewFindByNameDialog::build()
 {
     setMessage("请输入帮派的名称");
+    return true;
 }
 
 bool CrewFindByNameDialog::handleCallback(
@@ -285,7 +292,7 @@ _CrewFindByNameResultDialog::_CrewFindByNameResultDialog(
 {
 }
 
-void _CrewFindByNameResultDialog::build()
+bool _CrewFindByNameResultDialog::build()
 {
     MONGO_WRAPPER({
         auto cur = getDBConn()->query(
@@ -298,6 +305,7 @@ void _CrewFindByNameResultDialog::build()
             addItem(doc["_id"].OID().str(), UTF8ToGBK(doc["name"].str()));
         }
     });
+    return true;
 }
 
 bool _CrewFindByNameResultDialog::process(std::string key)

@@ -28,7 +28,7 @@ public:
                     CrewControlPanelDialog(int playerid);
     virtual         ~CrewControlPanelDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class CrewViewMembersDialog : public ItemListDialog<std::string>
@@ -41,7 +41,7 @@ public:
         int playerid, const mongo::OID& crew);
     virtual         ~CrewViewMembersDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(std::string key);
 };
 
@@ -55,7 +55,7 @@ public:
         const mongo::OID& crew, const mongo::OID& member);
     virtual         ~CrewEditMemberDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class CrewMemberSetHierarchy : public RadioListDialog<int>
@@ -67,7 +67,7 @@ public:
         const mongo::OID& crew, const mongo::OID& member);
     virtual         ~CrewMemberSetHierarchy() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(int hier);
 };
 
@@ -81,7 +81,7 @@ public:
         const mongo::OID& crew);
     virtual         ~CrewChangeNameDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -92,7 +92,7 @@ public:
                     CreateCrewDialog(int playerid);
     virtual         ~CreateCrewDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -108,7 +108,7 @@ public:
                     CrewFindByNameDialog(int playerid, CallbackType cb);
     virtual         ~CrewFindByNameDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -126,7 +126,7 @@ public:
         int playerid, const std::string& keyword, CallbackType cb);
     virtual         ~_CrewFindByNameResultDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(std::string key);
 };
 

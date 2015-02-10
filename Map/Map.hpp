@@ -19,7 +19,7 @@
 #include <vector>
 #include <memory>
 #include <kanko/Common/Vector3.hpp>
-#include <kanko/Objects/BBox.hpp>
+#include <kanko/Common/BBox.hpp>
 
 #include "../Common/StorableObject.hpp"
 #include "../Area/Area.hpp"

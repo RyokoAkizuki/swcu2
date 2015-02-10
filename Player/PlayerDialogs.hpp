@@ -25,14 +25,14 @@ class PlayerRegisterDialog : public InputDialog
 protected:
     enum State
     {
-        INIT, MUST_REG, ERROR
+        INIT, MUST_REG, ERROR, FINISH
     } mState;
 
 public:
                     PlayerRegisterDialog(int playerid);
     virtual         ~PlayerRegisterDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -42,14 +42,14 @@ class PlayerLoginDialog : public InputDialog
 protected:
     enum State
     {
-        INIT, MUST_LOGIN, BAD_LOGIN
+        INIT, MUST_LOGIN, BAD_LOGIN, FINISH
     } mState;
 
 public:
                     PlayerLoginDialog(int playerid);
     virtual         ~PlayerLoginDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -60,7 +60,7 @@ public:
                     PlayerEditProfileDialog(int playerid);
     virtual         ~PlayerEditProfileDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class PlayerViewProfileDialog : public MessageDialog
@@ -72,7 +72,7 @@ public:
                     PlayerViewProfileDialog(int playerid, int targetplayer);
     virtual         ~PlayerViewProfileDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class PlayerChangePasswordDialog : public InputDialog
@@ -87,7 +87,7 @@ public:
                     PlayerChangePasswordDialog(int playerid);
     virtual         ~PlayerChangePasswordDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -104,7 +104,7 @@ public:
                     PlayerChangeLogNameDialog(int playerid);
     virtual         ~PlayerChangeLogNameDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -121,7 +121,7 @@ public:
                     PlayerChangeNicknameDialog(int playerid);
     virtual         ~PlayerChangeNicknameDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -135,7 +135,7 @@ public:
                     PlayerControlDialog(int playerid, int targetplayer);
     virtual         ~PlayerControlDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class PlayerSendMessageDialog : public InputDialog
@@ -147,7 +147,7 @@ public:
                     PlayerSendMessageDialog(int playerid, int target);
     virtual         ~PlayerSendMessageDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -161,7 +161,7 @@ public:
                     PlayerSetAdminLevelDialog(int playerid, int target);
     virtual         ~PlayerSetAdminLevelDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(int adminlevel);
 };
 
@@ -174,7 +174,7 @@ public:
                     PlayerSetPoliceRankDialog(int playerid, int target);
     virtual         ~PlayerSetPoliceRankDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(PoliceRank rank);
 };
 
@@ -184,7 +184,7 @@ public:
                     PlayerControlPanelDialog(int playerid);
     virtual         ~PlayerControlPanelDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
 };
 
 class PlayerSetWantedLevelDialog : public RadioListDialog<int>
@@ -197,7 +197,7 @@ public:
                         int minlevel, int maxlevel);
     virtual         ~PlayerSetWantedLevelDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    process(int level);
 };
 
@@ -207,7 +207,7 @@ public:
                     ArrestSurrenderDialog(int playerid);
     virtual         ~ArrestSurrenderDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -221,7 +221,7 @@ public:
                     ArrestDialog(int playerid, int target);
     virtual         ~ArrestDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };
@@ -232,7 +232,7 @@ public:
                     CreateTeleportDialog(int playerid);
     virtual         ~CreateTeleportDialog() {}
 
-    virtual void    build();
+    virtual bool    build();
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext);
 };

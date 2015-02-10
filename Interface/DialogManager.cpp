@@ -52,13 +52,16 @@ bool DialogManager::handleCallback(int playerid, int /* dialogid */,
     if(canpop && size == iter->second.size())
     {
         iter->second.pop();
-        if(iter->second.size() == 0)
-        {
-            return true;
-        }
     }
-    top = iter->second.top().get();
-    top->display();
+    // find first dialog which wants to display
+    while(iter->second.size() > 0)
+    {
+        top = iter->second.top().get();
+        if(top->display())
+            break;
+        else
+            iter->second.pop();
+    }
     return true;
 }
 

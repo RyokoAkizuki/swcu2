@@ -104,12 +104,13 @@ WeaponShopDialog::WeaponShopDialog(int playerid) :
 {
 }
 
-void WeaponShopDialog::build()
+bool WeaponShopDialog::build()
 {
     for(auto &i : gWeaponShopItems)
     {
         addItem(i.id, i.cnName);
     }
+    return true;
 }
 
 bool WeaponShopDialog::process(int key)

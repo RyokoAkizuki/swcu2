@@ -17,7 +17,7 @@
 #pragma once
 
 #include <kanko/Common/Vector3.hpp>
-#include <kanko/Objects/BBox.hpp>
+#include <kanko/Common/BBox.hpp>
 
 namespace swcu {
 
@@ -48,7 +48,7 @@ public:
 class BoxArea : public Area
 {
 public:
-                    BoxArea(const kanko::BBox& box, 
+                    BoxArea(const kanko::BBox& box,
         int virtualworld = -1, int interior = -1, int playerid = -1);
     virtual         ~BoxArea() {}
 };

@@ -45,7 +45,7 @@ public:
     virtual bool    handleCallback(
         bool response, int listitem, const std::string &inputtext) = 0;
 
-    virtual void    build() = 0;
+    virtual bool    build() = 0;
     virtual void    clear() = 0;
 
             int     getPlayerId() const
@@ -96,7 +96,7 @@ public:
     virtual bool    display()
     {
         clear();
-        build();
+        if(!build()) return false;
 
         if(mMessage.empty())
         {
@@ -253,7 +253,7 @@ public:
     virtual bool    display()
     {
         clear();
-        build();
+        if(!build()) return false;
 
         std::stringstream serial;
         for(size_t i = 0; i < mItemList.size(); ++i)
