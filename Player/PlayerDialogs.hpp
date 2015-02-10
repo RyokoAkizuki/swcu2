@@ -114,11 +114,13 @@ class PlayerChangeNicknameDialog : public InputDialog
 protected:
     enum State
     {
-        INIT, FAIL
+        INIT, FAIL, MUST_SET
     } mState;
+    bool            mForce;
 
 public:
-                    PlayerChangeNicknameDialog(int playerid);
+                    PlayerChangeNicknameDialog(int playerid,
+        bool force = false);
     virtual         ~PlayerChangeNicknameDialog() {}
 
     virtual bool    build();

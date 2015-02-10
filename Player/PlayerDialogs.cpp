@@ -79,7 +79,7 @@ bool PlayerRegisterDialog::handleCallback(
         SendClientMessage(mPlayerId, 0xFFFFFFFF, "你的账号注册成功.");
         SendClientMessage(mPlayerId, 0xFFFFFFFF, "请设置你的昵称");
         // force player to set nickname when register
-        DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId);
+        DialogManager::get().push<PlayerChangeNicknameDialog>(mPlayerId, true);
         mState = FINISH;
         return true;
     }
@@ -350,9 +350,11 @@ bool PlayerChangeLogNameDialog::handleCallback(
     }
 }
 
-PlayerChangeNicknameDialog::PlayerChangeNicknameDialog(int playerid) :
+PlayerChangeNicknameDialog::PlayerChangeNicknameDialog(int playerid,
+    bool force
+) :
     InputDialog(playerid, "更改昵称"),
-    mState(INIT)
+    mState(INIT), mForce(force)
 {
 }
 
@@ -367,6 +369,9 @@ bool PlayerChangeNicknameDialog::build()
         setMessage("名称不符合要求, 或者服务器发生了内部错误.\n"
             "请重试. 如果反复出现错误请麻烦联系管理员.");
         break;
+        case MUST_SET:
+        setMessage("你必须设置昵称才能进入游戏.");
+        break;
     }
     return true;
 }
@@ -376,7 +381,8 @@ bool PlayerChangeNicknameDialog::handleCallback(
 {
     if(!response)
     {
-        return true;
+        mState = MUST_SET;
+        return !mForce;
     }
     auto p = PlayerManager::get().getPlayer(mPlayerId);
     if(p == nullptr)
