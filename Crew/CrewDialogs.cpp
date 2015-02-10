@@ -297,7 +297,7 @@ bool _CrewFindByNameResultDialog::build()
     MONGO_WRAPPER({
         auto cur = getDBConn()->query(
             Config::colNameCrew,
-            QUERY("name" << BSON("$regex" << mKeyWord))
+            QUERY("name" << BSON("$regex" << GBKToUTF8(mKeyWord)))
         );
         while(cur->more())
         {
