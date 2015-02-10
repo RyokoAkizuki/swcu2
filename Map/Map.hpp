@@ -143,6 +143,8 @@ public:
             bool        setEntrance(const std::string& name);
             void        teleportToEntrance(int playerid) const;
 
+            std::string getJSON() const;
+
             bool        deleteFromDatabase();
             void        updateBounding();
 

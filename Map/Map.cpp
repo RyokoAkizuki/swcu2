@@ -472,6 +472,22 @@ bool Map::_parseObject(const mongo::BSONObj& data)
     return false;
 }
 
+std::string Map::getJSON() const
+{
+    if(!mValid) return "";
+    std::stringstream json;
+    json <<
+    "{\n"
+    "  \"id\": \""      << mId.str() << "\",\n"
+    "  \"name\": \""    << GBKToUTF8(mName) << "\",\n"
+    "  \"type\": \""      << GBKToUTF8(getTypeStr()) << "\",\n"
+    "  \"owner\": \""   << mOwner.str() << "\",\n"
+    "  \"activated\": " << (mActivated ? "true,\n" : "false,\n") <<
+    "  \"world\": "     << mVirtualWorld << "\n"
+    "}";
+    return json.str();
+}
+
 bool Map::deleteFromDatabase()
 {
     if(!mValid)

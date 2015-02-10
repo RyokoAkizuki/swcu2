@@ -139,6 +139,9 @@
 		<Unit filename="Utility/Singleton.hpp" />
 		<Unit filename="Weapon/WeaponShopDialog.cpp" />
 		<Unit filename="Weapon/WeaponShopDialog.hpp" />
+		<Unit filename="Web/WebServiceManager.cpp" />
+		<Unit filename="Web/WebServiceManager.hpp" />
+		<Unit filename="Web/server_http.hpp" />
 		<Unit filename="kanko.cpp" />
 		<Extensions>
 			<code_completion />
