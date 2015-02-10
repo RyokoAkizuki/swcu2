@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>编辑地图 | SWCU自由地带</title>
+    <title>添加地图 | SWCU自由地带</title>
     <link rel="stylesheet" href="css/pure-min.css">
     <link rel="stylesheet" href="css/layouts/side-menu.css">
   </head>
@@ -27,38 +27,18 @@
       <!-- Content -->
       <div id="main">
         <div class="header">
-          <h1>编辑地图</h1>
+          <h1>添加地图</h1>
         </div>
-        <div style="pacdding:32px;margin:0 auto;width:500px">
+        <div style="pacdding:32px;margin:0 auto;width:60%">
           <form class="pure-form pure-form-aligned">
             <fieldset>
               <div class="pure-control-group">
                 <label for="name">名称</label>
-                <input id="name" type="text" placeholder="名称">
+                <input id="name" type="text" placeholder="名称" style="width:65%">
               </div>
               <div class="pure-control-group">
-                <label for="type">类型</label>
-                <select id="type" style="width:196px">
-                  <option value="0">地形</option>
-                  <option value="1">死斗</option>
-                  <option value="2">特技</option>
-                  <option value="3">房产</option>
-                  <option value="4">生意</option>
-                  <option value="5">监狱</option>
-                </select>
-              </div>
-              <div class="pure-control-group">
-                <label for="owner">主人</label>
-                <input id="owner" type="text" placeholder="主人">
-              </div>
-              <div class="pure-control-group">
-                <label for="activated" class="pure-checkbox">启用地图
-                </label>
-                <input id="activated" type="checkbox">
-              </div>
-              <div class="pure-control-group">
-                <label for="world">虚拟世界</label>
-                <input id="world" type="text" placeholder="虚拟世界">
+                <label for="code">代码</label>
+                <textarea id="code" placeholder="将代码粘贴到这里" style="height:300px;width:65%"></textarea>
               </div>
               <div class="pure-control-group">
                 <label></label>
