@@ -89,8 +89,37 @@ MapEditDialog::MapEditDialog(int playerid,
 
 bool MapEditDialog::build()
 {
-    // addItem("更新包围体积", std::bind(mMap, &Map::updateBounding));
+    auto map = mMap;
+    auto playerid = mPlayerId;
+    addItem("更新包围体积", [=]() { map->updateBounding(); });
+    addItem("更改地图类型", [=]() {
+        DialogManager::get().push<MapSetTypeDialog>(
+            playerid, map
+        );
+    });
     return true;
+}
+
+MapSetTypeDialog::MapSetTypeDialog(int playerid, std::shared_ptr<Map> m) :
+    RadioListDialog<MapType>(playerid, STR("设置 " << m->getName() << " 的类型")),
+    mMap(std::move(m))
+{
+}
+
+bool MapSetTypeDialog::build()
+{
+    addItem(LANDSCAPE,  "地形", mMap->getType() == LANDSCAPE);
+    addItem(DEATHMATCH, "死斗", mMap->getType() == DEATHMATCH);
+    addItem(STUNT,      "特技", mMap->getType() == STUNT);
+    addItem(PROPERTY,   "房产", mMap->getType() == PROPERTY);
+    addItem(BUSINESS,   "生意", mMap->getType() == BUSINESS);
+    addItem(PRISON,     "监狱", mMap->getType() == PRISON);
+    return true;
+}
+
+bool MapSetTypeDialog::process(MapType type)
+{
+    return mMap->setType(type);
 }
 
 PropertyDialog::PropertyDialog(int playerid) :

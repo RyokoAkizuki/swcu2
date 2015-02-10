@@ -19,6 +19,7 @@
 #include <functional>
 #include <memory>
 
+#include "Map.hpp"
 #include "../Interface/Dialog.hpp"
 
 namespace swcu {
@@ -66,6 +67,19 @@ public:
     virtual         ~MapEditDialog() {}
 
     virtual bool    build();
+};
+
+class MapSetTypeDialog : public RadioListDialog<MapType>
+{
+protected:
+    std::shared_ptr<Map>    mMap;
+
+public:
+                    MapSetTypeDialog(int playerid, std::shared_ptr<Map> m);
+    virtual         ~MapSetTypeDialog() {}
+
+    virtual bool    build();
+    virtual bool    process(MapType type);
 };
 
 class PropertyDialog : public MenuDialog

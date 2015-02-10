@@ -255,6 +255,16 @@ bool Map::setEntrance(const std::string& name)
     return false;
 }
 
+bool Map::setType(MapType type)
+{
+    if(_updateField("$set", "type", type))
+    {
+        mType = type;
+        return true;
+    }
+    return false;
+}
+
 void Map::teleportToEntrance(int playerid) const
 {
     auto p = PlayerManager::get().getPlayer(playerid);

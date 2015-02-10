@@ -122,6 +122,7 @@ public:
             std::string getName() const         { return mName; }
             std::string getTypeStr() const;
             MapType     getType() const         { return mType; }
+            bool        setType(MapType type);
             bool        isActivated() const     { return mActivated; }
             size_t      getObjectCount() const  { return mObjects.size(); }
             size_t      getVehicleCount() const { return mVehicles.size(); }
