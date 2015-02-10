@@ -30,6 +30,8 @@ namespace swcu {
 
 bool pcmdFixCar(int playerid, std::stringstream& /* cmdline */)
 {
+    SendClientMessage(playerid, 0xFFFFFFFF,
+        "您的交通工具已修复");
     RepairVehicle(GetPlayerVehicleID(playerid));
     return true;
 }
@@ -63,24 +65,60 @@ bool pcmdVehicle(int playerid, std::stringstream& cmdline)
     if(subfunc.size() > 0 &&
         std::all_of(subfunc.begin(), subfunc.end(), ::isdigit))
     {
-        p->createPrivateVehicle(atoi(subfunc.c_str()));
+        int vid = atoi(subfunc.c_str());
+        if(p->createPrivateVehicle(vid))
+            SendClientMessage(playerid, 0xFFFFFFFF, 
+                CSTR("你创建了ID为" << vid << "的车辆"));
+        else
+            SendClientMessage(playerid, 0xFFFFFFFF,
+                "车辆创建失败");
         return true;
     }
     if(subfunc == "wode" || subfunc == "mine")
     {
-        p->teleportPrivateVehicleToPlayer();
+        if(p->getPrivateVehicleId() != INVALID_VEHICLE_ID)
+        {
+            p->teleportPrivateVehicleToPlayer();
+            SendClientMessage(playerid, 0xFFFFFFFF,
+               "你将自己的车辆传送了过来");
+        }
+        else
+        {
+            SendClientMessage(playerid, 0xFFFFFFFF,
+                "你没车");
+        }
         return true;
     }
     if(subfunc == "color")
     {
-        int c1, c2;
-        cmdline >> c1 >> c2;
-        ChangeVehicleColor(p->getPrivateVehicleId(), c1, c2);
+        if(p->getPrivateVehicleId() != INVALID_VEHICLE_ID)
+        {
+            int c1, c2;
+            cmdline >> c1 >> c2;
+            ChangeVehicleColor(p->getPrivateVehicleId(), c1, c2);
+            SendClientMessage(playerid, 0xFFFFFFFF,
+                CSTR("你将车辆颜色更改为 " << c1 << " " << c2));
+        }
+        else
+        {
+            SendClientMessage(playerid, 0xFFFFFFFF,
+                "你没车");
+        }
         return true;
     }
     if(subfunc == "rengdiao" || subfunc == "drop")
     {
-        p->dropPrivateVehicle();
+        if(p->getPrivateVehicleId() != INVALID_VEHICLE_ID)
+        {
+            p->dropPrivateVehicle();
+            SendClientMessage(playerid, 0xFFFFFFFF,
+                "你扔掉了自己的车");
+        }
+        else
+        {
+            SendClientMessage(playerid, 0xFFFFFFFF,
+                "你没车");
+        }
         return true;
     }
     return true;
