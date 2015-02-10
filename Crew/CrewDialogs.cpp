@@ -94,7 +94,7 @@ bool CrewViewMembersDialog::build()
         );
         auto members    = doc["members"].Obj();
         auto it         = mongo::BSONObjIterator(members);
-        for(; it.more(); ++it)
+        while(it.more())
         {
             auto member                 = it.next();
             std::string memberIdStr     = member.fieldName();
