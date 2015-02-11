@@ -319,12 +319,11 @@ void OnPlayerSelectDynamicObject(int playerid, int objectid,
         return;
     }
     auto obj = swcu::getObject(objectid);
-    if(obj != nullptr)
+    if(obj != nullptr && p->getAdminLevel() > 2)
     {
-        if(p->getAdminLevel() > 2)
-        {
-            obj->startEditing(playerid);
-        }
+        swcu::DialogManager::get().push
+            <swcu::ObjectSetTextDialog>(playerid, objectid, obj);
+        obj->startEditing(playerid);
     }
 }
 

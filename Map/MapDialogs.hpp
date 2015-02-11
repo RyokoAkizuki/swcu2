@@ -175,4 +175,19 @@ public:
         bool response, int listitem, const std::string &inputtext);
 };
 
+class ObjectSetTextDialog : public InputDialog
+{
+protected:
+    int             mObjectId;
+    Object*         mObjectPtr;
+
+public:
+                    ObjectSetTextDialog(int playerid, int oid, Object* check);
+    virtual         ~ObjectSetTextDialog() {}
+
+    virtual bool    build();
+    virtual bool    handleCallback(
+        bool response, int listitem, const std::string &inputtext);
+};
+
 }

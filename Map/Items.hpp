@@ -39,6 +39,8 @@ protected:
     bool                mEditable;
 
     int                 mInGameID;
+
+    std::string         mText;
     
 protected:
     virtual bool        _parseObject(const mongo::BSONObj& data);
@@ -60,6 +62,7 @@ public:
     virtual             ~Object();
             mongo::OID  getMap() const      { return mMap; }
             int         getInGameID() const { return mInGameID; }
+            bool        setText(const std::string& text);
             bool        changePose(float x, float y, float z,
         float rx, float ry, float rz);
             bool        startEditing(int playerid);

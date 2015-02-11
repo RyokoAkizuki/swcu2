@@ -475,4 +475,27 @@ bool PropertySetPriceDialog::handleCallback(
     }
 }
 
+ObjectSetTextDialog::ObjectSetTextDialog(int playerid, int oid, Object* check) :
+    InputDialog(playerid, "更改文字"), mObjectId(oid), mObjectPtr(check)
+{
+}
+
+bool ObjectSetTextDialog::build()
+{
+    setMessage("输入文字");
+    return true;
+}
+
+bool ObjectSetTextDialog::handleCallback(
+    bool response, int listitem, const std::string &inputtext)
+{
+    auto obj = swcu::getObject(mObjectId);
+    if(obj == mObjectPtr && obj != nullptr)
+    {
+        obj->setText(inputtext);
+    }
+    return true;
+}
+
+
 }

@@ -48,6 +48,7 @@ bool Object::_parseObject(const mongo::BSONObj& data)
         mRZ         = data["rz"].numberDouble();
         mInterior   = data["interior"].numberInt();
         mEditable   = data["editable"].boolean();
+        mText       = UTF8ToGBK(data["text"].str());
         return true;
     });
     return false;
@@ -62,6 +63,13 @@ bool Object::_createDynamicObject()
     {
         LOG(ERROR) << "Error occurred while creating an object.";
         return false;
+    }
+    if(mText.length() > 0)
+    {
+        SetDynamicObjectMaterialText(
+            mInGameID, 0, mText, 90, "Arial", 24, 0,
+            0xFFFFFFFF, 0xFF221918, 1
+        );
     }
     return true;
 }
@@ -133,6 +141,21 @@ bool Object::changePose(float x, float y, float z,
         SetDynamicObjectRot(mInGameID, rx, ry, rz);
         mX = x; mY = y; mZ = z;
         mRX = rx; mRY = ry; mRZ = rz;
+        return true;
+    }
+    return false;
+}
+
+bool Object::setText(const std::string& text)
+{
+    if(_updateField("$set", "text", GBKToUTF8(text)))
+    {
+        mText = text;
+        LOG(INFO) << "Object " << mId.str() << "'s text is set to " << text;
+        SetDynamicObjectMaterialText(
+            mInGameID, 0, mText, 90, "Arial", 24, 0,
+            0xFFFFFFFF, 0xFF221918, 1
+        );
         return true;
     }
     return false;
