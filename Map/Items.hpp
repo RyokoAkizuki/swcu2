@@ -66,6 +66,7 @@ public:
             bool        changePose(float x, float y, float z,
         float rx, float ry, float rz);
             bool        startEditing(int playerid);
+            bool        remove();
 };
 
 Object* getObject(int dynobjid);

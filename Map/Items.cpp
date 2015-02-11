@@ -169,6 +169,24 @@ bool Object::startEditing(int playerid)
     return EditDynamicObject(playerid, mInGameID);
 }
 
+bool Object::remove()
+{
+    if(!mValid) return false;
+    MONGO_WRAPPER({
+        getDBConn()->remove(
+            Config::colNameMapObject,
+            QUERY("_id" << mId)
+        );
+        dbCheckError();
+        LOG(INFO) << "Object " << mId.str() << " is removed.";
+        DestroyDynamicObject(mInGameID);
+        mInGameID = 0;
+        mValid = false;
+        return true;
+    });
+    return false;
+}
+
 bool LandscapeVehicle::_parseObject(const mongo::BSONObj& data)
 {
     MONGO_WRAPPER({

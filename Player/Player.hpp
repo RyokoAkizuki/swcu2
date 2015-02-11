@@ -54,6 +54,9 @@ enum PoliceRank
 
 class Player : public StorableObject, public EventListener
 {
+public:
+    std::map<std::string, std::string>  pVar;
+    
 protected:
     /**
      * Profile.

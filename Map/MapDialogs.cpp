@@ -158,6 +158,11 @@ bool MapAddObjectDialog::build()
 
 bool MapAddObjectDialog::process(int objectid)
 {
+    auto p = PlayerManager::get().getPlayer(mPlayerId);
+    if(p == nullptr || !p->isLoggedIn())
+    {
+        return false;
+    }
     if(!mMap->isValid()) return true;
     float a;
     kanko::Vector3 pos;
@@ -168,9 +173,9 @@ bool MapAddObjectDialog::process(int objectid)
     pos += 2.0 * d;
     auto obj = mMap->addObject(objectid,
         pos.x, pos.y, pos.z, 0.0, 0.0, fmod(a + 90.0, 360.0), true, -1);
+    p->pVar["SelectObject"] = "ToEditText";
     DialogManager::get().push
         <ObjectSetTextDialog>(mPlayerId, obj->getInGameID(), obj.get());
-    obj->startEditing(mPlayerId);
     return true;
 }
 
@@ -218,9 +223,35 @@ bool PropertyDialog::build()
             }
         );
     });
-    addItem("编辑物体", [playerid]() {
+    addItem("编辑物体位置", [playerid]() {
+        auto p = PlayerManager::get().getPlayer(playerid);
+        if(p == nullptr || !p->isLoggedIn())
+        {
+            return;
+        }
+        p->pVar["SelectObject"] = "ToEditPosition";
         SelectObject(playerid);
         SendClientMessage(playerid, 0xFFFFFFFF, "请用鼠标选择要编辑的物体");
+    });
+    addItem("编辑物体文字", [playerid]() {
+        auto p = PlayerManager::get().getPlayer(playerid);
+        if(p == nullptr || !p->isLoggedIn())
+        {
+            return;
+        }
+        p->pVar["SelectObject"] = "ToEditText";
+        SelectObject(playerid);
+        SendClientMessage(playerid, 0xFFFFFFFF, "请用鼠标选择要编辑的物体");
+    });
+    addItem("删除物体", [playerid]() {
+        auto p = PlayerManager::get().getPlayer(playerid);
+        if(p == nullptr || !p->isLoggedIn())
+        {
+            return;
+        }
+        p->pVar["SelectObject"] = "ToRemove";
+        SelectObject(playerid);
+        SendClientMessage(playerid, 0xFFFFFFFF, "请用鼠标选择要删除的物体");
     });
     return true;
 }

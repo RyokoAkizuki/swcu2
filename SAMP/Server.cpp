@@ -321,9 +321,15 @@ void OnPlayerSelectDynamicObject(int playerid, int objectid,
     auto obj = swcu::getObject(objectid);
     if(obj != nullptr && p->getAdminLevel() > 2)
     {
-        swcu::DialogManager::get().push
-            <swcu::ObjectSetTextDialog>(playerid, objectid, obj);
-        obj->startEditing(playerid);
+        std::string& op = p->pVar["SelectObject"];
+        if(op == "ToEditPosition")
+            obj->startEditing(playerid);
+        else if(op == "ToEditText")
+            swcu::DialogManager::get().push
+                <swcu::ObjectSetTextDialog>(playerid, objectid, obj);
+        else if(op == "ToRemove")
+            obj->remove();
+        op = "";
     }
 }
 
