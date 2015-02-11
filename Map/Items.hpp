@@ -65,6 +65,8 @@ public:
             bool        startEditing(int playerid);
 };
 
+Object* getObject(int dynobjid);
+
 class LandscapeVehicle : public StorableObject
 {
     friend class Map;

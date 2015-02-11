@@ -597,6 +597,7 @@ bool Player::_setCrew(const mongo::OID& crewId)
 bool Player::_parseObject(const mongo::BSONObj& doc)
 {
     MONGO_WRAPPER({
+        mId             = doc["_id"].OID();
         mLogName        = UTF8ToGBK(doc["logname"].str());
         mNickname       = UTF8ToGBK(doc["nickname"].str());
         if(mNickname.size() == 0) setNickname(mLogName);

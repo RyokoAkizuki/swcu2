@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <sampgdk/a_players.h>
+#include <sampgdk/a_objects.h>
+
 #include "../Interface/DialogManager.hpp"
 #include "../Player/PlayerManager.hpp"
 #include "MapManager.hpp"
@@ -35,14 +38,9 @@ bool MapManagerDialog::build()
             playerid,
             "已载入的地图",
             [playerid](const std::shared_ptr<Map>& map) {
-                if(map->getType() == PROPERTY)
-                    DialogManager::get().push<PropertyEditDialog>(
-                        playerid, map
-                    );
-                else
-                    DialogManager::get().push<MapEditDialog>(
-                        playerid, map
-                    );
+                DialogManager::get().push<MapEditDialog>(
+                    playerid, map
+                );
             }
         );
     });
@@ -105,6 +103,20 @@ bool MapEditDialog::build()
             playerid, map
         );
     });
+    addItem("添加物体", [=]() {
+        DialogManager::get().push<MapAddObjectDialog>(
+            playerid, map
+        );
+    });
+    if(map->getType() == PROPERTY)
+    {
+        addItem("查看房产信息", [=]() {
+            DialogManager::get().push<PropertyEditDialog>(
+                playerid, map
+            );
+        });
+    }
+
     return true;
 }
 
@@ -128,6 +140,31 @@ bool MapSetTypeDialog::build()
 bool MapSetTypeDialog::process(MapType type)
 {
     return mMap->setType(type);
+}
+
+MapAddObjectDialog::MapAddObjectDialog(int playerid,
+    const std::shared_ptr<Map>& map) :
+    ItemListDialog<int>(playerid, STR("给 " << map->getName() <<  " 添加物体")),
+    mMap(map)
+{
+}
+
+bool MapAddObjectDialog::build()
+{
+    if(!mMap->isValid()) return false;
+    addItem(2885, "原创牌");
+    return true;
+}
+
+bool MapAddObjectDialog::process(int objectid)
+{
+    if(!mMap->isValid()) return true;
+    float x, y, z;
+    GetPlayerPos(mPlayerId, &x, &y, &z);
+    auto obj = mMap->addObject(objectid,
+        x + 5.0, y + 5.0, z, 0.0, 0.0, 0.0, true, -1);
+    obj->startEditing(mPlayerId);
+    return true;
 }
 
 PropertyDialog::PropertyDialog(int playerid) :
@@ -173,6 +210,10 @@ bool PropertyDialog::build()
                     m->getOwner() == mongo::OID();
             }
         );
+    });
+    addItem("编辑物体", [playerid]() {
+        SelectObject(playerid);
+        SendClientMessage(playerid, 0xFFFFFFFF, "请用鼠标选择要编辑的物体");
     });
     return true;
 }

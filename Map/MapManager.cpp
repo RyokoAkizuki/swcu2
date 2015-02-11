@@ -121,7 +121,7 @@ size_t MapManager::loadAllMaps()
         );
         while(cur->more())
         {
-            std::unique_ptr<Map> map(new Map(cur->next()));
+            std::shared_ptr<Map> map(new Map(cur->next()));
             std::string name = map->getName();
             auto r = mLoadedMaps.insert(std::make_pair(name, std::move(map)));
             if(r.second)

@@ -82,6 +82,20 @@ public:
     virtual bool    process(MapType type);
 };
 
+class MapAddObjectDialog : public ItemListDialog<int>
+{
+protected:
+    std::shared_ptr<Map>    mMap;
+
+public:
+                    MapAddObjectDialog(int playerid,
+        const std::shared_ptr<Map>& map);
+    virtual         ~MapAddObjectDialog() {}
+
+    virtual bool    build();
+    virtual bool    process(int objectid);
+};
+
 class PropertyDialog : public MenuDialog
 {
 public:

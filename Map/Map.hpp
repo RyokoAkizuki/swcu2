@@ -97,7 +97,7 @@ protected:
 
     std::unique_ptr<Area>                           mBoundingArea;
 
-    std::vector<std::unique_ptr<Object>>            mObjects;
+    std::vector<std::shared_ptr<Object>>            mObjects;
     std::vector<std::unique_ptr<LandscapeVehicle>>  mVehicles;
 
 protected:
@@ -126,7 +126,8 @@ public:
             bool        isActivated() const     { return mActivated; }
             size_t      getObjectCount() const  { return mObjects.size(); }
             size_t      getVehicleCount() const { return mVehicles.size(); }
-            bool        addObject(int model, float x, float y, float z,
+            std::shared_ptr<Object>
+                        addObject(int model, float x, float y, float z,
         float rx, float ry, float rz, bool editable, int interior);
             bool        addVehicle(int model, float x, float y, float z,
         float angle, int interior, int respawndelay);

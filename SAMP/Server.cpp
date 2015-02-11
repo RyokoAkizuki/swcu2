@@ -295,13 +295,37 @@ void OnDynamicObjectMoved(int objectid)
 void OnPlayerEditDynamicObject(int playerid, int objectid,
     int response, float x, float y, float z, float rx, float ry, float rz)
 {
-
+    if(response != EDIT_RESPONSE_FINAL) return;
+    auto obj = swcu::getObject(objectid);
+    if(obj != nullptr)
+    {
+        if(obj->changePose(x, y, z, rx, ry, rz))
+        {
+            SendClientMessage(playerid, 0xFFFFFFFF, "物体位置已保存");
+        }
+        else
+        {
+            SendClientMessage(playerid, 0xFFFFFFFF, "物体位置保存失败");
+        }
+    }
 }
 
 void OnPlayerSelectDynamicObject(int playerid, int objectid,
     int modelid, float x, float y, float z)
 {
-
+    auto p = swcu::PlayerManager::get().getPlayer(playerid);
+    if(p == nullptr || !p->isLoggedIn())
+    {
+        return;
+    }
+    auto obj = swcu::getObject(objectid);
+    if(obj != nullptr)
+    {
+        if(p->getAdminLevel() > 2)
+        {
+            obj->startEditing(playerid);
+        }
+    }
 }
 
 void OnPlayerShootDynamicObject(int playerid, int weaponid,

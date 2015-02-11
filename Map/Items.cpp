@@ -15,6 +15,8 @@
  */
 
 #include <sampgdk/a_vehicles.h>
+#include <map>
+
 
 #include "../Streamer/Streamer.hpp"
 
@@ -22,9 +24,20 @@
 
 namespace swcu {
 
+std::map<int, Object*> gObjectRegistry;
+
+Object* getObject(int dynobjid)
+{
+    auto iter = gObjectRegistry.find(dynobjid);
+    if(iter != gObjectRegistry.end())
+        return iter->second;
+    return nullptr;
+}
+
 bool Object::_parseObject(const mongo::BSONObj& data)
 {
     MONGO_WRAPPER({
+        mId         = data["_id"].OID();
         mMap        = data["map"].OID();
         mModel      = data["model"].numberInt();
         mX          = data["x"].numberDouble();
@@ -61,6 +74,8 @@ Object::Object(const mongo::BSONObj& data, int vworld) :
     {
         mValid      = true;
     }
+    if(mInGameID > 0)
+        gObjectRegistry.insert(std::make_pair(mInGameID, this));
 }
 
 Object::Object(
@@ -76,11 +91,14 @@ Object::Object(
     {
         _createDynamicObject();
     }
+    if(mInGameID > 0)
+        gObjectRegistry.insert(std::make_pair(mInGameID, this));
 }
 
 Object::~Object()
 {
     if(mInGameID != 0) DestroyDynamicObject(mInGameID);
+    gObjectRegistry.erase(mInGameID);
 }
 
 mongo::BSONObj Object::_buildDocument()
@@ -131,6 +149,7 @@ bool Object::startEditing(int playerid)
 bool LandscapeVehicle::_parseObject(const mongo::BSONObj& data)
 {
     MONGO_WRAPPER({
+        mId             = data["_id"].OID();
         mMap            = data["map"].OID();
         mModel          = data["model"].numberInt();
         mX              = data["x"].numberDouble();

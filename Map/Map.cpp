@@ -132,18 +132,17 @@ std::string Map::getTypeStr() const
     }
 }
 
-bool Map::addObject(int model, float x, float y, float z,
+std::shared_ptr<Object> Map::addObject(int model, float x, float y, float z,
     float rx, float ry, float rz, bool editable, int interior)
 {
-    std::unique_ptr<Object>
+    std::shared_ptr<Object>
         obj(new Object(model, x, y, z, rx, ry, rz, editable, mId,
             mVirtualWorld, interior));
     if(obj->isValid())
     {
-        mObjects.push_back(std::move(obj));
-        return true;
+        mObjects.push_back(obj);
     }
-    return false;
+    return obj;
 }
 
 bool Map::addVehicle(int model, float x, float y, float z,
