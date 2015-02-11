@@ -91,6 +91,14 @@ bool MapEditDialog::build()
 {
     auto map = mMap;
     auto playerid = mPlayerId;
+    addItem("传送到中心", [=]() {
+        auto p = PlayerManager::get().getPlayer(playerid);
+        if(p == nullptr || !p->isLoggedIn())
+        {
+            return;
+        }
+        p->teleportTo(map->getBoundCenter());
+    });
     addItem("更新包围体积", [=]() { map->updateBounding(); });
     addItem("更改地图类型", [=]() {
         DialogManager::get().push<MapSetTypeDialog>(

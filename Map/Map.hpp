@@ -148,6 +148,8 @@ public:
             bool        deleteFromDatabase();
             void        updateBounding();
 
+            kanko::Vector3 getBoundCenter()     { return mBoundSphereCenter; }
+
 protected:
     virtual bool        _parseObject(const mongo::BSONObj& data);
             bool        _calculateBoundingSphere();

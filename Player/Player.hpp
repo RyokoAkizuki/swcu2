@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <kanko/Common/Vector3.hpp>
+
 #include "../Common/StorableObject.hpp"
 #include "../Common/RGBAColor.hpp"
 #include "../Event/Event.hpp"
@@ -224,8 +226,12 @@ public:
      * If interior or world is -1, player's old settings of them will
      * be preserved.
      */
-            void        teleportTo(float x, float y, float z, float facing,
-                int world = -1, int interior = -1);
+            void        teleportTo(const kanko::Vector3& pos,
+                float facing = 0.0, int world = -1, int interior = -1)
+            { teleportTo(pos.x, pos.y, pos.z, facing, world, interior); }
+
+            void        teleportTo(float x, float y, float z,
+                float facing = 0.0, int world = -1, int interior = -1);
             void        teleportTo(int targetplayer);
             bool        teleportTo(const std::string& placeName);
             bool        createTeleport(const std::string& placeName);
