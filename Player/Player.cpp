@@ -650,6 +650,16 @@ bool Player::onUpdate()
             freeFromPrison();
         }
     }
+    if(hasFlags(STATUS_INVINCIBLE))
+    {
+        SetPlayerHealth(mInGameId, 10000.0);
+        if(IsPlayerInAnyVehicle(mInGameId)
+            && GetPlayerVehicleSeat(mInGameId) == 0 /* driver */)
+        {
+            int vid = GetPlayerVehicleID(mInGameId);
+            RepairVehicle(vid);
+        }
+    }
     if(hasFlags(swcu::STATUS_FREEZED))
     {
         return false;

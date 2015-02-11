@@ -752,6 +752,32 @@ bool PlayerControlPanelDialog::build()
     addItem("房产", [playerid]() {
         DialogManager::get().push<PropertyDialog>(playerid);
     });
+    // * Invincible
+    if(p->hasFlags(STATUS_INVINCIBLE))
+    {
+        addItem("禁用无敌", [playerid]() {
+            auto p = PlayerManager::get().getPlayer(playerid);
+            if(p == nullptr || !p->isLoggedIn())
+            {
+                return;
+            }
+            p->removeFlags(STATUS_INVINCIBLE);
+            SetPlayerHealth(playerid, 100.0);
+            SendClientMessage(playerid, 0xFFFFFFFF, "您已禁用无敌.");
+        });
+    }
+    else
+    {
+        addItem("启用无敌", [playerid]() {
+            auto p = PlayerManager::get().getPlayer(playerid);
+            if(p == nullptr || !p->isLoggedIn())
+            {
+                return;
+            }
+            p->addFlags(STATUS_INVINCIBLE);
+            SendClientMessage(playerid, 0xFFFFFFFF, "您已启用无敌.");
+        });
+    }
     // Admin Level 3
     // * Map Manager
     if(p->getAdminLevel() >= 3)

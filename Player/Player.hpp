@@ -28,6 +28,7 @@ class Crew;
 
 enum PlayerFlags
 {
+    STATUS_INVINCIBLE   = 0b00010000,
     STATUS_MUTED        = 0b00001000,
     STATUS_FREEZED      = 0b00000100,
     STATUS_JAILED       = 0b00000010,

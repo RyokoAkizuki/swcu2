@@ -182,7 +182,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerUpdate(int playerid)
 {
     auto p = swcu::PlayerManager::get().getPlayer(playerid);
     if(p == nullptr) return false;
-    return p->onSpawn();
+    return p->onUpdate();
 }
 
 PLUGIN_EXPORT bool PLUGIN_CALL OnPlayerSpawn(int playerid)
