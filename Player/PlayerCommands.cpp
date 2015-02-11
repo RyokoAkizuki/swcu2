@@ -165,7 +165,7 @@ bool pcmdHelp(int playerid, std::stringstream& /* cmdline */)
     SendClientMessage(playerid, 0xFFFFFFFF,
         "刷车指令 /c 车辆ID 更改颜色 /c 颜色1 颜色2");
     SendClientMessage(playerid, 0xFFFFFFFF,
-        "服务器仍在开发中, 欢迎加入QQ群111738228");
+        "新自由地带正式开启 群：111738228");
     return true;
 }
 
