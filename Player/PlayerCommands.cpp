@@ -126,7 +126,7 @@ bool pcmdVehicle(int playerid, std::stringstream& cmdline)
 
 bool pcmdSuicide(int playerid, std::stringstream& /* cmdline */)
 {
-    SetPlayerHealth(playerid, 0.0);
+    SetPlayerHealth(playerid, -100.0);
     return true;
 }
 
