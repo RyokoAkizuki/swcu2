@@ -159,10 +159,17 @@ bool MapAddObjectDialog::build()
 bool MapAddObjectDialog::process(int objectid)
 {
     if(!mMap->isValid()) return true;
-    float x, y, z;
-    GetPlayerPos(mPlayerId, &x, &y, &z);
+    float a;
+    kanko::Vector3 pos;
+    GetPlayerPos(mPlayerId, &pos.x, &pos.y, &pos.z);
+    GetPlayerFacingAngle(mPlayerId, &a);
+    a = fmod(a + 90.0, 360.0);
+    kanko::Vector3 d(2.0 * cos(a), 2.0 * sin(a), 2.8);
+    pos += 2.0 * d;
     auto obj = mMap->addObject(objectid,
-        x + 5.0, y + 5.0, z, 0.0, 0.0, 0.0, true, -1);
+        pos.x, pos.y, pos.z, 0.0, 0.0, fmod(a + 90.0, 360.0), true, -1);
+    DialogManager::get().push
+        <ObjectSetTextDialog>(mPlayerId, obj->getInGameID(), obj.get());
     obj->startEditing(mPlayerId);
     return true;
 }
