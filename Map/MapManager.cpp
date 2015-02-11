@@ -16,6 +16,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <boost/algorithm/string.hpp>
 
 #include "../Web/WebServiceManager.hpp"
 
@@ -40,14 +41,14 @@ MapManager::MapManager()
         BSON("map" << 1), false);
 }
 
-bool MapManager::parse(MapType type, const std::string& name, int world,
+std::shared_ptr<Map> MapManager::parse(MapType type, const std::string& name, int world,
     const mongo::OID& owner, std::string source)
 {
-    std::unique_ptr<Map> map(new Map(type, world, owner, name));
+    std::shared_ptr<Map> map(new Map(type, world, owner, name));
 
     if(!map->isValid())
     {
-        return false;
+        return map;
     }
 
     std::replace(source.begin(), source.end(), '(', ' ');
@@ -78,8 +79,8 @@ bool MapManager::parse(MapType type, const std::string& name, int world,
 
     map->updateBounding();
 
-    mLoadedMaps.insert(std::make_pair(name, std::move(map)));
-    return true;
+    mLoadedMaps.insert(std::make_pair(name, map));
+    return map;
 }
 
 bool MapManager::loadMap(const std::string& name)
@@ -187,6 +188,45 @@ void MapManager::addWebServices()
             return;
         }
         writeResponse(response, 200, CONTENT_TYPE_APP_JSON, map->getJSON());
+    });
+    /**
+     * Add a map
+     * Example URI:
+     * /map/add
+     */
+    WebServiceManager::get().bindMethod(
+        "^/maps/add", "POST",
+    [this](std::ostream& response, HTTPRequertPtr request) {
+        std::istreambuf_iterator<char> eos;
+        std::string s(std::istreambuf_iterator<char>(request->content), eos);
+        ParamSet p;
+        parseParam(s, p);
+        std::string name = p["name"];
+        boost::algorithm::trim(name);
+        auto map = parse(
+            MapType(atoi(p["type"].c_str())),
+            UTF8ToGBK(name),
+            -1,
+            mongo::OID(),
+            p["code"]
+        );
+        if(map->isValid())
+        {
+            writeResponse(response, 200, CONTENT_TYPE_TEXT_PLAIN,
+                STR("地图添加成功\n"
+                    "名称: " << GBKToUTF8(map->getName()) << "\n" <<
+                    "交通工具数量: " << map->getVehicleCount() << "\n"
+                    "Obj数量: " << map->getObjectCount()
+                )
+            );
+        }
+        else
+        {
+            writeResponse(response, 200, CONTENT_TYPE_TEXT_PLAIN,
+                "地图添加失败, 可能是已经有重名的地图, "
+                "或者服务器发生了错误, 请检查SAMP服务器日志."
+            );
+        }
     });
 }
 

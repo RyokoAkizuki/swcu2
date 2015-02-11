@@ -30,15 +30,26 @@
           <h1>添加地图</h1>
         </div>
         <div style="pacdding:32px;margin:0 auto;width:60%">
-          <form class="pure-form pure-form-aligned">
+          <form class="pure-form pure-form-aligned" action="/maps/add" method="POST">
             <fieldset>
               <div class="pure-control-group">
                 <label for="name">名称</label>
-                <input id="name" type="text" placeholder="名称" style="width:65%">
+                <input name="name" id="name" type="text" placeholder="名称" style="width:65%">
+              </div>
+              <div class="pure-control-group">
+                <label for="type">类型</label>
+                <select name="type" id="type" style="width:196px">
+                  <option value="0">地形</option>
+                  <option value="1">死斗</option>
+                  <option value="2">特技</option>
+                  <option value="3">房产</option>
+                  <option value="4">生意</option>
+                  <option value="5">监狱</option>
+                </select>
               </div>
               <div class="pure-control-group">
                 <label for="code">代码</label>
-                <textarea id="code" placeholder="将代码粘贴到这里" style="height:300px;width:65%"></textarea>
+                <textarea name="code" id="code" placeholder="将代码粘贴到这里" style="height:300px;width:65%"></textarea>
               </div>
               <div class="pure-control-group">
                 <label></label>

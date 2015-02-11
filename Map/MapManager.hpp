@@ -45,7 +45,7 @@ public:
      * CreateVehicle|AddStaticVehicle|AddStaticVehicleEx
      *     (model, x, y, z, angle, color1, color2)
      */
-            bool    parse(MapType type, const std::string& name, int world,
+            std::shared_ptr<Map> parse(MapType type, const std::string& name, int world,
                 const mongo::OID& owner, std::string source);
             bool    loadMap(const std::string& name);
             bool    unloadMap(const std::string& name);

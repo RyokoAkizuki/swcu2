@@ -18,11 +18,19 @@
 
 #include <memory>
 #include <thread>
+#include <map>
 #include "server_http.hpp"
 
 #include "../Utility/Singleton.hpp"
 
 namespace swcu {
+
+std::string UriEncode(const std::string & sSrc);
+std::string UriDecode(const std::string & sSrc);
+
+typedef std::map<std::string, std::string> ParamSet;
+
+void parseParam(std::string src, ParamSet& dest);
 
 typedef std::shared_ptr<SimpleWeb::ServerBase<SimpleWeb::HTTP>::Request>
     HTTPRequertPtr;
