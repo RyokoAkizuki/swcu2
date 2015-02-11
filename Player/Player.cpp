@@ -673,6 +673,7 @@ bool Player::onSpawn()
     {
         teleportToPrison();
     }
+    teleportTo("sf");
     return true;
 }
 
