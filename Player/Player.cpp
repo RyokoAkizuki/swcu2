@@ -28,16 +28,16 @@ namespace swcu {
 
 const char* PoliceRankString[] =
 {
-    "Æ½Ãñ",
-    "¾¯Ô±",
-    "¾¯Ì½",
-    "¾¯³¤",
-    "¾¯¶½",
-    "¾¯¼à",
-    "Ö¸»Ó¹Ù",
-    "¸±×Ü¾¯¼à",
-    "ÖúÀí×Ü¾¯¼à",
-    "×Ü¾¯¼à"
+    "å¹³æ°‘",
+    "è­¦å‘˜",
+    "è­¦æ¢",
+    "è­¦é•¿",
+    "è­¦ç£",
+    "è­¦ç›‘",
+    "æŒ‡æŒ¥å®˜",
+    "å‰¯æ€»è­¦ç›‘",
+    "åŠ©ç†æ€»è­¦ç›‘",
+    "æ€»è­¦ç›‘"
 };
 
 Player::Player(int gameid) :
@@ -141,7 +141,7 @@ bool Player::addFlags(PlayerFlags flags)
 
 bool Player::removeFlags(PlayerFlags flags)
 {
-    int tFlags = mFlags ^ flags;
+    int tFlags = mFlags & ~flags;
     if(_updateField("$set", "flags", tFlags))
     {
         mFlags = tFlags;
@@ -243,7 +243,7 @@ bool Player::setAdminLevel(int level)
             "level"     << level
         ));
         SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
-            "ÄãµÄ¹ÜÀíÔ±µÈ¼¶±»ÉèÖÃÎª " << level
+            "ä½ çš„ç®¡ç†å‘˜ç­‰çº§è¢«è®¾ç½®ä¸º " << level
         ));
         mAdminLevel = level;
         updatePlayerLabel();
@@ -269,7 +269,7 @@ bool Player::setPoliceRank(PoliceRank rank)
             "rank"      << rank
         ));
         SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
-            "ÄãµÄ¾¯ÏÎ±»ÉèÖÃÎª " << rank
+            "ä½ çš„è­¦è¡”è¢«è®¾ç½®ä¸º " << rank
         ));
         mPoliceRank = rank;
         updatePlayerLabel();
@@ -302,7 +302,7 @@ bool Player::setWantedLevel(int level)
             << level << ".";
         mWantedLevel = level;
         SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
-            "ÄãµÄÍ¨¼©µÈ¼¶±»ÉèÖÃÎª " << level
+            "ä½ çš„é€šç¼‰ç­‰çº§è¢«è®¾ç½®ä¸º " << level
         ));
         updatePlayerLabel();
         _applyWantedLevel();
@@ -339,7 +339,7 @@ bool Player::putIntoPrison(time_t prisonTerm)
         LOG(INFO) << "Player " << mLogName << " now have a prison term of "
             << prisonTerm << " seconds.";
         SendClientMessage(mInGameId, 0xFFFFFFFF, CSTR(
-            "Äã±»¹ØÈë¼àÓü" << prisonTerm / 60 << "·ÖÖÓ."
+            "ä½ è¢«å…³å…¥ç›‘ç‹±" << prisonTerm / 60 << "åˆ†é’Ÿ."
         ));
         mTimeToFree = tofree;
         mTimeInPrison += tofree;
@@ -391,7 +391,7 @@ void Player::updatePlayerLabel()
     // Wanted Level
     if(mWantedLevel > 0)
     {
-        label << "{FFFF00}Í¨¼©µÈ¼¶ " << mWantedLevel << "{FFFFFF}\n";
+        label << "{FFFF00}é€šç¼‰ç­‰çº§ " << mWantedLevel << "{FFFFFF}\n";
     }
     // Crew
     if(isCrewMember())
@@ -449,7 +449,7 @@ void Player::teleportTo(int targetplayer)
 {
     if(!IsPlayerConnected(targetplayer))
     {
-        SendClientMessage(mInGameId, 0xFFFFFFFF, "Î´ÕÒµ½¸ÃÍæ¼Ò.");
+        SendClientMessage(mInGameId, 0xFFFFFFFF, "æœªæ‰¾åˆ°è¯¥ç©å®¶.");
         return;
     }
     float x, y, z, facing;
@@ -471,7 +471,7 @@ bool Player::teleportTo(const std::string& placeName)
         if(doc.isEmpty())
         {
             LOG(WARNING) << "Teleport " << trimmedName << " can't be found.";
-            SendClientMessage(mInGameId, 0xFFFFFFFF, "´«ËÍµã²»´æÔÚ.");
+            SendClientMessage(mInGameId, 0xFFFFFFFF, "ä¼ é€ç‚¹ä¸å­˜åœ¨.");
             return false;
         }
         else
@@ -496,7 +496,7 @@ bool Player::teleportTo(const std::string& placeName)
             return true;
         }
     });
-    SendClientMessage(mInGameId, 0xFFFFFFFF, "´«ËÍµãÎŞĞ§.");
+    SendClientMessage(mInGameId, 0xFFFFFFFF, "ä¼ é€ç‚¹æ— æ•ˆ.");
     return false;
 }
 
@@ -528,14 +528,14 @@ bool Player::createTeleport(const std::string& placeName)
         );
         if(dbCheckError())
         {
-            SendClientMessage(mInGameId, 0xFFFFFFFF, "´«ËÍµã´´½¨³É¹¦.");
+            SendClientMessage(mInGameId, 0xFFFFFFFF, "ä¼ é€ç‚¹åˆ›å»ºæˆåŠŸ.");
             LOG(INFO) << "Teleport " << trimmedName << " is created.";
             return true;
         }
     });
     LOG(ERROR) << "Failed to create teleport.";
     SendClientMessage(mInGameId, 0xFFFFFFFF,
-        "´«ËÍµã´´½¨Ê§°Ü. Õâ¸öÃû×Ö¿ÉÄÜÒÑ¾­±»Ê¹ÓÃÁË.");
+        "ä¼ é€ç‚¹åˆ›å»ºå¤±è´¥. è¿™ä¸ªåå­—å¯èƒ½å·²ç»è¢«ä½¿ç”¨äº†.");
     return false;
 }
 
@@ -702,7 +702,7 @@ void Player::handleEvent(const Event& evt)
             if(crew->getLeader() == mId)
             {
                 SendClientMessage(mInGameId, 0xFFFFFFFF,
-                    "ÓĞÍæ¼ÒÉêÇë¼ÓÈëÄãµÄ°ïÅÉ, Çë¼°Ê±´¦Àí");
+                    "æœ‰ç©å®¶ç”³è¯·åŠ å…¥ä½ çš„å¸®æ´¾, è¯·åŠæ—¶å¤„ç†");
             }
             break;
         }
